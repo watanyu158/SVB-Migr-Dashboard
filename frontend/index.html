@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDA Installation Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --primary: #1a56db;
+      --primary-light: #e8f0fe;
+      --success: #0e9f6e;
+      --success-light: #def7ec;
+      --warning: #c27803;
+      --warning-light: #fdf6b2;
+      --hold: #9061f9;
+      --hold-light: #f3f0ff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); }
+    header { background: var(--primary); color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header span { font-size: 13px; opacity: 0.85; }
+    nav { background: #fff; border-bottom: 1px solid var(--border); display: flex; gap: 0; padding: 0 24px; }
+    nav button { padding: 14px 20px; border: none; background: none; font-size: 14px; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all .2s; }
+    nav button.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    main { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
+    .card .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .card .value { font-size: 28px; font-weight: 700; }
+    .card.blue   .value { color: var(--primary); }
+    .card.green  .value { color: var(--success); }
+    .card.amber  .value { color: var(--warning); }
+    .card.purple .value { color: var(--hold); }
+    .card .sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* Progress bar */
+    .prog-wrap { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 24px; }
+    .prog-wrap h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+    .prog-row { margin-bottom: 14px; }
+    .prog-row .top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+    .prog-bar { height: 10px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+    .prog-bar .fill { height: 100%; border-radius: 99px; background: var(--primary); transition: width .6s ease; }
+    .fill.high { background: var(--success); }
+    .fill.mid  { background: var(--warning); }
+
+    /* Table */
+    .table-wrap { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .table-toolbar { padding: 16px 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); }
+    .table-toolbar select, .table-toolbar input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+    .table-toolbar button { padding: 8px 16px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f9fafb; padding: 10px 14px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+    .badge.Success  { background: var(--success-light); color: var(--success); }
+    .badge.On-Plan  { background: var(--primary-light); color: var(--primary); }
+    .badge.Hold     { background: var(--hold-light); color: var(--hold); }
+    .badge.Pending  { background: #f3f4f6; color: var(--muted); }
+    .pager { padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+    .pager button { padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; }
+    .pager button:disabled { opacity: .4; cursor: not-allowed; }
+    .loading { text-align: center; padding: 40px; color: var(--muted); }
+    .err { text-align: center; padding: 40px; color: #e02424; }
+
+    /* Update form */
+    .form-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; max-width: 560px; }
+    .form-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+    .form-row { margin-bottom: 16px; }
+    .form-row label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+    .form-row textarea { height: 80px; resize: vertical; }
+    .btn-submit { padding: 10px 24px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+    .alert.success { background: var(--success-light); color: var(--success); }
+    .alert.error   { background: #fde8e8; color: #e02424; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📡 SDA Installation Dashboard — สุวรรณภูมิ</h1>
+    <span id="last-update">กำลังโหลด...</span>
+  </header>
+  <nav>
+    <button class="active" onclick="showPage('dashboard', this)">Dashboard</button>
+    <button onclick="showPage('devices', this)">รายการอุปกรณ์</button>
+    <button onclick="showPage('update', this)">บันทึกผลติดตั้ง</button>
+  </nav>
+  <main>
+    <!-- PAGE: Dashboard -->
+    <div class="page active" id="page-dashboard">
+      <div class="cards" id="summary-cards">
+        <div class="loading">กำลังโหลด...</div>
+      </div>
+      <div class="prog-wrap">
+        <h2>ความคืบหน้าแต่ละ Fabric</h2>
+        <div id="fabric-progress"><div class="loading">กำลังโหลด...</div></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Devices -->
+    <div class="page" id="page-devices">
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <select id="f-fabric"><option value="">ทุก Fabric</option></select>
+          <select id="f-status"><option value="">ทุก Status</option></select>
+          <input id="f-location" placeholder="กรอง Location..." style="flex:1;min-width:160px" />
+          <button onclick="applyFilter()">ค้นหา</button>
+        </div>
+        <div id="device-table"><div class="loading">กำลังโหลด...</div></div>
+        <div class="pager">
+          <button id="btn-prev" onclick="changePage(-1)" disabled>← ก่อนหน้า</button>
+          <span id="pager-info"></span>
+          <button id="btn-next" onclick="changePage(1)">ถัดไป →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: Update -->
+    <div class="page" id="page-update">
+      <div class="form-card">
+        <h2>บันทึกผลการติดตั้ง</h2>
+        <div id="form-alert"></div>
+        <div class="form-row">
+          <label>เลข No. (จากตาราง)</label>
+          <input type="number" id="u-no" placeholder="เช่น 3" />
+        </div>
+        <div class="form-row">
+          <label>จำนวนที่ติดตั้งสำเร็จ (Qty. Success)</label>
+          <input type="number" id="u-qty" placeholder="เช่น 4" />
+        </div>
+        <div class="form-row">
+          <label>วันที่ติดตั้ง</label>
+          <input type="date" id="u-date" />
+        </div>
+        <div class="form-row">
+          <label>สถานะ</label>
+          <select id="u-status">
+            <option value="">-- เลือกสถานะ --</option>
+            <option value="Success">Success</option>
+            <option value="On Plan">On Plan</option>
+            <option value="Hold">Hold</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>หมายเหตุ</label>
+          <textarea id="u-remark" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
+        </div>
+        <button class="btn-submit" onclick="submitUpdate()">บันทึกข้อมูล</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000'
+      : 'https://YOUR-RENDER-API-URL.onrender.com';  // ← เปลี่ยนตรงนี้หลัง deploy backend
+
+    let offset = 0;
+    const LIMIT = 50;
+    let totalRows = 0;
+    let currentFilter = {};
+
+    // ── Navigation ──────────────────────────────────────────────────────────
+    function showPage(name, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      btn.classList.add('active');
+      if (name === 'devices' && document.getElementById('f-fabric').children.length === 1) loadFilters();
+    }
+
+    // ── Dashboard ────────────────────────────────────────────────────────────
+    async function loadDashboard() {
+      try {
+        const res = await fetch(`${API}/api/summary`);
+        const { overall, fabrics } = await res.json();
+
+        document.getElementById('last-update').textContent = `อัพเดท: ${new Date().toLocaleDateString('th-TH')}`;
+
+        document.getElementById('summary-cards').innerHTML = `
+          <div class="card blue">
+            <div class="label">อุปกรณ์ทั้งหมด</div>
+            <div class="value">${overall.total_devices.toLocaleString()}</div>
+            <div class="sub">Total Devices</div>
+          </div>
+          <div class="card green">
+            <div class="label">ติดตั้งสำเร็จ</div>
+            <div class="value">${overall.actual_installed.toLocaleString()}</div>
+            <div class="sub">${overall.progress_pct}% ของทั้งหมด</div>
+          </div>
+          <div class="card blue">
+            <div class="label">On Plan</div>
+            <div class="value">${overall.on_plan.toLocaleString()}</div>
+            <div class="sub">รายการตามแผน</div>
+          </div>
+          <div class="card purple">
+            <div class="label">Hold</div>
+            <div class="value">${overall.hold}</div>
+            <div class="sub">รายการพัก</div>
+          </div>
+          <div class="card amber">
+            <div class="label">Overall Progress</div>
+            <div class="value">${overall.progress_pct}%</div>
+            <div class="sub">ความคืบหน้ารวม</div>
+          </div>
+        `;
+
+        const fp = document.getElementById('fabric-progress');
+        fp.innerHTML = fabrics.map(f => {
+          const cls = f.pct_done >= 80 ? 'high' : f.pct_done >= 40 ? 'mid' : '';
+          return `
+            <div class="prog-row">
+              <div class="top">
+                <span><b>${f.fabric}</b> &nbsp;<small style="color:var(--muted)">${f.done}/${f.total} เครื่อง</small></span>
+                <span style="font-weight:600">${f.pct_done}%</span>
+              </div>
+              <div class="prog-bar"><div class="fill ${cls}" style="width:${f.pct_done}%"></div></div>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('summary-cards').innerHTML = `<div class="err">❌ ไม่สามารถเชื่อมต่อ API: ${e.message}</div>`;
+      }
+    }
+
+    // ── Devices table ────────────────────────────────────────────────────────
+    async function loadFilters() {
+      const res = await fetch(`${API}/api/filters`);
+      const { fabrics, statuses } = await res.json();
+      const fSel = document.getElementById('f-fabric');
+      const sSel = document.getElementById('f-status');
+      fabrics.forEach(f  => fSel.innerHTML += `<option value="${f}">${f}</option>`);
+      statuses.forEach(s => sSel.innerHTML += `<option value="${s}">${s}</option>`);
+      loadDevices();
+    }
+
+    function applyFilter() {
+      currentFilter = {
+        fabric:   document.getElementById('f-fabric').value,
+        status:   document.getElementById('f-status').value,
+        location: document.getElementById('f-location').value,
+      };
+      offset = 0;
+      loadDevices();
+    }
+
+    async function loadDevices() {
+      document.getElementById('device-table').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+      const params = new URLSearchParams({ limit: LIMIT, offset, ...currentFilter });
+      try {
+        const res = await fetch(`${API}/api/devices?${params}`);
+        const { total, data } = await res.json();
+        totalRows = total;
+
+        document.getElementById('pager-info').textContent = `แสดง ${offset+1}–${Math.min(offset+LIMIT, total)} จาก ${total} รายการ`;
+        document.getElementById('btn-prev').disabled = offset === 0;
+        document.getElementById('btn-next').disabled = offset + LIMIT >= total;
+
+        if (!data.length) {
+          document.getElementById('device-table').innerHTML = '<div class="loading">ไม่พบข้อมูล</div>';
+          return;
+        }
+
+        document.getElementById('device-table').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>No.</th><th>Fabric</th><th>Location</th><th>Room</th>
+                <th>Device Type</th><th>Qty</th><th>Success</th>
+                <th>Scheduled</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.map(r => `
+                <tr>
+                  <td>${r['No.']}</td>
+                  <td><b>${r['Fabric']}</b></td>
+                  <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r['Location']}">${r['Location']||'-'}</td>
+                  <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r['Room']}">${r['Room']||'-'}</td>
+                  <td>${r['Device Type']}</td>
+                  <td style="text-align:center">${r['Qty']}</td>
+                  <td style="text-align:center">${r['Qty. Success']||'-'}</td>
+                  <td>${r['Scheduled Date']||'-'}</td>
+                  <td><span class="badge ${(r['Status']||'').replace(' ','-')}">${r['Status']||'-'}</span></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } catch (e) {
+        document.getElementById('device-table').innerHTML = `<div class="err">❌ ${e.message}</div>`;
+      }
+    }
+
+    function changePage(dir) {
+      offset = Math.max(0, offset + dir * LIMIT);
+      loadDevices();
+    }
+
+    // ── Update form ──────────────────────────────────────────────────────────
+    async function submitUpdate() {
+      const alertEl = document.getElementById('form-alert');
+      alertEl.innerHTML = '';
+      const body = {
+        no:           parseInt(document.getElementById('u-no').value),
+        qty_success:  parseInt(document.getElementById('u-qty').value) || undefined,
+        install_date: document.getElementById('u-date').value || undefined,
+        status:       document.getElementById('u-status').value || undefined,
+        remark:       document.getElementById('u-remark').value || undefined,
+      };
+      if (!body.no) { alertEl.innerHTML = '<div class="alert error">กรุณากรอกเลข No.</div>'; return; }
+      try {
+        const res = await fetch(`${API}/api/update`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.success) {
+          alertEl.innerHTML = `<div class="alert success">✅ บันทึกสำเร็จ — No. ${body.no}</div>`;
+          ['u-no','u-qty','u-date','u-remark'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('u-status').value = '';
+        } else {
+          alertEl.innerHTML = `<div class="alert error">❌ ${data.error}</div>`;
+        }
+      } catch (e) {
+        alertEl.innerHTML = `<div class="alert error">❌ ${e.message}</div>`;
+      }
+    }
+
+    // Init
+    loadDashboard();
+  </script>
+</body>
+</html>
