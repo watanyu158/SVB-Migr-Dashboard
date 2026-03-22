@@ -6,6 +6,7 @@
 <title>SDA Installation Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --bg:#f0f4ff;--card:#fff;--border:#e8edf5;
@@ -696,14 +697,9 @@ main { padding: 12px 10px; }
      1. Canvas has explicit width/height
      2. -webkit-print-color-adjust: exact is set
   */
-  /* Canvas hidden — replaced by img proxies via exportPDF() */
-  canvas { display: none !important; }
-  img[data-print-proxy] {
-    display: block !important;
-    max-width: 100% !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+  /* Ctrl+P fallback: try to show charts */
+  canvas { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  img[data-print-proxy] { display: block !important; max-width: 100% !important; }
 
   /* ── Colors must print ── */
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -1773,63 +1769,119 @@ async function loadData(){
   }
 }
 
-// ── PDF Export: use html2canvas to capture charts properly ──────────────────
+// ── PDF Export: html2canvas + jsPDF ─────────────────────────────────────────
 async function exportPDF() {
   const btn = document.getElementById('pdf-btn');
   if(btn){ btn.textContent = '⏳ กำลัง export...'; btn.disabled = true; }
 
-  // 1. Show all tabs temporarily
-  const TABS = ['overview','progress','graphs','location','plan'];
-  const hiddenTabs = [];
-  TABS.forEach(t => {
-    const el = document.getElementById('tab-'+t);
-    if(el && el.style.display === 'none'){
-      el.style.display = 'block';
-      hiddenTabs.push(t);
-    }
-  });
+  try {
+    const TAB_NAMES = ['overview','progress','graphs','location','plan'];
+    const TAB_LABELS = ['ภาพรวม','ความก้าวหน้า','กราฟ','สถานที่','แผนงาน'];
 
-  // 2. Build graphs if not built yet
-  if(typeof buildGraphs === 'function') buildGraphs();
-
-  // 3. Wait for charts to render
-  await new Promise(r => setTimeout(r, 600));
-
-  // 4. Convert all canvas to img
-  const canvases = document.querySelectorAll('canvas');
-  const restored = [];
-  for(const canvas of canvases){
-    try {
-      const dataUrl = canvas.toDataURL('image/png', 1.0);
-      if(dataUrl === 'data:,') continue;
-      const img = document.createElement('img');
-      img.src = dataUrl;
-      img.style.width  = canvas.offsetWidth  + 'px';
-      img.style.height = canvas.offsetHeight + 'px';
-      img.style.maxWidth = '100%';
-      img.style.display = 'block';
-      img.dataset.printProxy = 'true';
-      canvas.parentNode.insertBefore(img, canvas.nextSibling);
-      canvas.style.display = 'none';
-      restored.push(canvas);
-    } catch(e){}
-  }
-
-  // 5. Print
-  window.print();
-
-  // 6. Restore after a short delay
-  setTimeout(() => {
-    restored.forEach(canvas => {
-      canvas.style.display = '';
-    });
-    document.querySelectorAll('img[data-print-proxy]').forEach(img => img.remove());
-    hiddenTabs.forEach(t => {
+    // Show all tabs
+    TAB_NAMES.forEach(t => {
       const el = document.getElementById('tab-'+t);
-      if(el) el.style.display = 'none';
+      if(el) el.style.display = 'block';
     });
+
+    // Build graphs
+    if(typeof buildGraphs === 'function') buildGraphs();
+    if(typeof buildFabBreakdown === 'function') buildFabBreakdown();
+
+    // Wait for all charts to render
+    await new Promise(r => setTimeout(r, 1200));
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+    const pageW = 297; const pageH = 210;
+
+    let firstPage = true;
+
+    for(let i = 0; i < TAB_NAMES.length; i++){
+      const tabEl = document.getElementById('tab-'+TAB_NAMES[i]);
+      if(!tabEl) continue;
+
+      // Scroll to top of tab
+      tabEl.scrollIntoView();
+      await new Promise(r => setTimeout(r, 100));
+
+      const canvas = await html2canvas(tabEl, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: tabEl.scrollWidth,
+        height: tabEl.scrollHeight,
+        windowWidth: tabEl.scrollWidth,
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      // Scale to fit A4 landscape width
+      const ratio = pageW / (cw / 1.5);
+      const imgW  = pageW;
+      const imgH  = (ch / 1.5) * ratio;
+
+      // May need multiple pages if content is tall
+      let yPos = 0;
+      let pageCount = 0;
+      while(yPos < imgH) {
+        if(!firstPage || pageCount > 0) pdf.addPage();
+        firstPage = false;
+
+        // Header bar
+        pdf.setFillColor(67, 97, 238);
+        pdf.rect(0, 0, pageW, 8, 'F');
+        pdf.setTextColor(255,255,255);
+        pdf.setFontSize(9);
+        pdf.text('SDA Installation Dashboard — ' + TAB_LABELS[i], 4, 5.5);
+        pdf.text(new Date().toLocaleDateString('th-TH'), pageW-4, 5.5, {align:'right'});
+
+        // Content
+        const srcY   = (yPos / imgH) * ch;
+        const srcH   = Math.min((pageH - 12) / ratio * 1.5, ch - srcY);
+        const sliceH = srcH / 1.5 * ratio;
+
+        // Draw the full canvas image, offset by yPos
+        pdf.addImage(imgData, 'JPEG', 0, 9, imgW, imgH, '', 'FAST', 0);
+
+        // Clip by placing white rect over what's above/below visible area
+        if(yPos > 0){
+          pdf.setFillColor(255,255,255);
+          pdf.rect(0, 9, pageW, (yPos/imgH)*(pageH-12), 'F');
+        }
+        const visibleBottom = ((yPos + pageH - 12) / imgH) * (pageH - 12);
+        if(visibleBottom < pageH - 12){
+          pdf.setFillColor(255,255,255);
+          pdf.rect(0, 9 + visibleBottom, pageW, pageH - 9 - visibleBottom, 'F');
+        }
+
+        yPos += pageH - 12;
+        pageCount++;
+      }
+    }
+
+    // Add insights + topbar as first section
+    pdf.save('SDA_Dashboard_' + new Date().toLocaleDateString('th-TH').replace(/[/]/g,'-') + '.pdf');
+
+  } catch(err) {
+    console.error('PDF export error:', err);
+    alert('Export ไม่สำเร็จ: ' + err.message + '\nลองใช้ Ctrl+P แทนครับ');
+  } finally {
+    // Restore tabs
+    const TABS = ['overview','progress','graphs','location','plan'];
+    const activeTab = document.querySelector('.tab.on');
+    const activeName = activeTab ? activeTab.getAttribute('onclick').match(/'(\w+)'/)?.[1] : 'overview';
+    TABS.forEach(t => {
+      const el = document.getElementById('tab-'+t);
+      if(el) el.style.display = t === activeName ? 'block' : 'none';
+    });
+    const btn = document.getElementById('pdf-btn');
     if(btn){ btn.textContent = '⬇ PDF'; btn.disabled = false; }
-  }, 1000);
+  }
 }
 
 async function submitUpdate(){
