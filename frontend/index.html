@@ -1,344 +1,777 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SDA Installation Dashboard</title>
-  <style>
-    :root {
-      --bg: #f4f6fa;
-      --card: #ffffff;
-      --primary: #1a56db;
-      --primary-light: #e8f0fe;
-      --success: #0e9f6e;
-      --success-light: #def7ec;
-      --warning: #c27803;
-      --warning-light: #fdf6b2;
-      --hold: #9061f9;
-      --hold-light: #f3f0ff;
-      --text: #111827;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --radius: 12px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); }
-    header { background: var(--primary); color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-    header h1 { font-size: 18px; font-weight: 600; }
-    header span { font-size: 13px; opacity: 0.85; }
-    nav { background: #fff; border-bottom: 1px solid var(--border); display: flex; gap: 0; padding: 0 24px; }
-    nav button { padding: 14px 20px; border: none; background: none; font-size: 14px; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; transition: all .2s; }
-    nav button.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
-    main { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
-    .page { display: none; }
-    .page.active { display: block; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SDA Installation Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f0f2f5;--card:#fff;--border:#e5e7eb;
+  --primary:#3b5bdb;--primary-light:#e7ecff;
+  --success:#2f9e44;--success-light:#d3f9d8;
+  --warning:#e67700;--warning-light:#fff3bf;
+  --danger:#c92a2a;--danger-light:#ffe3e3;
+  --hold:#7950f2;--hold-light:#f3f0ff;
+  --muted:#6c757d;--text:#212529;
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
 
-    /* Cards */
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .card { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
-    .card .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
-    .card .value { font-size: 28px; font-weight: 700; }
-    .card.blue   .value { color: var(--primary); }
-    .card.green  .value { color: var(--success); }
-    .card.amber  .value { color: var(--warning); }
-    .card.purple .value { color: var(--hold); }
-    .card .sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+/* TOP BAR */
+.topbar{background:var(--primary);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar h1{font-size:15px;font-weight:600}
+.badge-on{background:#2f9e44;color:#fff;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}
+.topbar-stats{display:flex;gap:16px;flex-wrap:wrap}
+.ts{font-size:12px;opacity:.85;display:flex;align-items:center;gap:4px}
+.ts strong{font-size:13px;font-weight:700;color:#fff}
+.ts svg{opacity:.7}
 
-    /* Progress bar */
-    .prog-wrap { background: var(--card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); margin-bottom: 24px; }
-    .prog-wrap h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
-    .prog-row { margin-bottom: 14px; }
-    .prog-row .top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
-    .prog-bar { height: 10px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
-    .prog-bar .fill { height: 100%; border-radius: 99px; background: var(--primary); transition: width .6s ease; }
-    .fill.high { background: var(--success); }
-    .fill.mid  { background: var(--warning); }
+/* INSIGHTS */
+.insights-bar{background:#fff9db;border-bottom:1px solid #ffe066;padding:10px 20px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.ins-main{flex:1;min-width:200px}
+.ins-main .big{font-size:13px;font-weight:600;color:var(--danger)}
+.ins-main .big span{font-size:18px}
+.ins-main .detail{font-size:12px;color:var(--muted);margin-top:2px}
+.ins-main .warn{font-size:11px;color:var(--danger);margin-top:4px}
+.ins-gauge{text-align:center;position:relative;width:90px}
+.ins-gauge canvas{width:90px!important;height:90px!important}
+.ins-gauge .pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:700;color:var(--warning)}
+.ins-stats{display:flex;flex-direction:column;gap:4px;font-size:12px;min-width:120px}
+.ins-stats .row{display:flex;justify-content:space-between;gap:12px}
+.ins-stats .v{font-weight:600}
+.ins-stats .v.red{color:var(--danger)}
 
-    /* Table */
-    .table-wrap { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-    .table-toolbar { padding: 16px 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); }
-    .table-toolbar select, .table-toolbar input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
-    .table-toolbar button { padding: 8px 16px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { background: #f9fafb; padding: 10px 14px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); border-bottom: 1px solid var(--border); }
-    td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafafa; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-    .badge.Success  { background: var(--success-light); color: var(--success); }
-    .badge.On-Plan  { background: var(--primary-light); color: var(--primary); }
-    .badge.Hold     { background: var(--hold-light); color: var(--hold); }
-    .badge.Pending  { background: #f3f4f6; color: var(--muted); }
-    .pager { padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
-    .pager button { padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; }
-    .pager button:disabled { opacity: .4; cursor: not-allowed; }
-    .loading { text-align: center; padding: 40px; color: var(--muted); }
-    .err { text-align: center; padding: 40px; color: #e02424; }
+/* PILLS ROW */
+.pills{display:flex;gap:8px;padding:10px 20px;flex-wrap:wrap;background:#fff;border-bottom:1px solid var(--border)}
+.pill{display:flex;flex-direction:column;align-items:center;padding:8px 14px;border-radius:var(--r);font-size:11px;color:var(--muted);min-width:72px;gap:2px}
+.pill strong{font-size:18px;font-weight:700;color:var(--text)}
+.pill.p-date strong{color:var(--danger);font-size:14px}
+.pill.p-rem strong{color:var(--danger)}
+.pill.p-ot strong{color:var(--danger)}
+.pill.p-hold strong{color:var(--hold)}
 
-    /* Update form */
-    .form-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; max-width: 560px; }
-    .form-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
-    .form-row { margin-bottom: 16px; }
-    .form-row label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-    .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
-    .form-row textarea { height: 80px; resize: vertical; }
-    .btn-submit { padding: 10px 24px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
-    .alert.success { background: var(--success-light); color: var(--success); }
-    .alert.error   { background: #fde8e8; color: #e02424; }
-  </style>
+/* MAIN CONTENT */
+main{max-width:1400px;margin:0 auto;padding:16px}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.sec-head h2{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.sec-head h2 svg{opacity:.5}
+.sec-actions{display:flex;gap:8px}
+.btn{padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:4px}
+.btn:hover{background:var(--bg)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-pdf{background:#fff5f5;border-color:#ffc9c9;color:var(--danger)}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* CHART CARDS */
+.chart-wrap{position:relative;width:100%;height:220px}
+.chart-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.leg-dot{width:10px;height:3px;border-radius:2px}
+
+/* SUMMARY CARDS */
+.sum-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:14px}
+.sum-card .label{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:500}
+.sum-card .num{font-size:26px;font-weight:700;line-height:1}
+.sum-card .sub{font-size:11px;color:var(--muted);margin-top:4px}
+.sum-card.c-switch .num{color:var(--primary)}
+.sum-card.c-ap .num{color:var(--success)}
+.sum-card.c-infra .num{color:var(--warning)}
+.sum-card .prog-bar{height:5px;background:var(--border);border-radius:99px;margin-top:8px;overflow:hidden}
+.sum-card .prog-fill{height:100%;border-radius:99px}
+
+/* FABRIC TIMELINE */
+.timeline-row{margin-bottom:10px}
+.tl-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.tl-track{position:relative;height:20px;background:#f1f3f5;border-radius:4px;overflow:hidden}
+.tl-done{height:100%;border-radius:4px 0 0 4px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden}
+.tl-remain{height:100%;display:flex;align-items:center;padding-left:6px;font-size:10px;color:var(--muted)}
+.tl-today{position:absolute;top:0;bottom:0;width:2px;background:var(--danger);opacity:.7}
+.tl-legend{display:flex;gap:10px;margin-top:6px;font-size:11px;color:var(--muted)}
+.tl-legend span{display:flex;align-items:center;gap:4px}
+.tl-legend .dot{width:8px;height:8px;border-radius:2px}
+
+/* HEATMAP */
+.heatmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.hm-card{border-radius:var(--r);padding:14px;text-align:center;border:1px solid transparent}
+.hm-card .hm-name{font-size:11px;font-weight:600;margin-bottom:6px;opacity:.85}
+.hm-card .hm-pct{font-size:28px;font-weight:700;line-height:1}
+.hm-card .hm-sub{font-size:11px;margin-top:4px;opacity:.7}
+.hm-0{background:#f8f9fa;color:#868e96;border-color:#dee2e6}
+.hm-low{background:#fff3bf;color:#7d5a00}
+.hm-mid{background:#ffe8cc;color:#92400e}
+.hm-high{background:#d3f9d8;color:#1a5c29}
+.hm-full{background:#2f9e44;color:#fff}
+
+/* DOUGHNUT */
+.donut-wrap{position:relative;width:130px;height:130px;margin:0 auto}
+.donut-wrap canvas{width:130px!important;height:130px!important}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.donut-center .pct{font-size:20px;font-weight:700;color:var(--success)}
+.donut-center .lbl{font-size:10px;color:var(--muted)}
+
+/* HOLD */
+.hold-bar{background:var(--hold-light);border:1px solid #d0bfff;border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.hold-bar .hl{font-size:13px;font-weight:600;color:var(--hold)}
+.hold-bar .cnt{background:var(--hold);color:#fff;padding:2px 8px;border-radius:99px;font-size:11px}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{padding:10px 16px;border:none;background:none;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent}
+.tab.on{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.tab-content{display:none}.tab-content.on{display:block}
+
+/* DEVICES TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#f8f9fa;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--border)}
+tr:hover td{background:#fafafa}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500}
+.s-success{background:var(--success-light);color:var(--success)}
+.s-on{background:var(--primary-light);color:var(--primary)}
+.s-hold{background:var(--hold-light);color:var(--hold)}
+.s-pending{background:#f1f3f5;color:var(--muted)}
+
+/* FILTER */
+.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filters select,.filters input{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px}
+
+/* PAGER */
+.pager{display:flex;align-items:center;justify-content:space-between;padding:10px 0;font-size:12px;color:var(--muted)}
+.pager button{padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12px}
+.pager button:disabled{opacity:.4}
+
+/* UPDATE FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:12px;font-weight:500;color:var(--muted)}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px}
+.form-group textarea{height:70px;resize:vertical;grid-column:span 2}
+.form-alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
+.fa-ok{background:var(--success-light);color:var(--success)}
+.fa-err{background:var(--danger-light);color:var(--danger)}
+
+/* LOADING */
+.loading{text-align:center;padding:32px;color:var(--muted)}
+
+@media(max-width:768px){
+  .grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-  <header>
-    <h1>📡 SDA Installation Dashboard — สุวรรณภูมิ</h1>
-    <span id="last-update">กำลังโหลด...</span>
-  </header>
-  <nav>
-    <button class="active" onclick="showPage('dashboard', this)">Dashboard</button>
-    <button onclick="showPage('devices', this)">รายการอุปกรณ์</button>
-    <button onclick="showPage('update', this)">บันทึกผลติดตั้ง</button>
-  </nav>
-  <main>
-    <!-- PAGE: Dashboard -->
-    <div class="page active" id="page-dashboard">
-      <div class="cards" id="summary-cards">
-        <div class="loading">กำลังโหลด...</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="badge-on">ตรงแผน</span>
+    <h1>SDA Installation Dashboard</h1>
+  </div>
+  <div class="topbar-stats" id="top-stats">
+    <div class="ts"><strong id="ts-done">436/1592</strong> ติดตั้งแล้ว (27%)</div>
+    <div class="ts">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      <strong id="ts-rate">–</strong> อุปกรณ์/วัน
+    </div>
+    <div class="ts">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <strong id="ts-days">–</strong> วันเหลือ
+    </div>
+    <div class="ts" id="ts-overdue-wrap" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <strong id="ts-overdue" style="color:#ffa8a8">–</strong> เกินกำหนด
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div class="insights-bar" id="insights">
+  <div class="ins-main">
+    <div class="big" id="ins-need">กำลังโหลด...</div>
+    <div class="detail" id="ins-detail"></div>
+    <div class="warn" id="ins-warn"></div>
+  </div>
+  <div class="ins-gauge">
+    <canvas id="gauge-chart"></canvas>
+    <div class="pct" id="gauge-pct">–%</div>
+  </div>
+  <div class="ins-stats">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:500">ประสิทธิภาพ</div>
+    <div class="row"><span>ทำได้จริง</span><span class="v" id="ins-actual">–</span></div>
+    <div class="row"><span>เป้าหมาย</span><span class="v" id="ins-target">–</span></div>
+    <div class="row"><span>ส่วนต่าง</span><span class="v red" id="ins-gap">–</span></div>
+  </div>
+</div>
+
+<!-- PILLS -->
+<div class="pills">
+  <div class="pill p-date"><strong id="pill-date">–</strong><span>คาดเสร็จ</span></div>
+  <div class="pill p-rem"><strong id="pill-rem">–</strong><span>เหลือ อุปกรณ์</span></div>
+  <div class="pill"><strong id="pill-days">–</strong><span>วันเหลือ</span></div>
+  <div class="pill"><strong id="pill-ot">99%</strong><span>ตรงเวลา</span></div>
+  <div class="pill p-ot"><strong id="pill-over">–</strong><span>เกินกำหนด</span></div>
+  <div class="pill p-hold"><strong id="pill-hold">–</strong><span>HOLD อุปกรณ์</span></div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+<!-- SECTION: รายงาน -->
+<div class="sec-head">
+  <h2>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    รายงานสรุปการติดตั้งอุปกรณ์ SDA
+    <span style="font-size:11px;color:var(--muted);font-weight:400" id="update-time"></span>
+  </h2>
+  <div class="sec-actions">
+    <button class="btn" onclick="loadData()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+      รีเฟรชข้อมูล
+    </button>
+    <button class="btn btn-pdf" onclick="window.print()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      PDF
+    </button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="showTab('overview',this)">ภาพรวม</button>
+  <button class="tab" onclick="showTab('charts',this)">กราฟ</button>
+  <button class="tab" onclick="showTab('devices',this)">สถานที่</button>
+  <button class="tab" onclick="showTab('update',this)">แผนงาน</button>
+</div>
+
+<!-- TAB: ภาพรวม -->
+<div class="tab-content on" id="tab-overview">
+
+  <!-- Summary cards -->
+  <div class="grid4" style="margin-bottom:16px">
+    <div class="sum-card">
+      <div class="label">สรุปผลการติดตั้งทั้งหมด</div>
+      <div class="num" id="ov-total">–</div>
+      <div class="sub" id="ov-total-sub">อุปกรณ์ที่ติดตั้งแล้ว</div>
+      <div class="prog-bar"><div class="prog-fill" id="ov-bar" style="background:var(--primary)"></div></div>
+    </div>
+    <div class="sum-card c-switch">
+      <div class="label" style="display:flex;align-items:center;gap:4px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h5v4M16 3L10 9M8 3H3v4M8 3l6 6"/></svg> Switch
       </div>
-      <div class="prog-wrap">
-        <h2>ความคืบหน้าแต่ละ Fabric</h2>
-        <div id="fabric-progress"><div class="loading">กำลังโหลด...</div></div>
+      <div class="num" id="ov-sw">–</div>
+      <div class="sub" id="ov-sw-sub">–</div>
+      <div class="prog-bar"><div class="prog-fill" id="ov-sw-bar" style="background:var(--primary)"></div></div>
+    </div>
+    <div class="sum-card c-ap">
+      <div class="label" style="display:flex;align-items:center;gap:4px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg> AP
+      </div>
+      <div class="num" id="ov-ap">–</div>
+      <div class="sub" id="ov-ap-sub">–</div>
+      <div class="prog-bar"><div class="prog-fill" id="ov-ap-bar" style="background:var(--success)"></div></div>
+    </div>
+    <div class="sum-card c-infra">
+      <div class="label" style="display:flex;align-items:center;gap:4px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Infra
+      </div>
+      <div class="num" id="ov-inf">–</div>
+      <div class="sub" id="ov-inf-sub">–</div>
+      <div class="prog-bar"><div class="prog-fill" id="ov-inf-bar" style="background:var(--warning)"></div></div>
+    </div>
+  </div>
+
+  <!-- Burn-down + Donut -->
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:13px;font-weight:600">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Burn-down Chart
+      </div>
+      <div class="chart-wrap"><canvas id="burndown-chart"></canvas></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="leg-dot" style="background:#adb5bd"></div>แผน</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--success)"></div>จริง</div>
       </div>
     </div>
-
-    <!-- PAGE: Devices -->
-    <div class="page" id="page-devices">
-      <div class="table-wrap">
-        <div class="table-toolbar">
-          <select id="f-fabric"><option value="">ทุก Fabric</option></select>
-          <select id="f-status"><option value="">ทุก Status</option></select>
-          <input id="f-location" placeholder="กรอง Location..." style="flex:1;min-width:160px" />
-          <button onclick="applyFilter()">ค้นหา</button>
-        </div>
-        <div id="device-table"><div class="loading">กำลังโหลด...</div></div>
-        <div class="pager">
-          <button id="btn-prev" onclick="changePage(-1)" disabled>← ก่อนหน้า</button>
-          <span id="pager-info"></span>
-          <button id="btn-next" onclick="changePage(1)">ถัดไป →</button>
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+      <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        ความตรงต่อเวลา
+      </div>
+      <div class="donut-wrap">
+        <canvas id="donut-chart"></canvas>
+        <div class="donut-center">
+          <div class="pct" id="donut-pct">99%</div>
+          <div class="lbl">ตรงเวลา</div>
         </div>
       </div>
-    </div>
-
-    <!-- PAGE: Update -->
-    <div class="page" id="page-update">
-      <div class="form-card">
-        <h2>บันทึกผลการติดตั้ง</h2>
-        <div id="form-alert"></div>
-        <div class="form-row">
-          <label>เลข No. (จากตาราง)</label>
-          <input type="number" id="u-no" placeholder="เช่น 3" />
-        </div>
-        <div class="form-row">
-          <label>จำนวนที่ติดตั้งสำเร็จ (Qty. Success)</label>
-          <input type="number" id="u-qty" placeholder="เช่น 4" />
-        </div>
-        <div class="form-row">
-          <label>วันที่ติดตั้ง</label>
-          <input type="date" id="u-date" />
-        </div>
-        <div class="form-row">
-          <label>สถานะ</label>
-          <select id="u-status">
-            <option value="">-- เลือกสถานะ --</option>
-            <option value="Success">Success</option>
-            <option value="On Plan">On Plan</option>
-            <option value="Hold">Hold</option>
-            <option value="Pending">Pending</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>หมายเหตุ</label>
-          <textarea id="u-remark" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
-        </div>
-        <button class="btn-submit" onclick="submitUpdate()">บันทึกข้อมูล</button>
+      <div style="display:flex;flex-direction:column;gap:6px;width:100%;max-width:180px;font-size:12px">
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--success);display:inline-block"></span>ตรงเวลา</span><span id="dot-on">–</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--primary);display:inline-block"></span>เร็วกว่าแผน</span><span id="dot-early">–</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--danger);display:inline-block"></span>ช้ากว่าแผน</span><span id="dot-late">–</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#dee2e6;display:inline-block"></span>รอดำเนินการ</span><span id="dot-pend">–</span></div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <script>
-    const API = window.location.hostname === 'localhost'
-      ? 'http://localhost:3000'
-      : 'https://sda-migr-api.onrender.com';  // ← เปลี่ยนตรงนี้หลัง deploy backend
+  <!-- Fabric Timeline -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      ไทม์ไลน์ Fabric
+    </div>
+    <div id="timeline-rows"></div>
+    <div class="tl-legend">
+      <span><div class="dot" style="background:var(--primary)"></div>ติดตั้งแล้ว</span>
+      <span><div class="dot" style="background:#dee2e6"></div>คงเหลือ</span>
+      <span style="display:flex;align-items:center;gap:4px"><div style="width:2px;height:12px;background:var(--danger);border-radius:1px"></div>วันนี้</span>
+    </div>
+  </div>
 
-    let offset = 0;
-    const LIMIT = 50;
-    let totalRows = 0;
-    let currentFilter = {};
+  <!-- Fabric Heatmap -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:12px">Fabric Heatmap</div>
+    <div class="heatmap" id="heatmap"></div>
+  </div>
 
-    // ── Navigation ──────────────────────────────────────────────────────────
-    function showPage(name, btn) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-      document.getElementById('page-' + name).classList.add('active');
-      btn.classList.add('active');
-      if (name === 'devices' && document.getElementById('f-fabric').children.length === 1) loadFilters();
-    }
+  <!-- Hold items -->
+  <div class="hold-bar" id="hold-bar" onclick="toggleHold()">
+    <div class="hl">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:middle"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      อุปกรณ์ที่ Hold
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="cnt" id="hold-cnt">–</span>
+      <span id="hold-arrow" style="font-size:12px;color:var(--hold)">▼</span>
+    </div>
+  </div>
+  <div id="hold-list" style="display:none;margin-top:8px"></div>
 
-    // ── Dashboard ────────────────────────────────────────────────────────────
-    async function loadDashboard() {
-      try {
-        const res = await fetch(`${API}/api/summary`);
-        const { overall, fabrics } = await res.json();
+</div>
 
-        document.getElementById('last-update').textContent = `อัพเดท: ${new Date().toLocaleDateString('th-TH')}`;
+<!-- TAB: กราฟ -->
+<div class="tab-content" id="tab-charts">
+  <div class="grid2">
+    <div class="card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px">ความคืบหน้าแต่ละ Fabric (%)</div>
+      <div class="chart-wrap"><canvas id="fabric-bar"></canvas></div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px">สัดส่วนอุปกรณ์ตามประเภท</div>
+      <div class="chart-wrap"><canvas id="type-pie"></canvas></div>
+    </div>
+    <div class="card" style="grid-column:span 2">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px">ความคืบหน้ารายสัปดาห์ (อุปกรณ์)</div>
+      <div style="height:200px"><canvas id="weekly-bar"></canvas></div>
+    </div>
+  </div>
+</div>
 
-        document.getElementById('summary-cards').innerHTML = `
-          <div class="card blue">
-            <div class="label">อุปกรณ์ทั้งหมด</div>
-            <div class="value">${overall.total_devices.toLocaleString()}</div>
-            <div class="sub">Total Devices</div>
-          </div>
-          <div class="card green">
-            <div class="label">ติดตั้งสำเร็จ</div>
-            <div class="value">${overall.actual_installed.toLocaleString()}</div>
-            <div class="sub">${overall.progress_pct}% ของทั้งหมด</div>
-          </div>
-          <div class="card blue">
-            <div class="label">On Plan</div>
-            <div class="value">${overall.on_plan.toLocaleString()}</div>
-            <div class="sub">รายการตามแผน</div>
-          </div>
-          <div class="card purple">
-            <div class="label">Hold</div>
-            <div class="value">${overall.hold}</div>
-            <div class="sub">รายการพัก</div>
-          </div>
-          <div class="card amber">
-            <div class="label">Overall Progress</div>
-            <div class="value">${overall.progress_pct}%</div>
-            <div class="sub">ความคืบหน้ารวม</div>
-          </div>
-        `;
+<!-- TAB: สถานที่ -->
+<div class="tab-content" id="tab-devices">
+  <div class="filters">
+    <select id="f-fabric"><option value="">ทุก Fabric</option></select>
+    <select id="f-status"><option value="">ทุก Status</option></select>
+    <input id="f-loc" placeholder="ค้นหา Location..." style="flex:1;min-width:140px"/>
+    <button class="btn primary" onclick="filterTable()">ค้นหา</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>No.</th><th>Fabric</th><th>Location</th><th>Room</th>
+          <th>Device Type</th><th>Qty</th><th>Success</th>
+          <th>Scheduled</th><th>Status</th>
+        </tr></thead>
+        <tbody id="device-tbody"><tr><td colspan="9" class="loading">กำลังโหลด...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pager">
+      <button id="btn-prev" onclick="pg(-1)" disabled>← ก่อนหน้า</button>
+      <span id="pg-info">–</span>
+      <button id="btn-next" onclick="pg(1)">ถัดไป →</button>
+    </div>
+  </div>
+</div>
 
-        const fp = document.getElementById('fabric-progress');
-        fp.innerHTML = fabrics.map(f => {
-          const cls = f.pct_done >= 80 ? 'high' : f.pct_done >= 40 ? 'mid' : '';
-          return `
-            <div class="prog-row">
-              <div class="top">
-                <span><b>${f.fabric}</b> &nbsp;<small style="color:var(--muted)">${f.done}/${f.total} เครื่อง</small></span>
-                <span style="font-weight:600">${f.pct_done}%</span>
-              </div>
-              <div class="prog-bar"><div class="fill ${cls}" style="width:${f.pct_done}%"></div></div>
-            </div>`;
-        }).join('');
-      } catch (e) {
-        document.getElementById('summary-cards').innerHTML = `<div class="err">❌ ไม่สามารถเชื่อมต่อ API: ${e.message}</div>`;
+<!-- TAB: แผนงาน -->
+<div class="tab-content" id="tab-update">
+  <div class="card" style="max-width:560px">
+    <div style="font-size:14px;font-weight:600;margin-bottom:16px">บันทึกผลการติดตั้ง</div>
+    <div id="form-alert"></div>
+    <div class="form-grid">
+      <div class="form-group"><label>เลข No.</label><input type="number" id="u-no" placeholder="เช่น 3"/></div>
+      <div class="form-group"><label>Qty. Success</label><input type="number" id="u-qty" placeholder="จำนวนที่ติดตั้ง"/></div>
+      <div class="form-group"><label>วันที่ติดตั้ง</label><input type="date" id="u-date"/></div>
+      <div class="form-group"><label>สถานะ</label>
+        <select id="u-status">
+          <option value="">-- เลือก --</option>
+          <option>Success</option><option>On Plan</option>
+          <option>Hold</option><option>Pending</option>
+        </select>
+      </div>
+      <div class="form-group" style="grid-column:span 2"><label>หมายเหตุ</label><textarea id="u-remark" placeholder="หมายเหตุ..."></textarea></div>
+    </div>
+    <button class="btn primary" style="margin-top:4px;width:100%;justify-content:center;padding:10px" onclick="submitUpdate()">บันทึกข้อมูล</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : 'https://sda-migr-api.onrender.com';
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const BURNDOWN_LABELS = ['09/02','16/02','23/02','02/03','09/03','16/03','23/03','30/03','06/04','13/04','20/04','27/04','04/05','11/05','18/05','25/05','01/06','08/06','15/06','22/06'];
+const BURNDOWN_PLAN   = [1542,1439,1345,1304,1210,1150,909,860,810,779,693,600,503,453,395,318,219,120,23,0];
+const BURNDOWN_ACTUAL = [1542,1441,1347,1306,1213,1151,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+
+const FABRIC_DATA = [
+  {name:'D1-041',total:710,done:262,color:'#3b5bdb'},
+  {name:'CFZ',   total:187,done:169,color:'#2f9e44'},
+  {name:'T1-015',total:327,done:2,  color:'#e67700'},
+  {name:'D1-091',total:147,done:2,  color:'#ae3ec9'},
+  {name:'RFF',   total:99, done:2,  color:'#1098ad'},
+  {name:'AMF',   total:114,done:2,  color:'#f76707'},
+  {name:'PPW',   total:8,  done:2,  color:'#74c0fc'},
+];
+const WEEKLY_DONE = {7:50,8:101,9:94,10:41,11:93,12:62};
+const TODAY_WEEK  = 13; // week 13 = ~23/03
+
+let allDevices = [], filteredDevices = [], offset = 0;
+const LIMIT = 50;
+let charts = {};
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildStaticCharts();
+  buildTimeline();
+  buildHeatmap();
+  document.getElementById('update-time').textContent = '| อัพเดทล่าสุด: ' + new Date().toLocaleString('th-TH');
+  loadData();
+});
+
+// ── STATIC CHARTS (from local data) ─────────────────────────────────────────
+function buildStaticCharts() {
+  // Burndown
+  const bCtx = document.getElementById('burndown-chart').getContext('2d');
+  charts.burndown = new Chart(bCtx, {
+    type:'line',
+    data:{
+      labels: BURNDOWN_LABELS,
+      datasets:[
+        {label:'แผน',data:BURNDOWN_PLAN,borderColor:'#adb5bd',borderWidth:1.5,borderDash:[5,3],pointRadius:0,tension:0.3,fill:false},
+        {label:'จริง',data:BURNDOWN_ACTUAL,borderColor:'#2f9e44',borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#2f9e44',tension:0.3,fill:false,spanGaps:false},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
+      scales:{
+        x:{ticks:{font:{size:10},maxRotation:45},grid:{display:false}},
+        y:{min:0,max:1600,ticks:{font:{size:10}},grid:{color:'#f1f3f5'}}
       }
     }
+  });
 
-    // ── Devices table ────────────────────────────────────────────────────────
-    async function loadFilters() {
-      const res = await fetch(`${API}/api/filters`);
-      const { fabrics, statuses } = await res.json();
-      const fSel = document.getElementById('f-fabric');
-      const sSel = document.getElementById('f-status');
-      fabrics.forEach(f  => fSel.innerHTML += `<option value="${f}">${f}</option>`);
-      statuses.forEach(s => sSel.innerHTML += `<option value="${s}">${s}</option>`);
-      loadDevices();
-    }
+  // Donut
+  const dCtx = document.getElementById('donut-chart').getContext('2d');
+  const done = 436, total = 1592;
+  charts.donut = new Chart(dCtx,{
+    type:'doughnut',
+    data:{
+      datasets:[{
+        data:[done, 2, 0, total-done-2],
+        backgroundColor:['#2f9e44','#3b5bdb','#c92a2a','#dee2e6'],
+        borderWidth:0,
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}
+  });
+  document.getElementById('dot-on').textContent = done;
+  document.getElementById('dot-early').textContent = 2;
+  document.getElementById('dot-late').textContent = 0;
+  document.getElementById('dot-pend').textContent = total-done-2;
 
-    function applyFilter() {
-      currentFilter = {
-        fabric:   document.getElementById('f-fabric').value,
-        status:   document.getElementById('f-status').value,
-        location: document.getElementById('f-location').value,
-      };
-      offset = 0;
-      loadDevices();
-    }
+  // Gauge
+  const gCtx = document.getElementById('gauge-chart').getContext('2d');
+  const eff = 82;
+  charts.gauge = new Chart(gCtx,{
+    type:'doughnut',
+    data:{datasets:[{data:[eff,100-eff],backgroundColor:['#e67700','#f1f3f5'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',circumference:180,rotation:-90,plugins:{legend:{display:false},tooltip:{enabled:false}}}
+  });
+  document.getElementById('gauge-pct').textContent = eff+'%';
 
-    async function loadDevices() {
-      document.getElementById('device-table').innerHTML = '<div class="loading">กำลังโหลด...</div>';
-      const params = new URLSearchParams({ limit: LIMIT, offset, ...currentFilter });
-      try {
-        const res = await fetch(`${API}/api/devices?${params}`);
-        const { total, data } = await res.json();
-        totalRows = total;
+  // Fabric bar (charts tab)
+  setTimeout(()=>{
+    const fbCtx = document.getElementById('fabric-bar').getContext('2d');
+    charts.fabricBar = new Chart(fbCtx,{
+      type:'bar',
+      data:{
+        labels: FABRIC_DATA.map(f=>f.name),
+        datasets:[
+          {label:'ติดตั้งแล้ว (%)',data:FABRIC_DATA.map(f=>Math.round(f.done/f.total*100)),backgroundColor:FABRIC_DATA.map(f=>f.color)},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f1f3f5'}},x:{ticks:{font:{size:11}},grid:{display:false}}}}
+    });
 
-        document.getElementById('pager-info').textContent = `แสดง ${offset+1}–${Math.min(offset+LIMIT, total)} จาก ${total} รายการ`;
-        document.getElementById('btn-prev').disabled = offset === 0;
-        document.getElementById('btn-next').disabled = offset + LIMIT >= total;
+    // Type pie
+    const tpCtx = document.getElementById('type-pie').getContext('2d');
+    charts.typePie = new Chart(tpCtx,{
+      type:'doughnut',
+      data:{
+        labels:['Switch (1121)','AP (445)','Infra (26)'],
+        datasets:[{data:[1121,445,26],backgroundColor:['#3b5bdb','#2f9e44','#e67700'],borderWidth:2,borderColor:'#fff'}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}}
+    });
 
-        if (!data.length) {
-          document.getElementById('device-table').innerHTML = '<div class="loading">ไม่พบข้อมูล</div>';
-          return;
-        }
+    // Weekly bar
+    const wbCtx = document.getElementById('weekly-bar').getContext('2d');
+    const wks = Object.keys(WEEKLY_DONE).map(w=>'สัปดาห์ '+w);
+    const vals = Object.values(WEEKLY_DONE);
+    charts.weeklyBar = new Chart(wbCtx,{
+      type:'bar',
+      data:{labels:wks,datasets:[{label:'ติดตั้ง/สัปดาห์',data:vals,backgroundColor:'#74c0fc',borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f1f3f5'}},x:{ticks:{font:{size:11}},grid:{display:false}}}}
+    });
+  }, 100);
+}
 
-        document.getElementById('device-table').innerHTML = `
-          <table>
-            <thead>
-              <tr>
-                <th>No.</th><th>Fabric</th><th>Location</th><th>Room</th>
-                <th>Device Type</th><th>Qty</th><th>Success</th>
-                <th>Scheduled</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.map(r => `
-                <tr>
-                  <td>${r['No.']}</td>
-                  <td><b>${r['Fabric']}</b></td>
-                  <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r['Location']}">${r['Location']||'-'}</td>
-                  <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r['Room']}">${r['Room']||'-'}</td>
-                  <td>${r['Device Type']}</td>
-                  <td style="text-align:center">${r['Qty']}</td>
-                  <td style="text-align:center">${r['Qty. Success']||'-'}</td>
-                  <td>${r['Scheduled Date']||'-'}</td>
-                  <td><span class="badge ${(r['Status']||'').replace(' ','-')}">${r['Status']||'-'}</span></td>
-                </tr>`).join('')}
-            </tbody>
-          </table>`;
-      } catch (e) {
-        document.getElementById('device-table').innerHTML = `<div class="err">❌ ${e.message}</div>`;
-      }
-    }
+function buildTimeline() {
+  const totalWeeks = 20;
+  const wrap = document.getElementById('timeline-rows');
+  wrap.innerHTML = FABRIC_DATA.map(f => {
+    const pct = Math.round(f.done / f.total * 100);
+    // today marker at week 13/20 = 65%
+    const todayPct = 65;
+    return `
+    <div class="timeline-row">
+      <div class="tl-label">
+        <span style="font-weight:600;font-size:12px">${f.name}</span>
+        <span style="font-size:11px;color:var(--muted)">${pct}%</span>
+      </div>
+      <div class="tl-track">
+        <div style="display:flex;width:100%;height:100%">
+          <div class="tl-done" style="width:${pct}%;background:${f.color}">${pct>8?pct+'%':''}</div>
+          <div class="tl-remain" style="width:${100-pct}%;background:#edf2ff">${pct<92?f.total-f.done+' เหลือ':''}</div>
+        </div>
+        <div class="tl-today" style="left:${todayPct}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-    function changePage(dir) {
-      offset = Math.max(0, offset + dir * LIMIT);
-      loadDevices();
-    }
+function buildHeatmap() {
+  const wrap = document.getElementById('heatmap');
+  wrap.innerHTML = FABRIC_DATA.map(f => {
+    const pct = Math.round(f.done / f.total * 100);
+    const cls = pct === 100 ? 'hm-full' : pct >= 80 ? 'hm-high' : pct >= 30 ? 'hm-mid' : pct > 0 ? 'hm-low' : 'hm-0';
+    return `<div class="hm-card ${cls}">
+      <div class="hm-name">${f.name}</div>
+      <div class="hm-pct">${pct}%</div>
+      <div class="hm-sub">${f.done}/${f.total}</div>
+    </div>`;
+  }).join('');
+}
 
-    // ── Update form ──────────────────────────────────────────────────────────
-    async function submitUpdate() {
-      const alertEl = document.getElementById('form-alert');
-      alertEl.innerHTML = '';
-      const body = {
-        no:           parseInt(document.getElementById('u-no').value),
-        qty_success:  parseInt(document.getElementById('u-qty').value) || undefined,
-        install_date: document.getElementById('u-date').value || undefined,
-        status:       document.getElementById('u-status').value || undefined,
-        remark:       document.getElementById('u-remark').value || undefined,
-      };
-      if (!body.no) { alertEl.innerHTML = '<div class="alert error">กรุณากรอกเลข No.</div>'; return; }
-      try {
-        const res = await fetch(`${API}/api/update`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-        });
-        const data = await res.json();
-        if (data.success) {
-          alertEl.innerHTML = `<div class="alert success">✅ บันทึกสำเร็จ — No. ${body.no}</div>`;
-          ['u-no','u-qty','u-date','u-remark'].forEach(id => document.getElementById(id).value = '');
-          document.getElementById('u-status').value = '';
-        } else {
-          alertEl.innerHTML = `<div class="alert error">❌ ${data.error}</div>`;
-        }
-      } catch (e) {
-        alertEl.innerHTML = `<div class="alert error">❌ ${e.message}</div>`;
-      }
-    }
+// ── LOAD FROM API ─────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch(`${API}/api/summary`);
+    const {overall, fabrics} = await res.json();
 
-    // Init
-    loadDashboard();
-  </script>
+    // Top bar
+    document.getElementById('ts-done').textContent = `${overall.actual_installed}/${overall.total_devices}`;
+    const rate = (overall.actual_installed / 43).toFixed(1); // ~43 days elapsed
+    document.getElementById('ts-rate').textContent = rate;
+    document.getElementById('ts-days').textContent = 95;
+
+    // Pills
+    document.getElementById('pill-date').textContent = '9 ก.ค. 69';
+    document.getElementById('pill-rem').textContent = (overall.total_devices - overall.actual_installed).toLocaleString();
+    document.getElementById('pill-days').textContent = 95;
+    document.getElementById('pill-over').textContent = overall.overdue_items;
+    document.getElementById('pill-hold').textContent = overall.hold;
+
+    // Insights
+    const needed = ((overall.total_devices - overall.actual_installed) / 95).toFixed(1);
+    document.getElementById('ins-need').innerHTML = `<span style="font-size:18px">↑ ต้องเพิ่ม ${needed}</span> อุปกรณ์/วัน`;
+    document.getElementById('ins-detail').textContent = `เพิ่ม ${needed - rate > 0 ? (needed-rate).toFixed(1) : 0}% จากอัตราปัจจุบัน  →  ทำได้ ${rate}  →  ต้องทำ ${needed} อุปกรณ์/วัน`;
+    document.getElementById('ins-warn').textContent = `⚠ ถ้าไม่เพิ่ม → เสร็จ 9 ก.ค. 69 — ช้ากว่าเป้า 16 วัน`;
+    document.getElementById('ins-actual').textContent = rate + ' /วัน';
+    document.getElementById('ins-target').textContent = '13 /วัน';
+    document.getElementById('ins-gap').textContent = `+${needed} /วัน`;
+
+    // Overview cards
+    document.getElementById('ov-total').textContent = `${overall.actual_installed}/${overall.total_devices}`;
+    document.getElementById('ov-total-sub').textContent = `อุปกรณ์ที่ติดตั้งแล้ว (${overall.progress_pct}%)`;
+    document.getElementById('ov-bar').style.width = overall.progress_pct + '%';
+    document.getElementById('ov-sw').textContent = '353/1121';
+    document.getElementById('ov-sw-sub').textContent = 'Switch ที่ติดตั้งแล้ว (31%)';
+    document.getElementById('ov-sw-bar').style.width = '31%';
+    document.getElementById('ov-ap').textContent = '67/445';
+    document.getElementById('ov-ap-sub').textContent = 'AP ที่ติดตั้งแล้ว (15%)';
+    document.getElementById('ov-ap-bar').style.width = '15%';
+    document.getElementById('ov-inf').textContent = '16/26';
+    document.getElementById('ov-inf-sub').textContent = 'Infra ที่ติดตั้งแล้ว (62%)';
+    document.getElementById('ov-inf-bar').style.width = '62%';
+
+    // Hold
+    document.getElementById('hold-cnt').textContent = overall.hold + ' รายการ';
+    document.getElementById('pill-hold').textContent = overall.hold;
+
+    // Load devices
+    loadDevices();
+    loadFilters();
+
+  } catch(e) {
+    // Fallback to static data if API unavailable
+    document.getElementById('ins-need').innerHTML = `<span style="font-size:18px">↑ ต้องเพิ่ม 2.4</span> อุปกรณ์/วัน`;
+    document.getElementById('ins-detail').textContent = `↑23% จากอัตราปัจจุบัน  →  ทำได้ 10.6  →  ต้องทำ 13 อุปกรณ์/วัน`;
+    document.getElementById('ins-warn').textContent = `⚠ ถ้าไม่เพิ่ม → เสร็จ 9 ก.ค. 69 — ช้ากว่าเป้า 16 วัน`;
+    document.getElementById('ins-actual').textContent = '10.6 /วัน';
+    document.getElementById('ins-target').textContent = '13 /วัน';
+    document.getElementById('ins-gap').textContent = '+2.4 /วัน';
+    document.getElementById('ov-total').textContent = '436/1592';
+    document.getElementById('ov-total-sub').textContent = 'อุปกรณ์ที่ติดตั้งแล้ว (27%)';
+    document.getElementById('ov-bar').style.width = '27%';
+    document.getElementById('ov-sw').textContent = '353/1121'; document.getElementById('ov-sw-sub').textContent='Switch ที่ติดตั้งแล้ว (31%)'; document.getElementById('ov-sw-bar').style.width='31%';
+    document.getElementById('ov-ap').textContent  = '67/445';  document.getElementById('ov-ap-sub').textContent ='AP ที่ติดตั้งแล้ว (15%)'; document.getElementById('ov-ap-bar').style.width='15%';
+    document.getElementById('ov-inf').textContent = '16/26';   document.getElementById('ov-inf-sub').textContent='Infra ที่ติดตั้งแล้ว (62%)'; document.getElementById('ov-inf-bar').style.width='62%';
+    document.getElementById('ts-done').textContent = '436/1592';
+    document.getElementById('ts-rate').textContent = '10.6';
+    document.getElementById('ts-days').textContent = '95';
+    document.getElementById('hold-cnt').textContent = '7 รายการ';
+    document.getElementById('pill-date').textContent = '9 ก.ค. 69';
+    document.getElementById('pill-rem').textContent = '1,156';
+    document.getElementById('pill-days').textContent = '95';
+    document.getElementById('pill-over').textContent = '4';
+    document.getElementById('pill-hold').textContent = '7';
+  }
+}
+
+// ── DEVICES TABLE ─────────────────────────────────────────────────────────────
+let curFilter = {};
+async function loadFilters() {
+  try {
+    const res = await fetch(`${API}/api/filters`);
+    const {fabrics, statuses} = await res.json();
+    const fs = document.getElementById('f-fabric');
+    const ss = document.getElementById('f-status');
+    fabrics.forEach(f => fs.innerHTML += `<option>${f}</option>`);
+    statuses.forEach(s => ss.innerHTML += `<option>${s}</option>`);
+  } catch(e) {}
+}
+
+function filterTable() {
+  curFilter = {
+    fabric: document.getElementById('f-fabric').value,
+    status: document.getElementById('f-status').value,
+    location: document.getElementById('f-loc').value,
+  };
+  offset = 0;
+  loadDevices();
+}
+
+async function loadDevices() {
+  const tbody = document.getElementById('device-tbody');
+  tbody.innerHTML = '<tr><td colspan="9" class="loading">กำลังโหลด...</td></tr>';
+  try {
+    const p = new URLSearchParams({limit:LIMIT, offset, ...curFilter});
+    const res = await fetch(`${API}/api/devices?${p}`);
+    const {total, data} = await res.json();
+    document.getElementById('pg-info').textContent = `แสดง ${offset+1}–${Math.min(offset+LIMIT,total)} จาก ${total}`;
+    document.getElementById('btn-prev').disabled = offset === 0;
+    document.getElementById('btn-next').disabled = offset+LIMIT >= total;
+    tbody.innerHTML = data.map(r => {
+      const sc = r['Status']?.replace(' ','-') || '';
+      return `<tr>
+        <td>${r['No.']}</td>
+        <td><b>${r['Fabric']}</b></td>
+        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r['Location']}">${r['Location']||'-'}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r['Room']||'-'}</td>
+        <td>${r['Device Type']}</td>
+        <td style="text-align:center">${r['Qty']}</td>
+        <td style="text-align:center">${r['Qty. Success']||'-'}</td>
+        <td>${r['Scheduled Date']||'-'}</td>
+        <td><span class="badge s-${sc}">${r['Status']||'-'}</span></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--danger);padding:20px">ไม่สามารถเชื่อมต่อ API — กรุณาตรวจสอบ Backend URL</td></tr>`;
+  }
+}
+
+function pg(dir) { offset = Math.max(0, offset + dir*LIMIT); loadDevices(); }
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tab-'+name).classList.add('on');
+  btn.classList.add('on');
+  if (name==='devices' && document.getElementById('f-fabric').children.length===1) loadFilters();
+}
+
+// ── HOLD ─────────────────────────────────────────────────────────────────────
+let holdOpen = false;
+async function toggleHold() {
+  holdOpen = !holdOpen;
+  document.getElementById('hold-arrow').textContent = holdOpen ? '▲' : '▼';
+  const list = document.getElementById('hold-list');
+  if (!holdOpen) { list.style.display='none'; return; }
+  list.style.display = 'block';
+  try {
+    const res = await fetch(`${API}/api/devices?status=Hold&limit=20`);
+    const {data} = await res.json();
+    list.innerHTML = `<div class="card"><table><thead><tr><th>No.</th><th>Fabric</th><th>Location</th><th>Device Type</th><th>Qty</th></tr></thead><tbody>
+      ${data.map(r=>`<tr><td>${r['No.']}</td><td><b>${r['Fabric']}</b></td><td>${r['Location']||'-'}</td><td>${r['Device Type']}</td><td>${r['Qty']}</td></tr>`).join('')}
+    </tbody></table></div>`;
+  } catch(e) { list.innerHTML = '<div style="padding:12px;color:var(--muted)">ไม่สามารถโหลดข้อมูลได้</div>'; }
+}
+
+// ── UPDATE FORM ───────────────────────────────────────────────────────────────
+async function submitUpdate() {
+  const el = id => document.getElementById(id);
+  const alertEl = el('form-alert');
+  alertEl.innerHTML = '';
+  const body = {
+    no: parseInt(el('u-no').value),
+    qty_success: parseInt(el('u-qty').value)||undefined,
+    install_date: el('u-date').value||undefined,
+    status: el('u-status').value||undefined,
+    remark: el('u-remark').value||undefined,
+  };
+  if (!body.no) { alertEl.innerHTML='<div class="form-alert fa-err">กรุณากรอกเลข No.</div>'; return; }
+  try {
+    const res = await fetch(`${API}/api/update`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d = await res.json();
+    if (d.success) {
+      alertEl.innerHTML = `<div class="form-alert fa-ok">✅ บันทึกสำเร็จ — No. ${body.no}</div>`;
+      ['u-no','u-qty','u-date','u-remark'].forEach(i=>el(i).value='');
+      el('u-status').value='';
+    } else { alertEl.innerHTML=`<div class="form-alert fa-err">❌ ${d.error}</div>`; }
+  } catch(e) { alertEl.innerHTML=`<div class="form-alert fa-err">❌ ${e.message}</div>`; }
+}
+</script>
 </body>
 </html>
