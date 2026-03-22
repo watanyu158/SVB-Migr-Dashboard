@@ -1055,10 +1055,23 @@ main { padding: 12px 10px; }
     <span style="font-size:11px;font-weight:400;color:var(--text2)">(Switch / AP / Infra)</span>
   </div>
 
-  <!-- Summary bar: total done per fabric -->
+  <!-- Summary bar: done vs plan per fabric -->
   <div class="card" style="margin-bottom:14px">
-    <div class="ch"><div class="chi" style="background:#eef1ff;color:var(--primary)">📊</div>สรุปจำนวนติดตั้งแล้ว แยก Fabric</div>
-    <div style="height:180px"><canvas id="fab-total-bar-c"></canvas></div>
+    <div class="ch">
+      <div class="chi" style="background:#eef1ff;color:var(--primary)">📊</div>
+      สรุปจำนวนติดตั้งแล้ว แยก Fabric
+      <span style="margin-left:8px;font-size:11px;font-weight:400;color:var(--text2)">
+        ติดตั้งแล้ว <strong style="color:var(--primary)">441</strong> จากทั้งหมด <strong>1,592</strong> เครื่อง
+        <span style="margin-left:6px;padding:2px 8px;border-radius:99px;background:#eef1ff;color:var(--primary);font-size:10px;font-weight:600">รวม 28%</span>
+      </span>
+    </div>
+    <div style="height:220px"><canvas id="fab-total-bar-c"></canvas></div>
+    <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2)">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#4361ee;display:inline-block"></span>Switch ติดตั้งแล้ว</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#2bc48a;display:inline-block"></span>AP ติดตั้งแล้ว</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#ff9f43;display:inline-block"></span>Infra ติดตั้งแล้ว</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;border-top:2px dashed #94a3c4;display:inline-block"></span>เป้าหมายทั้งหมด</span>
+    </div>
   </div>
 
   <!-- 2-col grid of per-fabric daily charts -->
@@ -1161,6 +1174,22 @@ const FAB_DAILY = {
 // Fabric colors and totals for charts
 const FAB_COLORS = {'D1-041':'#4361ee','CFZ':'#2bc48a','T1-015':'#ff9f43','D1-091':'#a855f7','RFF':'#22b8cf','AMF':'#f76707','PPW':'#74c0fc'};
 const FAB_TOTALS = {'D1-041':{sw:209,ap:43,inf:10},'CFZ':{sw:141,ap:24,inf:4},'T1-015':{sw:0,ap:0,inf:2},'D1-091':{sw:0,ap:0,inf:2},'RFF':{sw:0,ap:0,inf:2},'AMF':{sw:0,ap:0,inf:2},'PPW':{sw:0,ap:0,inf:2}};
+
+// Plan targets (scheduled qty) per date matching DAILY_L
+const DAILY_PLAN = [50,11,35,27,24,6,14,38,17,13,12,24,3,12,15,11,14,8,5,41,27,15,18];
+
+// Per-fabric plan on those same dates
+const FAB_DAILY_PLAN = {
+  'D1-041': [36,11,35,27,24,6,0,0,0,0,0,0,0,12,15,11,14,8,5,0,27,15,18],
+  'CFZ':    [4,0,0,0,0,0,14,38,17,13,12,24,3,0,0,0,0,0,0,41,0,0,0],
+  'T1-015': [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'D1-091': [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'RFF':    [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'AMF':    [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'PPW':    [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+};
+// Plan totals per fabric (total scheduled devices)
+const FAB_PLAN_TOTALS = {'D1-041':710,'CFZ':187,'T1-015':327,'D1-091':147,'RFF':99,'AMF':114,'PPW':8};
 
 const FAB_WEEKLY = {"D1-041":{sw_plan:[9.0,21.0,21.0,27.6,43.4,51.5,66.6,70.5,79.0,89.8,98.5,98.5,98.5,98.5,98.5,100.0,100.0,100.0,100.0,100.0],sw_act:[8.3,20.5,20.5,26.6,42.9,51.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,14.8,14.8,14.8,14.8,14.8,75.5,82.1,87.2,90.3,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],ap_act:[0.0,14.8,14.8,14.8,14.8,14.8,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"CFZ":{sw_plan:[1.3,1.3,46.2,63.5,89.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,100.0,100.0,100.0,100.0,100.0],sw_act:[1.3,1.3,46.2,63.5,90.4,90.4,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,96.0,96.0,96.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],ap_act:[96.0,96.0,96.0,96.0,96.0,96.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"T1-015":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,13.9,17.4,55.9,73.0,95.0,100.0,100.0,100.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"D1-091":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,53.7,100.0,100.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"RFF":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"AMF":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"PPW":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}};
 
@@ -1392,29 +1421,99 @@ function buildGraphs(){
   const fabSwTotals  = fabNames.map(f => FAB_TOTALS[f].sw);
   const fabApTotals  = fabNames.map(f => FAB_TOTALS[f].ap);
   const fabInfTotals = fabNames.map(f => FAB_TOTALS[f].inf);
+  // Plan total per fabric
+  const fabPlanTotals = fabNames.map(f => FAB_PLAN_TOTALS[f] || 0);
+  // Labels with done/plan counts
+  const fabLabelsWithCount = fabNames.map(f => {
+    const done = (FAB_TOTALS[f].sw + FAB_TOTALS[f].ap + FAB_TOTALS[f].inf);
+    const plan = FAB_PLAN_TOTALS[f] || 0;
+    return f;
+  });
+
   new Chart(document.getElementById('fab-total-bar-c'), {
     type: 'bar',
     data: {
-      labels: fabNames,
+      labels: fabLabelsWithCount,
       datasets: [
-        {label:'Switch', data:fabSwTotals,  backgroundColor:'#4361ee', borderRadius:4, stack:'s'},
-        {label:'AP',     data:fabApTotals,  backgroundColor:'#2bc48a', borderRadius:4, stack:'s'},
-        {label:'Infra',  data:fabInfTotals, backgroundColor:'#ff9f43', borderRadius:4, stack:'s'},
+        {label:'Switch ติดตั้งแล้ว',   data:fabSwTotals,   backgroundColor:'#4361ee', borderRadius:3, stack:'done', order:2},
+        {label:'AP ติดตั้งแล้ว',        data:fabApTotals,   backgroundColor:'#2bc48a', borderRadius:3, stack:'done', order:2},
+        {label:'Infra ติดตั้งแล้ว',     data:fabInfTotals,  backgroundColor:'#ff9f43', borderRadius:3, stack:'done', order:2},
+        {
+          label:'เป้าหมายทั้งหมด',
+          data: fabPlanTotals,
+          type: 'line',
+          borderColor: '#94a3c4',
+          borderWidth: 2,
+          borderDash: [4,3],
+          pointStyle: 'line',
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          fill: false,
+          tension: 0,
+          order: 1,
+          stack: undefined,
+          yAxisID: 'y',
+        }
       ]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
-        legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}},
-        tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
-          callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y} เครื่อง`}}
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',
+          padding:10,cornerRadius:8,
+          callbacks:{
+            afterTitle:(items)=>{
+              const fab = items[0].label;
+              const done = FAB_TOTALS[fab] ? (FAB_TOTALS[fab].sw+FAB_TOTALS[fab].ap+FAB_TOTALS[fab].inf) : 0;
+              const plan = FAB_PLAN_TOTALS[fab] || 0;
+              const pct  = plan>0 ? Math.round(done/plan*100) : 0;
+              return `ติดตั้งแล้ว ${done}/${plan} (${pct}%)`;
+            },
+            label:(c)=>{
+              if(c.dataset.label==='เป้าหมายทั้งหมด') return ` เป้าหมาย: ${c.parsed.y} เครื่อง`;
+              return c.parsed.y > 0 ? ` ${c.dataset.label}: ${c.parsed.y} เครื่อง` : '';
+            }
+          }
+        },
+        // Custom plugin: show done/total label on each bar
+        datalabels: false,
       },
       scales:{
         x:{stacked:true,ticks:{font:{size:11},color:'#94a3c4'},grid:{display:false}},
         y:{stacked:true,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+' เครื่อง'},grid:{color:'#f0f4ff'}}
       }
-    }
+    },
+    plugins:[{
+      id:'fabLabels',
+      afterDatasetsDraw(chart){
+        const ctx=chart.ctx;
+        const meta0 = chart.getDatasetMeta(0);
+        fabNames.forEach((fab,i)=>{
+          const done = FAB_TOTALS[fab] ? (FAB_TOTALS[fab].sw+FAB_TOTALS[fab].ap+FAB_TOTALS[fab].inf) : 0;
+          const plan = FAB_PLAN_TOTALS[fab] || 0;
+          const pct  = plan>0 ? Math.round(done/plan*100) : 0;
+          const bar  = meta0.data[i];
+          if(!bar) return;
+          const allMeta = [0,1,2].map(di=>chart.getDatasetMeta(di));
+          let topY = bar.y;
+          allMeta.forEach(m=>{ if(m.data[i]) topY=Math.min(topY,m.data[i].y); });
+          ctx.save();
+          ctx.font = 'bold 11px Segoe UI,sans-serif';
+          ctx.fillStyle = '#1e2d4d';
+          ctx.textAlign = 'center';
+          const label = done>0 ? `${done}/${plan}` : `0/${plan}`;
+          ctx.fillText(label, bar.x, topY - 6);
+          // pct badge
+          ctx.font = '10px Segoe UI,sans-serif';
+          ctx.fillStyle = pct>=80?'#065f46':pct>=30?'#92400e':'#3451d1';
+          ctx.fillText(`(${pct}%)`, bar.x, topY - 18);
+          ctx.restore();
+        });
+      }
+    }]
   });
 
   // ── Per-fabric daily stacked bar charts ──
@@ -1429,38 +1528,64 @@ function buildGraphs(){
 
     const div = document.createElement('div');
     div.className = 'card';
+    const fabDoneTotal = FAB_TOTALS[fab].sw + FAB_TOTALS[fab].ap + FAB_TOTALS[fab].inf;
+    const fabPlanTotal = FAB_PLAN_TOTALS[fab] || 0;
+    const fabPct = fabPlanTotal>0 ? Math.round(fabDoneTotal/fabPlanTotal*100) : 0;
+    const fabPctColor = fabPct>=80?'#065f46':fabPct>=30?'#92400e':'#4361ee';
+    const fabPctBg    = fabPct>=80?'#ecfdf5':fabPct>=30?'#fff5e6':'#eef1ff';
     div.innerHTML = `
-      <div class="ch" style="margin-bottom:10px">
+      <div class="ch" style="margin-bottom:10px;flex-wrap:wrap;gap:6px">
         <div style="width:10px;height:10px;border-radius:50%;background:${fabColor};flex-shrink:0"></div>
-        ${fab}
-        <span style="font-size:11px;font-weight:400;color:var(--text2)">
-          SW:${FAB_TOTALS[fab].sw} / AP:${FAB_TOTALS[fab].ap} / Infra:${FAB_TOTALS[fab].inf}
-          <span style="margin-left:6px;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:600;background:${fabColor}22;color:${fabColor}">รวม ${total} เครื่อง</span>
+        <span style="font-size:13px;font-weight:700">${fab}</span>
+        <span style="font-size:11px;color:var(--text2)">SW:${FAB_TOTALS[fab].sw} / AP:${FAB_TOTALS[fab].ap} / Infra:${FAB_TOTALS[fab].inf}</span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
+          <span style="font-size:12px;color:var(--text2)">
+            ติดตั้งแล้ว <strong style="color:var(--text)">${fabDoneTotal}</strong> จาก <strong>${fabPlanTotal}</strong> เครื่อง
+          </span>
+          <span style="padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;background:${fabPctBg};color:${fabPctColor}">${fabPct}%</span>
         </span>
       </div>
       ${hasData
         ? `<div style="height:160px"><canvas id="fd-${fab.replace('-','')}-c"></canvas></div>`
         : `<div style="height:80px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;background:var(--bg);border-radius:8px">ยังไม่มีการติดตั้ง</div>`
       }
-      <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2)">
+      <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#4361ee;display:inline-block"></span>Switch</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#2bc48a;display:inline-block"></span>AP</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#ff9f43;display:inline-block"></span>Infra</span>
-      </div>`;
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed ${fabColor};display:inline-block"></span>เป้าตามแผน</span>
+      </div>\`;
     wrap.appendChild(div);
 
     if (!hasData) return;
     setTimeout(() => {
       const ctx = document.getElementById(`fd-${fab.replace('-','')}-c`);
       if (!ctx) return;
+      const planData = FAB_DAILY_PLAN[fab] || DAILY_L.map(()=>0);
       new Chart(ctx, {
         type: 'bar',
         data: {
           labels: DAILY_L,
           datasets: [
-            {label:'Switch', data:fd.sw,  backgroundColor:'#4361ee', borderRadius:3, stack:'s'},
-            {label:'AP',     data:fd.ap,  backgroundColor:'#2bc48a', borderRadius:3, stack:'s'},
-            {label:'Infra',  data:fd.inf, backgroundColor:'#ff9f43', borderRadius:3, stack:'s'},
+            {label:'Switch', data:fd.sw,  backgroundColor:'#4361ee', borderRadius:3, stack:'s', order:2},
+            {label:'AP',     data:fd.ap,  backgroundColor:'#2bc48a', borderRadius:3, stack:'s', order:2},
+            {label:'Infra',  data:fd.inf, backgroundColor:'#ff9f43', borderRadius:3, stack:'s', order:2},
+            {
+              label:'เป้าตามแผน',
+              data: planData,
+              type:'line',
+              borderColor: fabColor,
+              borderWidth: 1.5,
+              borderDash: [4,3],
+              pointRadius: 3,
+              pointBackgroundColor: '#fff',
+              pointBorderColor: fabColor,
+              pointBorderWidth: 1.5,
+              fill: false,
+              tension: 0,
+              order: 1,
+              stack: undefined,
+            }
           ]
         },
         options: {
@@ -1468,13 +1593,23 @@ function buildGraphs(){
           interaction:{mode:'index',intersect:false},
           plugins:{
             legend:{display:false},
-            tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
+            tooltip:{
+              backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
+              bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
               callbacks:{
-                title:(items)=>`${items[0].label}`,
-                label:(c)=>c.parsed.y>0?` ${c.dataset.label}: ${c.parsed.y} เครื่อง`:'',
+                title:(items)=>items[0].label,
+                label:(c)=>{
+                  if(c.dataset.label==='เป้าตามแผน') return c.parsed.y>0?` เป้าแผน: ${c.parsed.y} เครื่อง`:'';
+                  return c.parsed.y>0?` ${c.dataset.label}: ${c.parsed.y} เครื่อง`:'';
+                },
                 afterBody:(items)=>{
-                  const total=items.reduce((a,i)=>a+i.parsed.y,0);
-                  return total>0?[`รวม: ${total} เครื่อง`]:[];
+                  const actual = items.filter(i=>i.dataset.label!=='เป้าตามแผน').reduce((a,i)=>a+i.parsed.y,0);
+                  const plan   = items.find(i=>i.dataset.label==='เป้าตามแผน')?.parsed.y||0;
+                  const lines = [];
+                  if(actual>0) lines.push(`ทำได้: ${actual} เครื่อง`);
+                  if(plan>0)   lines.push(`เป้า:  ${plan} เครื่อง`);
+                  if(actual>0&&plan>0) lines.push(`${actual>=plan?'✓ ตามแผน':'▼ ต่ำกว่าแผน'} (${Math.round(actual/plan*100)}%)`);
+                  return lines;
                 }
               }
             }
