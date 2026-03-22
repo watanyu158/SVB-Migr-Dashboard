@@ -7,770 +7,699 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-  --bg:#f0f2f5;--card:#fff;--border:#e5e7eb;
-  --primary:#3b5bdb;--primary-light:#e7ecff;
-  --success:#2f9e44;--success-light:#d3f9d8;
-  --warning:#e67700;--warning-light:#fff3bf;
-  --danger:#c92a2a;--danger-light:#ffe3e3;
-  --hold:#7950f2;--hold-light:#f3f0ff;
-  --muted:#6c757d;--text:#212529;
-  --r:10px;
+  --bg:#f0f4ff;--card:#fff;--border:#e8edf5;
+  --primary:#4361ee;--primary-light:#eef1ff;--primary-mid:#7b93f5;
+  --success:#2bc48a;--success-light:#e6faf3;
+  --warning:#ff9f43;--warning-light:#fff5e6;
+  --danger:#ee4b4b;--danger-light:#fff0f0;
+  --hold:#a855f7;--hold-light:#f5f0ff;
+  --info:#22b8cf;--info-light:#e6f9fb;
+  --text:#1e2d4d;--text2:#5a6a8a;--text3:#94a3c4;
+  --r:14px;--rsm:10px;
+  --sh:0 2px 12px rgba(67,97,238,.08);
+  --shlg:0 8px 32px rgba(67,97,238,.13);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+body{font-family:'Segoe UI',Tahoma,'TH SarabunPSK',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+a{color:inherit;text-decoration:none}
 
-/* TOP BAR */
-.topbar{background:var(--primary);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.topbar-left{display:flex;align-items:center;gap:10px}
-.topbar h1{font-size:15px;font-weight:600}
-.badge-on{background:#2f9e44;color:#fff;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}
-.topbar-stats{display:flex;gap:16px;flex-wrap:wrap}
-.ts{font-size:12px;opacity:.85;display:flex;align-items:center;gap:4px}
-.ts strong{font-size:13px;font-weight:700;color:#fff}
-.ts svg{opacity:.7}
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,#3a56e4,#6c4de4);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 4px 20px rgba(67,97,238,.3)}
+.tb-l{display:flex;align-items:center;gap:10px}
+.tb-logo{width:30px;height:30px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.tb-title{font-size:14px;font-weight:600}
+.tb-sub{font-size:10px;opacity:.7}
+.status-pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px}
+.sdot{width:7px;height:7px;border-radius:50%;background:#2bc48a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(43,196,138,.3)}50%{box-shadow:0 0 0 5px rgba(43,196,138,.1)}}
+.tb-stats{display:flex;gap:16px}
+.tb-stat .v{font-size:14px;font-weight:700;line-height:1}
+.tb-stat .l{font-size:10px;opacity:.7}
+.tb-div{width:1px;height:26px;background:rgba(255,255,255,.2)}
+.tbtn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:7px;color:#fff;padding:5px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:inherit;transition:.2s}
+.tbtn:hover{background:rgba(255,255,255,.28)}
 
 /* INSIGHTS */
-.insights-bar{background:#fff9db;border-bottom:1px solid #ffe066;padding:10px 20px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
-.ins-main{flex:1;min-width:200px}
-.ins-main .big{font-size:13px;font-weight:600;color:var(--danger)}
-.ins-main .big span{font-size:18px}
-.ins-main .detail{font-size:12px;color:var(--muted);margin-top:2px}
-.ins-main .warn{font-size:11px;color:var(--danger);margin-top:4px}
-.ins-gauge{text-align:center;position:relative;width:90px}
-.ins-gauge canvas{width:90px!important;height:90px!important}
-.ins-gauge .pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:700;color:var(--warning)}
-.ins-stats{display:flex;flex-direction:column;gap:4px;font-size:12px;min-width:120px}
-.ins-stats .row{display:flex;justify-content:space-between;gap:12px}
-.ins-stats .v{font-weight:600}
-.ins-stats .v.red{color:var(--danger)}
+.insights{background:linear-gradient(135deg,#fffbeb,#fff7e0);border-bottom:1px solid #fcd34d;padding:10px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.ins-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#ff9f43,#ff6b35);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 4px 12px rgba(255,159,67,.3)}
+.ins-main{flex:1;min-width:160px}
+.ins-big{font-size:13px;font-weight:600;color:#b45309}
+.ins-big em{font-size:19px;font-style:normal}
+.ins-detail{font-size:11px;color:var(--text2);margin-top:2px}
+.ins-warn{font-size:11px;color:var(--danger);margin-top:3px}
+.ins-gauge{position:relative;width:82px;height:82px;flex-shrink:0}
+.ins-gauge canvas{position:absolute;inset:0;width:82px!important;height:82px!important}
+.ins-gc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ins-gc .gp{font-size:16px;font-weight:700;color:var(--warning)}
+.ins-gc .gl{font-size:9px;color:var(--text3)}
+.ins-kpis{display:flex;gap:14px}
+.ikpi{text-align:center}
+.ikpi .kv{font-size:17px;font-weight:700}
+.ikpi .kl{font-size:10px;color:var(--text2);margin-top:2px}
 
-/* PILLS ROW */
-.pills{display:flex;gap:8px;padding:10px 20px;flex-wrap:wrap;background:#fff;border-bottom:1px solid var(--border)}
-.pill{display:flex;flex-direction:column;align-items:center;padding:8px 14px;border-radius:var(--r);font-size:11px;color:var(--muted);min-width:72px;gap:2px}
-.pill strong{font-size:18px;font-weight:700;color:var(--text)}
-.pill.p-date strong{color:var(--danger);font-size:14px}
-.pill.p-rem strong{color:var(--danger)}
-.pill.p-ot strong{color:var(--danger)}
-.pill.p-hold strong{color:var(--hold)}
+/* PILLS */
+.pills{background:#fff;border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:99px;border:1px solid var(--border);background:#fff;white-space:nowrap;transition:.2s}
+.pill:hover{border-color:var(--primary-mid);background:var(--primary-light)}
+.pill .pi{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.pill .pv{font-size:14px;font-weight:700}
+.pill .pl{font-size:10px;color:var(--text2)}
+.p-date .pi{background:#fff0f0} .p-date .pv{color:var(--danger)}
+.p-rem  .pi{background:#fff5e6} .p-rem  .pv{color:var(--warning)}
+.p-days .pi{background:var(--info-light)} .p-days .pv{color:var(--info)}
+.p-ot   .pi{background:var(--success-light)} .p-ot .pv{color:var(--success)}
+.p-over .pi{background:#fff0f0} .p-over .pv{color:var(--danger)}
+.p-hold .pi{background:var(--hold-light)} .p-hold .pv{color:var(--hold)}
 
-/* MAIN CONTENT */
-main{max-width:1400px;margin:0 auto;padding:16px}
-
-/* SECTION HEADER */
+/* MAIN */
+main{max-width:1340px;margin:0 auto;padding:18px 14px}
 .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
-.sec-head h2{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
-.sec-head h2 svg{opacity:.5}
-.sec-actions{display:flex;gap:8px}
-.btn{padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:4px}
-.btn:hover{background:var(--bg)}
-.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
-.btn-pdf{background:#fff5f5;border-color:#ffc9c9;color:var(--danger)}
+.sec-h2{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text)}
+.sec-h2 .sic{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.sec-ts{font-size:11px;color:var(--text3);font-weight:400}
+.actions{display:flex;gap:7px}
+.btn{padding:7px 13px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:12px;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:4px;font-family:inherit;transition:.2s;box-shadow:var(--sh)}
+.btn:hover{border-color:var(--primary-mid);background:var(--primary-light);color:var(--primary)}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 4px 12px rgba(67,97,238,.28)}
+.btn.primary:hover{background:#3451d1}
+.btn.pdf{background:#fff5f5;border-color:#ffd0d0;color:var(--danger)}
 
-/* CARDS */
-.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:16px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* TABS WRAP */
+.tabs-wrap{background:#fff;border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--border);overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 4px}
+.tab{padding:12px 18px;border:none;background:none;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);border-bottom:3px solid transparent;font-family:inherit;display:flex;align-items:center;gap:5px;transition:.2s}
+.tab:hover{color:var(--primary)}
+.tab.on{color:var(--primary);border-bottom-color:var(--primary);background:var(--primary-light)}
+.tab-body{padding:18px}
 
-/* CHART CARDS */
-.chart-wrap{position:relative;width:100%;height:220px}
-.chart-legend{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
-.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
-.leg-dot{width:10px;height:3px;border-radius:2px}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:var(--card);border-radius:var(--rsm);border:1px solid var(--border);padding:15px;box-shadow:var(--sh)}
+.ch{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;margin-bottom:13px}
+.chi{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
 
 /* SUMMARY CARDS */
-.sum-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);padding:14px}
-.sum-card .label{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:500}
-.sum-card .num{font-size:26px;font-weight:700;line-height:1}
-.sum-card .sub{font-size:11px;color:var(--muted);margin-top:4px}
-.sum-card.c-switch .num{color:var(--primary)}
-.sum-card.c-ap .num{color:var(--success)}
-.sum-card.c-infra .num{color:var(--warning)}
-.sum-card .prog-bar{height:5px;background:var(--border);border-radius:99px;margin-top:8px;overflow:hidden}
-.sum-card .prog-fill{height:100%;border-radius:99px}
+.scard{border-radius:var(--rsm);padding:15px 16px;border:1px solid var(--border);background:#fff;box-shadow:var(--sh);position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.scard.all::before{background:linear-gradient(90deg,var(--primary),var(--primary-mid))}
+.scard.sw::before{background:linear-gradient(90deg,#4361ee,#7b93f5)}
+.scard.ap::before{background:linear-gradient(90deg,var(--success),#52e3aa)}
+.scard.inf::before{background:linear-gradient(90deg,var(--warning),#ffd36b)}
+.scard .sl{font-size:11px;font-weight:500;margin-bottom:5px}
+.scard .sn{font-size:26px;font-weight:700;line-height:1}
+.scard .ss{font-size:11px;color:var(--text2);margin-top:4px}
+.scard .sbar{height:5px;background:var(--border);border-radius:99px;margin-top:9px;overflow:hidden}
+.scard .sf{height:100%;border-radius:99px;transition:width 1s ease}
+.scard.all .sf{background:linear-gradient(90deg,var(--primary),var(--primary-mid))}
+.scard.sw  .sf{background:linear-gradient(90deg,#4361ee,#7b93f5)}
+.scard.ap  .sf{background:linear-gradient(90deg,var(--success),#52e3aa)}
+.scard.inf .sf{background:linear-gradient(90deg,var(--warning),#ffd36b)}
+.scard .sbadge{position:absolute;top:14px;right:14px;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
 
-/* FABRIC TIMELINE */
-.timeline-row{margin-bottom:10px}
-.tl-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
-.tl-track{position:relative;height:20px;background:#f1f3f5;border-radius:4px;overflow:hidden}
-.tl-done{height:100%;border-radius:4px 0 0 4px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden}
-.tl-remain{height:100%;display:flex;align-items:center;padding-left:6px;font-size:10px;color:var(--muted)}
-.tl-today{position:absolute;top:0;bottom:0;width:2px;background:var(--danger);opacity:.7}
-.tl-legend{display:flex;gap:10px;margin-top:6px;font-size:11px;color:var(--muted)}
-.tl-legend span{display:flex;align-items:center;gap:4px}
-.tl-legend .dot{width:8px;height:8px;border-radius:2px}
+/* CHARTS */
+.cwrap{position:relative;height:210px}
+.cleg{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.cl{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.cll{width:22px;height:3px;border-radius:2px}
+.cld{width:22px;height:0;border-top:2px dashed var(--text3)}
+
+/* DONUT */
+.dwrap{position:relative;width:115px;height:115px;margin:0 auto 10px}
+.dwrap canvas{width:115px!important;height:115px!important}
+.dc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dc .dp{font-size:18px;font-weight:700;color:var(--success)}
+.dc .dl{font-size:10px;color:var(--text2)}
+
+/* TIMELINE */
+.tlr{margin-bottom:11px}
+.tlt{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;align-items:center}
+.tln{font-weight:600}
+.tlpct{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px}
+.tltrack{height:17px;background:#eef1ff;border-radius:5px;overflow:hidden;position:relative}
+.tlfill{height:100%;border-radius:5px 0 0 5px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;transition:width 1.2s cubic-bezier(.23,1,.32,1)}
+.tltd{position:absolute;top:0;bottom:0;width:2px;border-radius:1px}
 
 /* HEATMAP */
-.heatmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
-.hm-card{border-radius:var(--r);padding:14px;text-align:center;border:1px solid transparent}
-.hm-card .hm-name{font-size:11px;font-weight:600;margin-bottom:6px;opacity:.85}
-.hm-card .hm-pct{font-size:28px;font-weight:700;line-height:1}
-.hm-card .hm-sub{font-size:11px;margin-top:4px;opacity:.7}
-.hm-0{background:#f8f9fa;color:#868e96;border-color:#dee2e6}
-.hm-low{background:#fff3bf;color:#7d5a00}
-.hm-mid{background:#ffe8cc;color:#92400e}
-.hm-high{background:#d3f9d8;color:#1a5c29}
-.hm-full{background:#2f9e44;color:#fff}
-
-/* DOUGHNUT */
-.donut-wrap{position:relative;width:130px;height:130px;margin:0 auto}
-.donut-wrap canvas{width:130px!important;height:130px!important}
-.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.donut-center .pct{font-size:20px;font-weight:700;color:var(--success)}
-.donut-center .lbl{font-size:10px;color:var(--muted)}
+.heatmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px}
+.hmc{border-radius:var(--rsm);padding:13px 10px;text-align:center;cursor:pointer;transition:.2s;border:1px solid transparent}
+.hmc:hover{transform:translateY(-2px);box-shadow:var(--shlg)}
+.hmc .hmn{font-size:11px;font-weight:600;margin-bottom:5px}
+.hmc .hmp{font-size:24px;font-weight:700;line-height:1}
+.hmc .hms{font-size:10px;margin-top:3px}
+.hm0{background:#f5f7fa;color:var(--text3);border-color:#e2e8f0}
+.hmlo{background:#fff8e6;color:#92400e}
+.hmmi{background:#fff2e6;color:#c2410c}
+.hmhi{background:#ecfdf5;color:#065f46}
+.hmfu{background:linear-gradient(135deg,#2bc48a,#0e9e73);color:#fff}
 
 /* HOLD */
-.hold-bar{background:var(--hold-light);border:1px solid #d0bfff;border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.hold-bar .hl{font-size:13px;font-weight:600;color:var(--hold)}
-.hold-bar .cnt{background:var(--hold);color:#fff;padding:2px 8px;border-radius:99px;font-size:11px}
+.hold-tog{display:flex;align-items:center;justify-content:space-between;background:var(--hold-light);border:1px solid #d8b4fe;border-radius:var(--rsm);padding:10px 15px;cursor:pointer;transition:.2s;user-select:none}
+.hold-tog:hover{background:#ede9fe}
+.hold-lbl{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--hold)}
+.hold-badge{background:var(--hold);color:#fff;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600}
 
-/* TABS */
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
-.tab{padding:10px 16px;border:none;background:none;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent}
-.tab.on{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
-.tab-content{display:none}.tab-content.on{display:block}
+/* BADGES */
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600}
+.bs{background:var(--success-light);color:#065f46}
+.bon{background:var(--primary-light);color:var(--primary)}
+.bho{background:var(--hold-light);color:var(--hold)}
+.bpe{background:#f1f5f9;color:var(--text2)}
 
-/* DEVICES TABLE */
-.table-wrap{overflow-x:auto}
+/* TABLE */
+.filters{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+.filters select,.filters input{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;background:#fff;color:var(--text);outline:none;transition:.2s}
+.filters select:focus,.filters input:focus{border-color:var(--primary-mid)}
+.tblw{overflow-x:auto;border-radius:var(--rsm);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:#f8f9fa;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
-td{padding:8px 10px;border-bottom:1px solid var(--border)}
-tr:hover td{background:#fafafa}
-.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:500}
-.s-success{background:var(--success-light);color:var(--success)}
-.s-on{background:var(--primary-light);color:var(--primary)}
-.s-hold{background:var(--hold-light);color:var(--hold)}
-.s-pending{background:#f1f3f5;color:var(--muted)}
+th{background:#f8faff;padding:9px 11px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;font-weight:600}
+td{padding:8px 11px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8faff}
+.pager{display:flex;align-items:center;justify-content:space-between;padding:10px 0 0;font-size:12px;color:var(--text2)}
+.pager button{padding:5px 13px;border:1px solid var(--border);border-radius:7px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;transition:.2s}
+.pager button:hover:not(:disabled){background:var(--primary-light);border-color:var(--primary-mid);color:var(--primary)}
+.pager button:disabled{opacity:.4;cursor:not-allowed}
 
-/* FILTER */
-.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.filters select,.filters input{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px}
+/* LOCATION */
+.loc-sec-h{background:linear-gradient(90deg,var(--primary-light),var(--bg));border-radius:var(--rsm);padding:9px 13px;display:flex;align-items:center;gap:7px;margin-bottom:11px;font-size:13px;font-weight:600;color:var(--primary)}
+.fg{margin-bottom:10px}
+.fgh{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--primary-light);border-radius:var(--rsm);cursor:pointer;font-size:13px;font-weight:600;color:var(--primary);border:1px solid #c7d2fe;user-select:none;transition:.2s}
+.fgh:hover{background:#e0e7ff}
+.fgb{display:none;margin-top:3px;background:#fff;border-radius:var(--rsm);border:1px solid var(--border);overflow:hidden}
+.fgb.open{display:block}
+.locrow{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--border);gap:10px;transition:.15s}
+.locrow:last-child{border-bottom:none}
+.locrow:hover{background:#f8faff}
+.locname{font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.loci{text-align:right;flex-shrink:0}
+.locc{font-size:11px;color:var(--text2)}
+.locbar{width:75px;height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin:3px 0 0 auto}
+.locfill{height:100%;border-radius:99px}
 
-/* PAGER */
-.pager{display:flex;align-items:center;justify-content:space-between;padding:10px 0;font-size:12px;color:var(--muted)}
-.pager button{padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12px}
-.pager button:disabled{opacity:.4}
+/* PLAN */
+.plan-sec{background:linear-gradient(90deg,var(--primary-light),var(--hold-light));border-radius:var(--rsm);padding:9px 13px;display:flex;align-items:center;gap:7px;margin-bottom:13px;font-size:13px;font-weight:600;color:var(--primary)}
+.pcard{background:#fff;border:1px solid var(--border);border-radius:var(--rsm);padding:13px}
+.pcard .pc-l{font-size:11px;color:var(--text2);margin-bottom:3px}
+.pcard .pc-v{font-size:15px;font-weight:700}
+.pcard .pc-v.red{color:var(--danger)} .pcard .pc-v.grn{color:var(--success)}
+.pbar{height:10px;background:#f0f4ff;border-radius:99px;overflow:hidden;margin:6px 0 3px;position:relative}
+.pfill{height:100%;border-radius:99px;transition:width 1s ease}
+.fpc{background:#fff;border:1px solid var(--border);border-radius:var(--rsm);padding:15px;margin-bottom:9px}
+.fpc-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.fpc-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.fpc-pct{font-size:16px;font-weight:700;padding:3px 10px;border-radius:99px}
+.fpc-big{font-size:24px;font-weight:700;line-height:1}
+.fpc-sub{font-size:11px;color:var(--text2);margin:3px 0 9px}
+.fpc-bar{height:6px;background:#f0f4ff;border-radius:99px;overflow:hidden;margin-bottom:11px}
+.fpc-fill{height:100%;border-radius:99px}
+.fpc-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.fcc{background:var(--bg);border-radius:7px;padding:9px}
+.fcc .cl{font-size:11px;font-weight:600;margin-bottom:2px}
+.fcc .cv{font-size:12px;font-weight:600}
+.fcc .cb{height:4px;background:var(--border);border-radius:99px;margin-top:4px;overflow:hidden}
+.fcc .cbf{height:100%;border-radius:99px}
+.fpc-dates{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px}
+.fdate{background:var(--bg);border-radius:7px;padding:7px 9px}
+.fdate .dl{font-size:10px;color:var(--text3);margin-bottom:2px}
+.fdate .dv{font-size:12px;font-weight:600}
 
-/* UPDATE FORM */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-group{display:flex;flex-direction:column;gap:4px}
-.form-group label{font-size:12px;font-weight:500;color:var(--muted)}
-.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px}
-.form-group textarea{height:70px;resize:vertical;grid-column:span 2}
-.form-alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
-.fa-ok{background:var(--success-light);color:var(--success)}
-.fa-err{background:var(--danger-light);color:var(--danger)}
+/* FORM */
+.fw{max-width:560px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fgr{display:flex;flex-direction:column;gap:4px;margin-bottom:11px}
+.fgr label{font-size:12px;font-weight:600;color:var(--text2)}
+.fgr input,.fgr select,.fgr textarea{padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:.2s}
+.fgr input:focus,.fgr select:focus,.fgr textarea:focus{border-color:var(--primary-mid);box-shadow:0 0 0 3px rgba(67,97,238,.1)}
+.fgr textarea{height:65px;resize:vertical}
+.falert{padding:9px 13px;border-radius:7px;font-size:13px;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.fok{background:var(--success-light);color:#065f46;border:1px solid #a7f3d0}
+.ferr{background:var(--danger-light);color:#991b1b;border:1px solid #fecaca}
+.loading{text-align:center;padding:30px;color:var(--text2)}
 
-/* LOADING */
-.loading{text-align:center;padding:32px;color:var(--muted)}
-
-@media(max-width:768px){
-  .grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}
-  .form-grid{grid-template-columns:1fr}
-}
-@media(max-width:480px){
-  .grid2,.grid3,.grid4{grid-template-columns:1fr}
-}
+@media(max-width:860px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}.fg2{grid-template-columns:1fr}.tb-stats{display:none}}
+@media print{.topbar,.insights,.pills,.actions,.tabs{display:none!important}.tab-body{display:block!important}}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <div class="topbar-left">
-    <span class="badge-on">ตรงแผน</span>
-    <h1>SDA Installation Dashboard</h1>
+  <div class="tb-l">
+    <div class="tb-logo">📡</div>
+    <div>
+      <div class="tb-title">SDA Installation Dashboard — สุวรรณภูมิ</div>
+      <div class="tb-sub">อัพเดท <span id="ts-time">22/3/2569</span></div>
+    </div>
+    <div class="status-pill"><div class="sdot"></div>ตรงแผน</div>
   </div>
-  <div class="topbar-stats" id="top-stats">
-    <div class="ts"><strong id="ts-done">436/1592</strong> ติดตั้งแล้ว (27%)</div>
-    <div class="ts">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-      <strong id="ts-rate">–</strong> อุปกรณ์/วัน
-    </div>
-    <div class="ts">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <strong id="ts-days">–</strong> วันเหลือ
-    </div>
-    <div class="ts" id="ts-overdue-wrap" style="display:none">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <strong id="ts-overdue" style="color:#ffa8a8">–</strong> เกินกำหนด
-    </div>
+  <div class="tb-stats">
+    <div class="tb-stat"><div class="v" id="ts-done">460/1592</div><div class="l">ติดตั้งแล้ว (29%)</div></div>
+    <div class="tb-div"></div>
+    <div class="tb-stat"><div class="v">11.0</div><div class="l">อุปกรณ์/วัน</div></div>
+    <div class="tb-div"></div>
+    <div class="tb-stat"><div class="v">94</div><div class="l">วันเหลือ</div></div>
+    <div class="tb-div"></div>
+    <div class="tb-stat"><div class="v" style="color:#ff9f43" id="ts-over">4</div><div class="l">เกินกำหนด</div></div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="tbtn" onclick="loadData()">↺ รีเฟรช</button>
+    <button class="tbtn" onclick="window.print()">⬇ PDF</button>
   </div>
 </div>
 
-<!-- INSIGHTS -->
-<div class="insights-bar" id="insights">
+<div class="insights">
+  <div class="ins-icon">⚡</div>
   <div class="ins-main">
-    <div class="big" id="ins-need">กำลังโหลด...</div>
-    <div class="detail" id="ins-detail"></div>
-    <div class="warn" id="ins-warn"></div>
+    <div class="ins-big">↑ ต้องเพิ่ม <em>2.0</em> อุปกรณ์/วัน <span style="font-size:11px;color:var(--text2);font-weight:400">↑23% จากอัตราปัจจุบัน</span></div>
+    <div class="ins-detail">เพิ่มจาก 11.0 → ต้องทำ 13 อุปกรณ์/วัน เพื่อให้ทันกำหนด</div>
+    <div class="ins-warn">⚠ ถ้าไม่เพิ่ม → คาดเสร็จ 3 ก.ค. 69 — ช้ากว่าเป้า 10 วัน</div>
   </div>
   <div class="ins-gauge">
-    <canvas id="gauge-chart"></canvas>
-    <div class="pct" id="gauge-pct">–%</div>
+    <canvas id="gauge-c"></canvas>
+    <div class="ins-gc"><div class="gp">82%</div><div class="gl">ประสิทธิภาพ</div></div>
   </div>
-  <div class="ins-stats">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:500">ประสิทธิภาพ</div>
-    <div class="row"><span>ทำได้จริง</span><span class="v" id="ins-actual">–</span></div>
-    <div class="row"><span>เป้าหมาย</span><span class="v" id="ins-target">–</span></div>
-    <div class="row"><span>ส่วนต่าง</span><span class="v red" id="ins-gap">–</span></div>
+  <div class="ins-kpis">
+    <div class="ikpi"><div class="kv">11.0</div><div class="kl">ทำได้จริง /วัน</div></div>
+    <div class="ikpi"><div class="kv">13</div><div class="kl">เป้าหมาย /วัน</div></div>
+    <div class="ikpi"><div class="kv" style="color:var(--danger)">+2.0</div><div class="kl" style="color:var(--danger)">ส่วนต่าง</div></div>
   </div>
 </div>
 
-<!-- PILLS -->
 <div class="pills">
-  <div class="pill p-date"><strong id="pill-date">–</strong><span>คาดเสร็จ</span></div>
-  <div class="pill p-rem"><strong id="pill-rem">–</strong><span>เหลือ อุปกรณ์</span></div>
-  <div class="pill"><strong id="pill-days">–</strong><span>วันเหลือ</span></div>
-  <div class="pill"><strong id="pill-ot">99%</strong><span>ตรงเวลา</span></div>
-  <div class="pill p-ot"><strong id="pill-over">–</strong><span>เกินกำหนด</span></div>
-  <div class="pill p-hold"><strong id="pill-hold">–</strong><span>HOLD อุปกรณ์</span></div>
+  <div class="pill p-date"><div class="pi">📅</div><div><div class="pv">3 ก.ค. 69</div><div class="pl">คาดเสร็จ</div></div></div>
+  <div class="pill p-rem"><div class="pi">📦</div><div><div class="pv" id="pill-rem">1,132</div><div class="pl">อุปกรณ์เหลือ</div></div></div>
+  <div class="pill p-days"><div class="pi">⏱</div><div><div class="pv">94</div><div class="pl">วันเหลือ</div></div></div>
+  <div class="pill p-ot"><div class="pi">✓</div><div><div class="pv">99%</div><div class="pl">ตรงเวลา</div></div></div>
+  <div class="pill p-over"><div class="pi">⚠</div><div><div class="pv" id="pill-over">4</div><div class="pl">เกินกำหนด</div></div></div>
+  <div class="pill p-hold"><div class="pi">⏸</div><div><div class="pv" id="pill-hold">7</div><div class="pl">HOLD อุปกรณ์</div></div></div>
 </div>
 
-<!-- MAIN -->
 <main>
-
-<!-- SECTION: รายงาน -->
 <div class="sec-head">
-  <h2>
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+  <div class="sec-h2">
+    <div class="sic" style="background:var(--primary-light);color:var(--primary)">📋</div>
     รายงานสรุปการติดตั้งอุปกรณ์ SDA
-    <span style="font-size:11px;color:var(--muted);font-weight:400" id="update-time"></span>
-  </h2>
-  <div class="sec-actions">
-    <button class="btn" onclick="loadData()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
-      รีเฟรชข้อมูล
-    </button>
-    <button class="btn btn-pdf" onclick="window.print()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      PDF
-    </button>
+    <span class="sec-ts" id="update-ts"></span>
+  </div>
+  <div class="actions">
+    <button class="btn" onclick="loadData()">↺ รีเฟรชข้อมูล</button>
+    <button class="btn pdf" onclick="window.print()">⬇ PDF</button>
   </div>
 </div>
 
-<!-- TABS -->
+<div class="tabs-wrap">
 <div class="tabs">
-  <button class="tab on" onclick="showTab('overview',this)">ภาพรวม</button>
-  <button class="tab" onclick="showTab('charts',this)">กราฟ</button>
-  <button class="tab" onclick="showTab('devices',this)">สถานที่</button>
-  <button class="tab" onclick="showTab('update',this)">แผนงาน</button>
+  <button class="tab on" onclick="showTab('overview',this)">🏠 ภาพรวม</button>
+  <button class="tab" onclick="showTab('graphs',this)">📊 กราฟ</button>
+  <button class="tab" onclick="showTab('location',this)">📍 สถานที่</button>
+  <button class="tab" onclick="showTab('plan',this)">📅 แผนงาน</button>
 </div>
 
-<!-- TAB: ภาพรวม -->
-<div class="tab-content on" id="tab-overview">
-
-  <!-- Summary cards -->
-  <div class="grid4" style="margin-bottom:16px">
-    <div class="sum-card">
-      <div class="label">สรุปผลการติดตั้งทั้งหมด</div>
-      <div class="num" id="ov-total">–</div>
-      <div class="sub" id="ov-total-sub">อุปกรณ์ที่ติดตั้งแล้ว</div>
-      <div class="prog-bar"><div class="prog-fill" id="ov-bar" style="background:var(--primary)"></div></div>
+<!-- ════ TAB: ภาพรวม ════ -->
+<div class="tab-body" id="tab-overview">
+  <div class="g4" style="margin-bottom:14px">
+    <div class="scard all">
+      <div class="sl" style="color:var(--primary)">🏗 สรุปผลการติดตั้งทั้งหมด</div>
+      <div class="sn" id="ov-all">460/1592</div>
+      <div class="ss" id="ov-all-s">อุปกรณ์ที่ติดตั้งแล้ว (29%)</div>
+      <div class="sbar"><div class="sf" id="ov-all-b" style="width:29%"></div></div>
+      <div class="sbadge" style="background:var(--primary-light);color:var(--primary)">29%</div>
     </div>
-    <div class="sum-card c-switch">
-      <div class="label" style="display:flex;align-items:center;gap:4px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h5v4M16 3L10 9M8 3H3v4M8 3l6 6"/></svg> Switch
-      </div>
-      <div class="num" id="ov-sw">–</div>
-      <div class="sub" id="ov-sw-sub">–</div>
-      <div class="prog-bar"><div class="prog-fill" id="ov-sw-bar" style="background:var(--primary)"></div></div>
+    <div class="scard sw">
+      <div class="sl" style="color:#4361ee">🔀 Switch</div>
+      <div class="sn" id="ov-sw">369/1121</div>
+      <div class="ss" id="ov-sw-s">Switch ที่ติดตั้งแล้ว (33%)</div>
+      <div class="sbar"><div class="sf" id="ov-sw-b" style="width:33%"></div></div>
+      <div class="sbadge" style="background:var(--primary-light);color:#4361ee">33%</div>
     </div>
-    <div class="sum-card c-ap">
-      <div class="label" style="display:flex;align-items:center;gap:4px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg> AP
-      </div>
-      <div class="num" id="ov-ap">–</div>
-      <div class="sub" id="ov-ap-sub">–</div>
-      <div class="prog-bar"><div class="prog-fill" id="ov-ap-bar" style="background:var(--success)"></div></div>
+    <div class="scard ap">
+      <div class="sl" style="color:#065f46">📶 AP</div>
+      <div class="sn" id="ov-ap">67/445</div>
+      <div class="ss" id="ov-ap-s">AP ที่ติดตั้งแล้ว (15%)</div>
+      <div class="sbar"><div class="sf" id="ov-ap-b" style="width:15%"></div></div>
+      <div class="sbadge" style="background:var(--success-light);color:#065f46">15%</div>
     </div>
-    <div class="sum-card c-infra">
-      <div class="label" style="display:flex;align-items:center;gap:4px">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Infra
-      </div>
-      <div class="num" id="ov-inf">–</div>
-      <div class="sub" id="ov-inf-sub">–</div>
-      <div class="prog-bar"><div class="prog-fill" id="ov-inf-bar" style="background:var(--warning)"></div></div>
+    <div class="scard inf">
+      <div class="sl" style="color:#92400e">⚡ Infra</div>
+      <div class="sn" id="ov-inf">24/26</div>
+      <div class="ss" id="ov-inf-s">Infra ที่ติดตั้งแล้ว (92%)</div>
+      <div class="sbar"><div class="sf" id="ov-inf-b" style="width:92%"></div></div>
+      <div class="sbadge" style="background:var(--warning-light);color:#92400e">92%</div>
     </div>
   </div>
 
-  <!-- Burn-down + Donut -->
-  <div class="grid2" style="margin-bottom:16px">
+  <div class="g2" style="margin-bottom:14px">
     <div class="card">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:13px;font-weight:600">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-        Burn-down Chart
-      </div>
-      <div class="chart-wrap"><canvas id="burndown-chart"></canvas></div>
-      <div class="chart-legend">
-        <div class="leg"><div class="leg-dot" style="background:#adb5bd"></div>แผน</div>
-        <div class="leg"><div class="leg-dot" style="background:var(--success)"></div>จริง</div>
+      <div class="ch"><div class="chi" style="background:var(--primary-light);color:var(--primary)">📉</div>Burn-down Chart</div>
+      <div class="cwrap"><canvas id="burndown-c"></canvas></div>
+      <div class="cleg">
+        <div class="cl"><div class="cld"></div>แผน</div>
+        <div class="cl"><div class="cll" style="background:var(--success)"></div>จริง</div>
+        <div class="cl" style="color:var(--danger);font-size:11px">| วันนี้ 22/03</div>
       </div>
     </div>
-    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
-      <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        ความตรงต่อเวลา
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+      <div class="ch" style="margin-bottom:4px"><div class="chi" style="background:var(--success-light);color:var(--success)">⏱</div>ความตรงต่อเวลา</div>
+      <div class="dwrap"><canvas id="donut-c"></canvas><div class="dc"><div class="dp">99%</div><div class="dl">ตรงเวลา<br>435/1592</div></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px;width:100%;max-width:190px;font-size:12px;color:var(--text2)">
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--success);display:inline-block"></span>ตรงเวลา</span><span>435</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--primary);display:inline-block"></span>เร็วกว่าแผน</span><span>23</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--danger);display:inline-block"></span>ช้ากว่าแผน</span><span>2</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:#e2e8f0;display:inline-block"></span>รอดำเนินการ</span><span>1132</span></div>
       </div>
-      <div class="donut-wrap">
-        <canvas id="donut-chart"></canvas>
-        <div class="donut-center">
-          <div class="pct" id="donut-pct">99%</div>
-          <div class="lbl">ตรงเวลา</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="chi" style="background:var(--warning-light);color:var(--warning)">📅</div>ไทม์ไลน์ Fabric</div>
+    <div id="tl-wrap"></div>
+    <div class="cleg" style="margin-top:11px">
+      <div class="cl"><div class="cll" style="background:var(--primary)"></div>ติดตั้งแล้ว</div>
+      <div class="cl"><div class="cll" style="background:#e2e8f0"></div>คงเหลือ</div>
+      <div class="cl" style="color:var(--danger)">| วันนี้</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="chi" style="background:var(--hold-light);color:var(--hold)">🗺</div>Fabric Heatmap</div>
+    <div class="heatmap" id="hm-wrap"></div>
+  </div>
+
+  <div class="hold-tog" onclick="toggleHold(this)">
+    <div class="hold-lbl">⏸ อุปกรณ์ที่ Hold</div>
+    <div style="display:flex;align-items:center;gap:7px">
+      <span class="hold-badge" id="hold-cnt">7 รายการ</span>
+      <span id="hold-arr" style="color:var(--hold);font-size:12px">▼</span>
+    </div>
+  </div>
+  <div id="hold-body" style="display:none;margin-top:6px"></div>
+</div>
+
+<!-- ════ TAB: กราฟ ════ -->
+<div class="tab-body" id="tab-graphs" style="display:none">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ch"><div class="chi" style="background:var(--primary-light);color:var(--primary)">🍩</div>สัดส่วนประเภทอุปกรณ์</div>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div style="position:relative;width:150px;height:150px;flex-shrink:0"><canvas id="type-c"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:16px;font-weight:700">29%</div><div style="font-size:10px;color:var(--text2)">รวม</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;flex:1;font-size:12px;color:var(--text2)">
+          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--primary);display:inline-block"></span>Switch 70%</span><span style="font-weight:600">1,121</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--success);display:inline-block"></span>AP 28%</span><span style="font-weight:600">445</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--warning);display:inline-block"></span>Infra 2%</span><span style="font-weight:600">26</span></div>
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px;width:100%;max-width:180px;font-size:12px">
-        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--success);display:inline-block"></span>ตรงเวลา</span><span id="dot-on">–</span></div>
-        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--primary);display:inline-block"></span>เร็วกว่าแผน</span><span id="dot-early">–</span></div>
-        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--danger);display:inline-block"></span>ช้ากว่าแผน</span><span id="dot-late">–</span></div>
-        <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#dee2e6;display:inline-block"></span>รอดำเนินการ</span><span id="dot-pend">–</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Fabric Timeline -->
-  <div class="card" style="margin-bottom:16px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:6px">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-      ไทม์ไลน์ Fabric
-    </div>
-    <div id="timeline-rows"></div>
-    <div class="tl-legend">
-      <span><div class="dot" style="background:var(--primary)"></div>ติดตั้งแล้ว</span>
-      <span><div class="dot" style="background:#dee2e6"></div>คงเหลือ</span>
-      <span style="display:flex;align-items:center;gap:4px"><div style="width:2px;height:12px;background:var(--danger);border-radius:1px"></div>วันนี้</span>
-    </div>
-  </div>
-
-  <!-- Fabric Heatmap -->
-  <div class="card" style="margin-bottom:16px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:12px">Fabric Heatmap</div>
-    <div class="heatmap" id="heatmap"></div>
-  </div>
-
-  <!-- Hold items -->
-  <div class="hold-bar" id="hold-bar" onclick="toggleHold()">
-    <div class="hl">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;vertical-align:middle"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      อุปกรณ์ที่ Hold
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="cnt" id="hold-cnt">–</span>
-      <span id="hold-arrow" style="font-size:12px;color:var(--hold)">▼</span>
-    </div>
-  </div>
-  <div id="hold-list" style="display:none;margin-top:8px"></div>
-
-</div>
-
-<!-- TAB: กราฟ -->
-<div class="tab-content" id="tab-charts">
-  <div class="grid2">
-    <div class="card">
-      <div style="font-size:13px;font-weight:600;margin-bottom:12px">ความคืบหน้าแต่ละ Fabric (%)</div>
-      <div class="chart-wrap"><canvas id="fabric-bar"></canvas></div>
     </div>
     <div class="card">
-      <div style="font-size:13px;font-weight:600;margin-bottom:12px">สัดส่วนอุปกรณ์ตามประเภท</div>
-      <div class="chart-wrap"><canvas id="type-pie"></canvas></div>
-    </div>
-    <div class="card" style="grid-column:span 2">
-      <div style="font-size:13px;font-weight:600;margin-bottom:12px">ความคืบหน้ารายสัปดาห์ (อุปกรณ์)</div>
-      <div style="height:200px"><canvas id="weekly-bar"></canvas></div>
+      <div class="ch"><div class="chi" style="background:var(--success-light);color:var(--success)">📊</div>แผนภูมิ Fabric</div>
+      <div style="height:170px"><canvas id="fab-bar-c"></canvas></div>
     </div>
   </div>
-</div>
-
-<!-- TAB: สถานที่ -->
-<div class="tab-content" id="tab-devices">
-  <div class="filters">
-    <select id="f-fabric"><option value="">ทุก Fabric</option></select>
-    <select id="f-status"><option value="">ทุก Status</option></select>
-    <input id="f-loc" placeholder="ค้นหา Location..." style="flex:1;min-width:140px"/>
-    <button class="btn primary" onclick="filterTable()">ค้นหา</button>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="chi" style="background:var(--info-light);color:var(--info)">📆</div>อุปกรณ์ที่ติดตั้งตามวันที่</div>
+    <div style="height:170px"><canvas id="daily-c"></canvas></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="chi" style="background:var(--warning-light);color:var(--warning)">📈</div>ความคืบหน้าสะสม</div>
+    <div style="height:170px"><canvas id="cum-c"></canvas></div>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ch"><div class="chi" style="background:var(--primary-light);color:var(--primary)">🏗</div>ความน่าจะเสร็จตามสถานที่</div>
+      <div style="height:170px"><canvas id="loc-bar-c"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="chi" style="background:var(--success-light);color:var(--success)">📅</div>ผลต่อวัน (สะสมแต่ละวัน)</div>
+      <div id="wd-cells" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:4px"></div>
+    </div>
   </div>
   <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th>No.</th><th>Fabric</th><th>Location</th><th>Room</th>
-          <th>Device Type</th><th>Qty</th><th>Success</th>
-          <th>Scheduled</th><th>Status</th>
-        </tr></thead>
-        <tbody id="device-tbody"><tr><td colspan="9" class="loading">กำลังโหลด...</td></tr></tbody>
-      </table>
-    </div>
-    <div class="pager">
-      <button id="btn-prev" onclick="pg(-1)" disabled>← ก่อนหน้า</button>
-      <span id="pg-info">–</span>
-      <button id="btn-next" onclick="pg(1)">ถัดไป →</button>
-    </div>
+    <div class="ch"><div class="chi" style="background:var(--primary-light);color:var(--primary)">📍</div>แผนภูมิประเภทอุปกรณ์ตามสถานที่</div>
+    <div style="height:230px"><canvas id="loc-h-c"></canvas></div>
   </div>
 </div>
 
-<!-- TAB: แผนงาน -->
-<div class="tab-content" id="tab-update">
-  <div class="card" style="max-width:560px">
-    <div style="font-size:14px;font-weight:600;margin-bottom:16px">บันทึกผลการติดตั้ง</div>
-    <div id="form-alert"></div>
-    <div class="form-grid">
-      <div class="form-group"><label>เลข No.</label><input type="number" id="u-no" placeholder="เช่น 3"/></div>
-      <div class="form-group"><label>Qty. Success</label><input type="number" id="u-qty" placeholder="จำนวนที่ติดตั้ง"/></div>
-      <div class="form-group"><label>วันที่ติดตั้ง</label><input type="date" id="u-date"/></div>
-      <div class="form-group"><label>สถานะ</label>
-        <select id="u-status">
-          <option value="">-- เลือก --</option>
-          <option>Success</option><option>On Plan</option>
-          <option>Hold</option><option>Pending</option>
-        </select>
+<!-- ════ TAB: สถานที่ ════ -->
+<div class="tab-body" id="tab-location" style="display:none">
+  <div class="loc-sec-h">📍 รายละเอียดแยกตามสถานที่</div>
+  <div id="loc-list"></div>
+</div>
+
+<!-- ════ TAB: แผนงาน ════ -->
+<div class="tab-body" id="tab-plan" style="display:none">
+  <div class="plan-sec">📅 การวางแผนโครงการ</div>
+  <div class="g3" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📅 ระยะเวลาโครงการ</div>
+      <div class="g2" style="gap:7px">
+        <div class="pcard"><div class="pc-l">วันเริ่มต้น</div><div class="pc-v">10 ก.พ. 69</div></div>
+        <div class="pcard"><div class="pc-l">วันสิ้นสุด</div><div class="pc-v">23 มิ.ย. 69</div></div>
+        <div class="pcard"><div class="pc-l">จำนวนวันทั้งหมด</div><div class="pc-v">134 วัน</div></div>
+        <div class="pcard"><div class="pc-l">วันที่เหลือ</div><div class="pc-v red">94 วัน</div></div>
       </div>
-      <div class="form-group" style="grid-column:span 2"><label>หมายเหตุ</label><textarea id="u-remark" placeholder="หมายเหตุ..."></textarea></div>
     </div>
-    <button class="btn primary" style="margin-top:4px;width:100%;justify-content:center;padding:10px" onclick="submitUpdate()">บันทึกข้อมูล</button>
+    <div class="card">
+      <div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📈 เป้าหมายตามแผน</div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายอุปกรณ์/วัน</div><div class="pc-v">12 อุปกรณ์/วัน</div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายปัจจุบัน</div><div class="pc-v red">13 อุปกรณ์/วัน</div></div>
+      <div class="pcard"><div class="pc-l">อุปกรณ์ที่เหลือ</div><div class="pc-v">1,132 อุปกรณ์</div></div>
+    </div>
+    <div class="card">
+      <div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">✅ การประเมินโครงการ</div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าตามแผน</div><div class="pc-v">29%</div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn">29%</div><div class="pbar"><div class="pfill" style="width:29%;background:var(--success)"></div></div></div>
+      <div class="pcard"><div class="pc-l">สถานะ</div><div class="pc-v red">↘ ช้ากว่าแผน</div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="chi" style="background:var(--success-light);color:var(--success)">⚡</div>ข้อมูลการติดตั้งจริง</div>
+    <div class="g3" style="margin-bottom:11px">
+      <div class="pcard"><div class="pc-l">อุปกรณ์ที่ติดตั้งแล้วจริง</div><div class="pc-v" style="font-size:20px">460 อุปกรณ์</div></div>
+      <div class="pcard"><div class="pc-l">เฉลี่ยที่ทำได้/วัน</div><div class="pc-v" style="font-size:20px">11.0 อุปกรณ์/วัน</div></div>
+      <div class="pcard"><div class="pc-l">คาดว่าจะเสร็จ</div><div class="pc-v red" style="font-size:20px">3 ก.ค. 69</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:5px">ประสิทธิภาพเทียบกับแผน:</div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <span style="font-size:12px;color:var(--text2);white-space:nowrap">ทำได้ 11.0/วัน จากแผน 13/วัน</span>
+      <div style="flex:1;height:11px;background:#f0f4ff;border-radius:99px;overflow:hidden"><div style="height:100%;width:85%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div>
+      <span style="font-size:12px;font-weight:700;color:var(--danger)">85%</span>
+    </div>
+    <div style="text-align:right;font-size:11px;color:var(--danger);margin-top:3px">⚠ ต่ำกว่าเป้าหมาย</div>
+  </div>
+  <div id="fpc-list"></div>
+  <div class="card">
+    <div class="ch"><div class="chi" style="background:var(--primary-light);color:var(--primary)">✏</div>บันทึกผลการติดตั้ง</div>
+    <div id="form-alert"></div>
+    <div class="fw">
+      <div class="fg2">
+        <div class="fgr"><label>เลข No.</label><input type="number" id="u-no" placeholder="เช่น 3"/></div>
+        <div class="fgr"><label>Qty. Success</label><input type="number" id="u-qty" placeholder="จำนวนที่ติดตั้ง"/></div>
+        <div class="fgr"><label>วันที่ติดตั้ง</label><input type="date" id="u-date"/></div>
+        <div class="fgr"><label>สถานะ</label>
+          <select id="u-status"><option value="">-- เลือก --</option><option>Success</option><option>On Plan</option><option>Hold</option><option>Pending</option></select>
+        </div>
+      </div>
+      <div class="fgr"><label>หมายเหตุ</label><textarea id="u-remark" placeholder="หมายเหตุเพิ่มเติม..."></textarea></div>
+      <button class="btn primary" style="width:100%;justify-content:center;padding:10px" onclick="submitUpdate()">✓ บันทึกข้อมูล</button>
+    </div>
   </div>
 </div>
 
+</div><!-- /tabs-wrap -->
 </main>
 
 <script>
-const API = window.location.hostname === 'localhost'
-  ? 'http://localhost:3000'
-  : 'https://sda-migr-api.onrender.com';
+const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
 
-// ── DATA ─────────────────────────────────────────────────────────────────────
-const BURNDOWN_LABELS = ['09/02','16/02','23/02','02/03','09/03','16/03','23/03','30/03','06/04','13/04','20/04','27/04','04/05','11/05','18/05','25/05','01/06','08/06','15/06','22/06'];
-const BURNDOWN_PLAN   = [1542,1439,1345,1304,1210,1150,909,860,810,779,693,600,503,453,395,318,219,120,23,0];
-const BURNDOWN_ACTUAL = [1542,1441,1347,1306,1213,1151,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const BD_LABELS=["10/02","17/02","24/02","3/03","10/03","17/03","24/03","31/03","7/04","14/04","21/04","28/04","5/05","12/05","19/05","26/05","2/06","9/06","16/06","23/06"];
+const BD_PLAN=[1542,1496,1439,1321,1278,1183,942,886,846,810,726,610,551,492,431,372,263,178,87,0];
+const BD_ACT=[1514,1472,1415,1321,1282,1184];
 
-const FABRIC_DATA = [
-  {name:'D1-041',total:710,done:262,color:'#3b5bdb'},
-  {name:'CFZ',   total:187,done:169,color:'#2f9e44'},
-  {name:'T1-015',total:327,done:2,  color:'#e67700'},
-  {name:'D1-091',total:147,done:2,  color:'#ae3ec9'},
-  {name:'RFF',   total:99, done:2,  color:'#1098ad'},
-  {name:'AMF',   total:114,done:2,  color:'#f76707'},
-  {name:'PPW',   total:8,  done:2,  color:'#74c0fc'},
+const FABRICS=[
+  {n:'D1-041',t:710,d:281,p:39.6,h:6,r:429,s:'10 ก.พ. 69',e:'1 มิ.ย. 69',sw:{t:410,d:209},ap:{t:290,d:43},inf:{t:10,d:10},c:'#4361ee'},
+  {n:'CFZ',   t:187,d:169,p:90.4,h:2,r:18, s:'10 ก.พ. 69',e:'1 มิ.ย. 69',sw:{t:156,d:141},ap:{t:25,d:24},inf:{t:6,d:4},c:'#2bc48a'},
+  {n:'T1-015',t:327,d:2,  p:0.6, h:0,r:325,s:'10 ก.พ. 69',e:'27 พ.ค. 69',sw:{t:281,d:0},ap:{t:44,d:0},inf:{t:2,d:2},c:'#ff9f43'},
+  {n:'D1-091',t:147,d:2,  p:1.4, h:0,r:145,s:'10 ก.พ. 69',e:'8 มิ.ย. 69',sw:{t:134,d:0},ap:{t:11,d:0},inf:{t:2,d:2},c:'#a855f7'},
+  {n:'RFF',   t:99, d:2,  p:2.0, h:0,r:97, s:'10 ก.พ. 69',e:'15 มิ.ย. 69',sw:{t:65,d:0},ap:{t:32,d:0},inf:{t:2,d:2},c:'#22b8cf'},
+  {n:'AMF',   t:114,d:2,  p:1.8, h:0,r:112,s:'10 ก.พ. 69',e:'22 มิ.ย. 69',sw:{t:69,d:0},ap:{t:43,d:0},inf:{t:2,d:2},c:'#f76707'},
+  {n:'PPW',   t:8,  d:2,  p:25,  h:0,r:6,  s:'10 ก.พ. 69',e:'23 มิ.ย. 69',sw:{t:6,d:0},ap:{t:0,d:0},inf:{t:2,d:2},c:'#74c0fc'},
 ];
-const WEEKLY_DONE = {7:50,8:101,9:94,10:41,11:93,12:62};
-const TODAY_WEEK  = 13; // week 13 = ~23/03
+const DAILY_L=["10/02","16/02","17/02","18/02","19/02","20/02","25/02","26/02","27/02","28/02","1/03","3/03","5/03","6/03","9/03","10/03","11/03","12/03","13/03","14/03","16/03","18/03","19/03"];
+const DAILY_SW=[30,6,21,11,12,6,14,14,17,13,12,24,3,12,13,11,14,8,5,42,29,15,18];
+const DAILY_AP=[24,0,15,16,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const DAILY_INF=[24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const CUM_D=["10/02","16/02","17/02","18/02","19/02","20/02","25/02","26/02","27/02","28/02","1/03","3/03","5/03","6/03","9/03","10/03","11/03","12/03","13/03","14/03","16/03","18/03","19/03"];
+const CUM_SW=[30,36,57,68,80,86,100,114,131,144,156,180,183,195,208,219,233,241,246,288,317,332,350];
+const CUM_AP=[24,24,39,55,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67];
+const CUM_INF=[24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24];
+const LOC_DATA={"D1-041":[{l:"อาคารสนง.ท่าอากาศยาน",t:318,d:122,p:38},{l:"Concourse D",t:106,d:35,p:33},{l:"Concourse A",t:71,d:60,p:85},{l:"AIMS",t:64,d:10,p:16},{l:"Concourse C",t:35,d:24,p:69},{l:"Concourse B",t:26,d:13,p:50}],"CFZ":[{l:"อาคาร BFZ",t:59,d:59,p:100},{l:"อาคาร BC-1",t:35,d:33,p:94},{l:"อาคาร S1",t:17,d:17,p:100},{l:"อาคาร CI-1",t:14,d:14,p:100},{l:"อาคาร CE-1",t:11,d:11,p:100}],"T1-015":[{l:"อาคารผู้โดยสาร",t:232,d:0,p:0},{l:"Carpark West",t:44,d:0,p:0},{l:"Carpark East",t:39,d:0,p:0},{l:"Terminal",t:4,d:2,p:50}],"D1-091":[{l:"Concourse G",t:59,d:0,p:0},{l:"Concourse E",t:36,d:0,p:0},{l:"Concourse F",t:23,d:0,p:0}],"RFF":[{l:"RFF",t:49,d:2,p:4},{l:"ศูนย์การขนส่ง",t:23,d:0,p:0},{l:"MTS",t:3,d:0,p:0}],"AMF":[{l:"AMF1",t:50,d:2,p:4},{l:"AMF4",t:16,d:0,p:0},{l:"AMF2",t:15,d:0,p:0}],"PPW":[{l:"PPW",t:6,d:2,p:33},{l:"Power house 01L",t:2,d:0,p:0}]};
 
-let allDevices = [], filteredDevices = [], offset = 0;
-const LIMIT = 50;
-let charts = {};
-
-// ── INIT ────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  buildStaticCharts();
-  buildTimeline();
-  buildHeatmap();
-  document.getElementById('update-time').textContent = '| อัพเดทล่าสุด: ' + new Date().toLocaleString('th-TH');
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  buildGauge(); buildBurndown(); buildDonut();
+  buildTimeline(); buildHeatmap();
+  buildLocList(); buildFabCards();
+  document.getElementById('update-ts').textContent='| '+new Date().toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
   loadData();
 });
 
-// ── STATIC CHARTS (from local data) ─────────────────────────────────────────
-function buildStaticCharts() {
-  // Burndown
-  const bCtx = document.getElementById('burndown-chart').getContext('2d');
-  charts.burndown = new Chart(bCtx, {
-    type:'line',
-    data:{
-      labels: BURNDOWN_LABELS,
-      datasets:[
-        {label:'แผน',data:BURNDOWN_PLAN,borderColor:'#adb5bd',borderWidth:1.5,borderDash:[5,3],pointRadius:0,tension:0.3,fill:false},
-        {label:'จริง',data:BURNDOWN_ACTUAL,borderColor:'#2f9e44',borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#2f9e44',tension:0.3,fill:false,spanGaps:false},
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},
-      scales:{
-        x:{ticks:{font:{size:10},maxRotation:45},grid:{display:false}},
-        y:{min:0,max:1600,ticks:{font:{size:10}},grid:{color:'#f1f3f5'}}
-      }
-    }
-  });
-
-  // Donut
-  const dCtx = document.getElementById('donut-chart').getContext('2d');
-  const done = 436, total = 1592;
-  charts.donut = new Chart(dCtx,{
-    type:'doughnut',
-    data:{
-      datasets:[{
-        data:[done, 2, 0, total-done-2],
-        backgroundColor:['#2f9e44','#3b5bdb','#c92a2a','#dee2e6'],
-        borderWidth:0,
-      }]
-    },
-    options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}
-  });
-  document.getElementById('dot-on').textContent = done;
-  document.getElementById('dot-early').textContent = 2;
-  document.getElementById('dot-late').textContent = 0;
-  document.getElementById('dot-pend').textContent = total-done-2;
-
-  // Gauge
-  const gCtx = document.getElementById('gauge-chart').getContext('2d');
-  const eff = 82;
-  charts.gauge = new Chart(gCtx,{
-    type:'doughnut',
-    data:{datasets:[{data:[eff,100-eff],backgroundColor:['#e67700','#f1f3f5'],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',circumference:180,rotation:-90,plugins:{legend:{display:false},tooltip:{enabled:false}}}
-  });
-  document.getElementById('gauge-pct').textContent = eff+'%';
-
-  // Fabric bar (charts tab)
-  setTimeout(()=>{
-    const fbCtx = document.getElementById('fabric-bar').getContext('2d');
-    charts.fabricBar = new Chart(fbCtx,{
-      type:'bar',
-      data:{
-        labels: FABRIC_DATA.map(f=>f.name),
-        datasets:[
-          {label:'ติดตั้งแล้ว (%)',data:FABRIC_DATA.map(f=>Math.round(f.done/f.total*100)),backgroundColor:FABRIC_DATA.map(f=>f.color)},
-        ]
-      },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f1f3f5'}},x:{ticks:{font:{size:11}},grid:{display:false}}}}
-    });
-
-    // Type pie
-    const tpCtx = document.getElementById('type-pie').getContext('2d');
-    charts.typePie = new Chart(tpCtx,{
-      type:'doughnut',
-      data:{
-        labels:['Switch (1121)','AP (445)','Infra (26)'],
-        datasets:[{data:[1121,445,26],backgroundColor:['#3b5bdb','#2f9e44','#e67700'],borderWidth:2,borderColor:'#fff'}]
-      },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}}
-    });
-
-    // Weekly bar
-    const wbCtx = document.getElementById('weekly-bar').getContext('2d');
-    const wks = Object.keys(WEEKLY_DONE).map(w=>'สัปดาห์ '+w);
-    const vals = Object.values(WEEKLY_DONE);
-    charts.weeklyBar = new Chart(wbCtx,{
-      type:'bar',
-      data:{labels:wks,datasets:[{label:'ติดตั้ง/สัปดาห์',data:vals,backgroundColor:'#74c0fc',borderRadius:4}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f1f3f5'}},x:{ticks:{font:{size:11}},grid:{display:false}}}}
-    });
-  }, 100);
+function buildGauge(){
+  new Chart(document.getElementById('gauge-c'),{type:'doughnut',data:{datasets:[{data:[82,18],backgroundColor:['#ff9f43','#f1f5f9'],borderWidth:0}]},options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
 }
 
-function buildTimeline() {
-  const totalWeeks = 20;
-  const wrap = document.getElementById('timeline-rows');
-  wrap.innerHTML = FABRIC_DATA.map(f => {
-    const pct = Math.round(f.done / f.total * 100);
-    // today marker at week 13/20 = 65%
-    const todayPct = 65;
-    return `
-    <div class="timeline-row">
-      <div class="tl-label">
-        <span style="font-weight:600;font-size:12px">${f.name}</span>
-        <span style="font-size:11px;color:var(--muted)">${pct}%</span>
-      </div>
-      <div class="tl-track">
-        <div style="display:flex;width:100%;height:100%">
-          <div class="tl-done" style="width:${pct}%;background:${f.color}">${pct>8?pct+'%':''}</div>
-          <div class="tl-remain" style="width:${100-pct}%;background:#edf2ff">${pct<92?f.total-f.done+' เหลือ':''}</div>
-        </div>
-        <div class="tl-today" style="left:${todayPct}%"></div>
-      </div>
+function buildBurndown(){
+  const todayPlugin={id:'td',afterDraw(chart){
+    const m=chart.getDatasetMeta(0);
+    if(!m.data[5])return;
+    const x=m.data[5].x,{top,bottom}=chart.chartArea,c=chart.ctx;
+    c.save();c.beginPath();c.moveTo(x,top);c.lineTo(x,bottom);
+    c.strokeStyle='#ee4b4b';c.lineWidth=1.5;c.setLineDash([5,3]);c.stroke();c.restore();
+  }};
+  // Align actual to first 6 labels, rest null
+  const actualData=BD_LABELS.map((_,i)=>i<BD_ACT.length?BD_ACT[i]:null);
+  new Chart(document.getElementById('burndown-c'),{
+    type:'line',plugins:[todayPlugin],
+    data:{labels:BD_LABELS,datasets:[
+      {label:'แผน',data:BD_PLAN,borderColor:'#94a3c4',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.3,fill:false},
+      {label:'จริง',data:actualData,borderColor:'#2bc48a',borderWidth:2.5,pointRadius:(ctx)=>ctx.dataIndex<BD_ACT.length?3:0,pointBackgroundColor:'#2bc48a',tension:0.4,fill:false,spanGaps:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false}},scales:{x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4'},grid:{display:false}},y:{min:0,max:1600,ticks:{font:{size:10},color:'#94a3c4',stepSize:400},grid:{color:'#f0f4ff'}}}}
+  });
+}
+
+function buildDonut(){
+  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#2bc48a','#4361ee','#ee4b4b','#e2e8f0'],borderWidth:2,borderColor:'#fff'}]},options:{cutout:'72%',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+}
+
+function buildTimeline(){
+  const w=document.getElementById('tl-wrap'),tdp=34;
+  w.innerHTML=FABRICS.map(f=>{
+    const p=Math.round(f.p);
+    const bg=p>=80?'#ecfdf5;color:#065f46':p>=30?'#fff5e6;color:#92400e':'#eef1ff;color:var(--primary)';
+    return `<div class="tlr">
+      <div class="tlt"><div class="tln">${f.n}</div><div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)"><span>${f.d}/${f.t}</span><span class="tlpct" style="background:${bg}">${p}%</span></div></div>
+      <div class="tltrack"><div style="display:flex;height:100%"><div class="tlfill" style="width:${p}%;background:${f.c}">${p>10?p+'%':''}</div><div style="flex:1;background:#eef1ff"></div></div><div class="tltd" style="left:${tdp}%;background:var(--danger)"></div></div>
     </div>`;
   }).join('');
 }
 
-function buildHeatmap() {
-  const wrap = document.getElementById('heatmap');
-  wrap.innerHTML = FABRIC_DATA.map(f => {
-    const pct = Math.round(f.done / f.total * 100);
-    const cls = pct === 100 ? 'hm-full' : pct >= 80 ? 'hm-high' : pct >= 30 ? 'hm-mid' : pct > 0 ? 'hm-low' : 'hm-0';
-    return `<div class="hm-card ${cls}">
-      <div class="hm-name">${f.name}</div>
-      <div class="hm-pct">${pct}%</div>
-      <div class="hm-sub">${f.done}/${f.total}</div>
-    </div>`;
+function buildHeatmap(){
+  const w=document.getElementById('hm-wrap');
+  w.innerHTML=FABRICS.map(f=>{
+    const p=Math.round(f.p),cls=p===100?'hmfu':p>=70?'hmhi':p>=30?'hmmi':p>0?'hmlo':'hm0';
+    return `<div class="hmc ${cls}"><div class="hmn">${f.n}</div><div class="hmp">${p}%</div><div class="hms">${f.d}/${f.t}</div></div>`;
   }).join('');
 }
 
-// ── LOAD FROM API ─────────────────────────────────────────────────────────────
-async function loadData() {
-  try {
-    const res = await fetch(`${API}/api/summary`);
-    const {overall, fabrics} = await res.json();
+function buildLocList(){
+  const w=document.getElementById('loc-list');
+  w.innerHTML=Object.entries(LOC_DATA).map(([fab,locs])=>{
+    const f=FABRICS.find(x=>x.n===fab)||{c:'var(--primary)',p:0};
+    const td=locs.reduce((a,l)=>a+l.d,0),tt=locs.reduce((a,l)=>a+l.t,0),tp=tt>0?Math.round(td/tt*100):0;
+    return `<div class="fg">
+      <div class="fgh" onclick="togFab(this)">
+        <div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>${fab}</div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px"><span style="color:var(--text2)">${td}/${tt} อุปกรณ์ (${tp}%)</span><span>›</span></div>
+      </div>
+      <div class="fgb">
+        ${locs.map(l=>{const pc=Math.min(l.p,100),bc=pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
+          return `<div class="locrow"><div style="display:flex;align-items:center;gap:5px;flex:1;min-width:0">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${f.c}" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span class="locname">${l.l}</span></div>
+            <div class="loci"><div class="locc">${l.d}/${l.t} (${pc}%)</div><div class="locbar"><div class="locfill" style="width:${pc}%;background:${bc}"></div></div></div>
+          </div>`;}).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function togFab(el){const b=el.nextElementSibling,a=el.querySelector('span:last-child');b.classList.toggle('open');if(a)a.textContent=b.classList.contains('open')?'∨':'›';}
 
-    // Top bar
-    document.getElementById('ts-done').textContent = `${overall.actual_installed}/${overall.total_devices}`;
-    const rate = (overall.actual_installed / 43).toFixed(1); // ~43 days elapsed
-    document.getElementById('ts-rate').textContent = rate;
-    document.getElementById('ts-days').textContent = 95;
-
-    // Pills
-    document.getElementById('pill-date').textContent = '9 ก.ค. 69';
-    document.getElementById('pill-rem').textContent = (overall.total_devices - overall.actual_installed).toLocaleString();
-    document.getElementById('pill-days').textContent = 95;
-    document.getElementById('pill-over').textContent = overall.overdue_items;
-    document.getElementById('pill-hold').textContent = overall.hold;
-
-    // Insights
-    const needed = ((overall.total_devices - overall.actual_installed) / 95).toFixed(1);
-    document.getElementById('ins-need').innerHTML = `<span style="font-size:18px">↑ ต้องเพิ่ม ${needed}</span> อุปกรณ์/วัน`;
-    document.getElementById('ins-detail').textContent = `เพิ่ม ${needed - rate > 0 ? (needed-rate).toFixed(1) : 0}% จากอัตราปัจจุบัน  →  ทำได้ ${rate}  →  ต้องทำ ${needed} อุปกรณ์/วัน`;
-    document.getElementById('ins-warn').textContent = `⚠ ถ้าไม่เพิ่ม → เสร็จ 9 ก.ค. 69 — ช้ากว่าเป้า 16 วัน`;
-    document.getElementById('ins-actual').textContent = rate + ' /วัน';
-    document.getElementById('ins-target').textContent = '13 /วัน';
-    document.getElementById('ins-gap').textContent = `+${needed} /วัน`;
-
-    // Overview cards
-    document.getElementById('ov-total').textContent = `${overall.actual_installed}/${overall.total_devices}`;
-    document.getElementById('ov-total-sub').textContent = `อุปกรณ์ที่ติดตั้งแล้ว (${overall.progress_pct}%)`;
-    document.getElementById('ov-bar').style.width = overall.progress_pct + '%';
-    document.getElementById('ov-sw').textContent = '353/1121';
-    document.getElementById('ov-sw-sub').textContent = 'Switch ที่ติดตั้งแล้ว (31%)';
-    document.getElementById('ov-sw-bar').style.width = '31%';
-    document.getElementById('ov-ap').textContent = '67/445';
-    document.getElementById('ov-ap-sub').textContent = 'AP ที่ติดตั้งแล้ว (15%)';
-    document.getElementById('ov-ap-bar').style.width = '15%';
-    document.getElementById('ov-inf').textContent = '16/26';
-    document.getElementById('ov-inf-sub').textContent = 'Infra ที่ติดตั้งแล้ว (62%)';
-    document.getElementById('ov-inf-bar').style.width = '62%';
-
-    // Hold
-    document.getElementById('hold-cnt').textContent = overall.hold + ' รายการ';
-    document.getElementById('pill-hold').textContent = overall.hold;
-
-    // Load devices
-    loadDevices();
-    loadFilters();
-
-  } catch(e) {
-    // Fallback to static data if API unavailable
-    document.getElementById('ins-need').innerHTML = `<span style="font-size:18px">↑ ต้องเพิ่ม 2.4</span> อุปกรณ์/วัน`;
-    document.getElementById('ins-detail').textContent = `↑23% จากอัตราปัจจุบัน  →  ทำได้ 10.6  →  ต้องทำ 13 อุปกรณ์/วัน`;
-    document.getElementById('ins-warn').textContent = `⚠ ถ้าไม่เพิ่ม → เสร็จ 9 ก.ค. 69 — ช้ากว่าเป้า 16 วัน`;
-    document.getElementById('ins-actual').textContent = '10.6 /วัน';
-    document.getElementById('ins-target').textContent = '13 /วัน';
-    document.getElementById('ins-gap').textContent = '+2.4 /วัน';
-    document.getElementById('ov-total').textContent = '436/1592';
-    document.getElementById('ov-total-sub').textContent = 'อุปกรณ์ที่ติดตั้งแล้ว (27%)';
-    document.getElementById('ov-bar').style.width = '27%';
-    document.getElementById('ov-sw').textContent = '353/1121'; document.getElementById('ov-sw-sub').textContent='Switch ที่ติดตั้งแล้ว (31%)'; document.getElementById('ov-sw-bar').style.width='31%';
-    document.getElementById('ov-ap').textContent  = '67/445';  document.getElementById('ov-ap-sub').textContent ='AP ที่ติดตั้งแล้ว (15%)'; document.getElementById('ov-ap-bar').style.width='15%';
-    document.getElementById('ov-inf').textContent = '16/26';   document.getElementById('ov-inf-sub').textContent='Infra ที่ติดตั้งแล้ว (62%)'; document.getElementById('ov-inf-bar').style.width='62%';
-    document.getElementById('ts-done').textContent = '436/1592';
-    document.getElementById('ts-rate').textContent = '10.6';
-    document.getElementById('ts-days').textContent = '95';
-    document.getElementById('hold-cnt').textContent = '7 รายการ';
-    document.getElementById('pill-date').textContent = '9 ก.ค. 69';
-    document.getElementById('pill-rem').textContent = '1,156';
-    document.getElementById('pill-days').textContent = '95';
-    document.getElementById('pill-over').textContent = '4';
-    document.getElementById('pill-hold').textContent = '7';
-  }
+function buildFabCards(){
+  const w=document.getElementById('fpc-list');
+  const pairs=[];for(let i=0;i<FABRICS.length;i+=2)pairs.push(FABRICS.slice(i,i+2));
+  w.innerHTML=pairs.map(pair=>`<div class="g2" style="margin-bottom:9px">${pair.map(f=>{
+    const p=Math.round(f.p),swp=f.sw.t>0?Math.round(f.sw.d/f.sw.t*100):0,app=f.ap.t>0?Math.round(f.ap.d/f.ap.t*100):0,inp=f.inf.t>0?Math.round(f.inf.d/f.inf.t*100):0;
+    const pbg=p>=80?'var(--success-light);color:#065f46':p>=30?'var(--warning-light);color:#92400e':'var(--primary-light);color:var(--primary)';
+    return `<div class="fpc">
+      <div class="fpc-h"><div class="fpc-name"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>🏗 Fabric ${f.n}</div><div class="fpc-pct" style="background:${pbg}">${p}%</div></div>
+      <div class="fpc-big">${f.d}/${f.t}</div><div class="fpc-sub">อุปกรณ์ที่ติดตั้งแล้ว</div>
+      <div class="fpc-bar"><div class="fpc-fill" style="width:${p}%;background:${f.c}"></div></div>
+      <div class="fpc-cats">
+        <div class="fcc"><div class="cl" style="color:#4361ee">🔀 Switch:</div><div class="cv">${f.sw.d}/${f.sw.t} (${swp}%)</div><div class="cb"><div class="cbf" style="width:${swp}%;background:#4361ee"></div></div></div>
+        <div class="fcc"><div class="cl" style="color:var(--success)">📶 AP:</div><div class="cv">${f.ap.d}/${f.ap.t} (${app}%)</div><div class="cb"><div class="cbf" style="width:${app}%;background:var(--success)"></div></div></div>
+        <div class="fcc"><div class="cl" style="color:var(--warning)">⚡ Infra:</div><div class="cv">${f.inf.d}/${f.inf.t} (${inp}%)</div><div class="cb"><div class="cbf" style="width:${inp}%;background:var(--warning)"></div></div></div>
+      </div>
+      <div class="fpc-dates"><div class="fdate"><div class="dl">เริ่ม:</div><div class="dv">${f.s}</div></div><div class="fdate"><div class="dl">สิ้นสุด:</div><div class="dv">${f.e}</div></div></div>
+    </div>`;}).join('')}</div>`).join('');
 }
 
-// ── DEVICES TABLE ─────────────────────────────────────────────────────────────
-let curFilter = {};
-async function loadFilters() {
-  try {
-    const res = await fetch(`${API}/api/filters`);
-    const {fabrics, statuses} = await res.json();
-    const fs = document.getElementById('f-fabric');
-    const ss = document.getElementById('f-status');
-    fabrics.forEach(f => fs.innerHTML += `<option>${f}</option>`);
-    statuses.forEach(s => ss.innerHTML += `<option>${s}</option>`);
-  } catch(e) {}
+// ── GRAPHS (lazy) ─────────────────────────────────────────────────────────────
+let gblt=false;
+function buildGraphs(){
+  if(gblt)return;gblt=true;
+  new Chart(document.getElementById('type-c'),{type:'doughnut',data:{datasets:[{data:[1121,445,26],backgroundColor:['#4361ee','#2bc48a','#ff9f43'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+  new Chart(document.getElementById('fab-bar-c'),{type:'bar',data:{labels:FABRICS.map(f=>f.n),datasets:[{data:FABRICS.map(f=>Math.round(f.p)),backgroundColor:FABRICS.map(f=>f.c),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+  new Chart(document.getElementById('daily-c'),{type:'bar',data:{labels:DAILY_L,datasets:[{label:'Switch',data:DAILY_SW,backgroundColor:'#4361ee',borderRadius:3,stack:'s'},{label:'AP',data:DAILY_AP,backgroundColor:'#2bc48a',borderRadius:3,stack:'s'},{label:'Infra',data:DAILY_INF,backgroundColor:'#ff9f43',borderRadius:3,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
+  new Chart(document.getElementById('cum-c'),{type:'line',data:{labels:CUM_D,datasets:[{label:'Switch',data:CUM_SW,fill:true,backgroundColor:'rgba(67,97,238,.12)',borderColor:'#4361ee',borderWidth:1.5,tension:0.4,pointRadius:0},{label:'AP',data:CUM_AP,fill:true,backgroundColor:'rgba(43,196,138,.12)',borderColor:'#2bc48a',borderWidth:1.5,tension:0.4,pointRadius:0},{label:'Infra',data:CUM_INF,fill:true,backgroundColor:'rgba(255,159,67,.15)',borderColor:'#ff9f43',borderWidth:1.5,tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
+  const tl=[['อาคารสนง.',38],['Concourse D',33],['Concourse A',85],['AIMS',16],['Concourse C',69],['CFZ BFZ',100],['Concourse G',0],['AMF1',4]];
+  new Chart(document.getElementById('loc-bar-c'),{type:'bar',data:{labels:tl.map(l=>l[0]),datasets:[{data:tl.map(l=>l[1]),backgroundColor:tl.map(l=>l[1]>=80?'#2bc48a':l[1]>=30?'#ff9f43':'#4361ee'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
+  const wd=['อา','จ','อ','พ','พฤ','ศ','ส'],wv=[0,160,120,55,40,20,56],mx=Math.max(...wv);
+  document.getElementById('wd-cells').innerHTML=wd.map((d,i)=>{const v=wv[i],p=mx>0?Math.round(v/mx*100):0,bg=p>=80?'#2bc48a':p>=50?'#4361ee':p>=20?'#ff9f43':'#e2e8f0',tc=p>=20?'#fff':'var(--text2)';return `<div style="border-radius:7px;padding:9px 3px;text-align:center;background:${bg};color:${tc}"><div style="font-size:10px;opacity:.8">${d}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;}).join('');
+  const ln=['อาคารสนง.','Concourse D','อาคารผู้โดยสาร','Concourse G','Concourse A','AIMS','CFZ BFZ','AMF1'],lt=[318,106,232,59,71,64,59,50],ld=[122,35,0,0,60,10,59,2];
+  new Chart(document.getElementById('loc-h-c'),{type:'bar',data:{labels:ln,datasets:[{label:'ติดตั้งแล้ว',data:ld,backgroundColor:'#4361ee',borderRadius:4,stack:'s'},{label:'เหลือ',data:lt.map((t,i)=>t-ld[i]),backgroundColor:'#e2e8f0',borderRadius:4,stack:'s'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{color:'#f0f4ff'}},y:{stacked:true,ticks:{font:{size:9}},grid:{display:false}}}}});
 }
 
-function filterTable() {
-  curFilter = {
-    fabric: document.getElementById('f-fabric').value,
-    status: document.getElementById('f-status').value,
-    location: document.getElementById('f-loc').value,
-  };
-  offset = 0;
-  loadDevices();
-}
-
-async function loadDevices() {
-  const tbody = document.getElementById('device-tbody');
-  tbody.innerHTML = '<tr><td colspan="9" class="loading">กำลังโหลด...</td></tr>';
-  try {
-    const p = new URLSearchParams({limit:LIMIT, offset, ...curFilter});
-    const res = await fetch(`${API}/api/devices?${p}`);
-    const {total, data} = await res.json();
-    document.getElementById('pg-info').textContent = `แสดง ${offset+1}–${Math.min(offset+LIMIT,total)} จาก ${total}`;
-    document.getElementById('btn-prev').disabled = offset === 0;
-    document.getElementById('btn-next').disabled = offset+LIMIT >= total;
-    tbody.innerHTML = data.map(r => {
-      const sc = r['Status']?.replace(' ','-') || '';
-      return `<tr>
-        <td>${r['No.']}</td>
-        <td><b>${r['Fabric']}</b></td>
-        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r['Location']}">${r['Location']||'-'}</td>
-        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r['Room']||'-'}</td>
-        <td>${r['Device Type']}</td>
-        <td style="text-align:center">${r['Qty']}</td>
-        <td style="text-align:center">${r['Qty. Success']||'-'}</td>
-        <td>${r['Scheduled Date']||'-'}</td>
-        <td><span class="badge s-${sc}">${r['Status']||'-'}</span></td>
-      </tr>`;
-    }).join('');
-  } catch(e) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--danger);padding:20px">ไม่สามารถเชื่อมต่อ API — กรุณาตรวจสอบ Backend URL</td></tr>`;
-  }
-}
-
-function pg(dir) { offset = Math.max(0, offset + dir*LIMIT); loadDevices(); }
-
-// ── TABS ─────────────────────────────────────────────────────────────────────
-function showTab(name, btn) {
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('on'));
+// ── TABS ──────────────────────────────────────────────────────────────────────
+const TABS=['overview','graphs','location','plan'];
+function showTab(n,btn){
+  TABS.forEach(t=>document.getElementById('tab-'+t).style.display=t===n?'block':'none');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  document.getElementById('tab-'+name).classList.add('on');
   btn.classList.add('on');
-  if (name==='devices' && document.getElementById('f-fabric').children.length===1) loadFilters();
+  if(n==='graphs')buildGraphs();
 }
 
-// ── HOLD ─────────────────────────────────────────────────────────────────────
-let holdOpen = false;
-async function toggleHold() {
-  holdOpen = !holdOpen;
-  document.getElementById('hold-arrow').textContent = holdOpen ? '▲' : '▼';
-  const list = document.getElementById('hold-list');
-  if (!holdOpen) { list.style.display='none'; return; }
-  list.style.display = 'block';
-  try {
-    const res = await fetch(`${API}/api/devices?status=Hold&limit=20`);
-    const {data} = await res.json();
-    list.innerHTML = `<div class="card"><table><thead><tr><th>No.</th><th>Fabric</th><th>Location</th><th>Device Type</th><th>Qty</th></tr></thead><tbody>
-      ${data.map(r=>`<tr><td>${r['No.']}</td><td><b>${r['Fabric']}</b></td><td>${r['Location']||'-'}</td><td>${r['Device Type']}</td><td>${r['Qty']}</td></tr>`).join('')}
-    </tbody></table></div>`;
-  } catch(e) { list.innerHTML = '<div style="padding:12px;color:var(--muted)">ไม่สามารถโหลดข้อมูลได้</div>'; }
+// ── HOLD ──────────────────────────────────────────────────────────────────────
+async function toggleHold(el){
+  const b=document.getElementById('hold-body'),a=document.getElementById('hold-arr');
+  const open=b.style.display==='none';
+  b.style.display=open?'block':'none';
+  a.textContent=open?'▲':'▼';
+  if(!open||b.innerHTML)return;
+  try{
+    const r=await fetch(`${API}/api/devices?status=Hold&limit=20`);
+    const{data}=await r.json();
+    b.innerHTML=`<div class="card" style="margin-top:5px"><div class="tblw"><table><thead><tr><th>No.</th><th>Fabric</th><th>Location</th><th>Device Type</th><th>Qty</th></tr></thead><tbody>${data.map(r=>`<tr><td>${r['No.']}</td><td><b>${r['Fabric']}</b></td><td>${r['Location']||'-'}</td><td>${r['Device Type']}</td><td>${r['Qty']}</td></tr>`).join('')}</tbody></table></div></div>`;
+  }catch{b.innerHTML='<div style="padding:11px;color:var(--text2)">ไม่สามารถโหลดได้จาก API</div>';}
 }
 
-// ── UPDATE FORM ───────────────────────────────────────────────────────────────
-async function submitUpdate() {
-  const el = id => document.getElementById(id);
-  const alertEl = el('form-alert');
-  alertEl.innerHTML = '';
-  const body = {
-    no: parseInt(el('u-no').value),
-    qty_success: parseInt(el('u-qty').value)||undefined,
-    install_date: el('u-date').value||undefined,
-    status: el('u-status').value||undefined,
-    remark: el('u-remark').value||undefined,
-  };
-  if (!body.no) { alertEl.innerHTML='<div class="form-alert fa-err">กรุณากรอกเลข No.</div>'; return; }
-  try {
-    const res = await fetch(`${API}/api/update`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d = await res.json();
-    if (d.success) {
-      alertEl.innerHTML = `<div class="form-alert fa-ok">✅ บันทึกสำเร็จ — No. ${body.no}</div>`;
-      ['u-no','u-qty','u-date','u-remark'].forEach(i=>el(i).value='');
-      el('u-status').value='';
-    } else { alertEl.innerHTML=`<div class="form-alert fa-err">❌ ${d.error}</div>`; }
-  } catch(e) { alertEl.innerHTML=`<div class="form-alert fa-err">❌ ${e.message}</div>`; }
+// ── API ───────────────────────────────────────────────────────────────────────
+async function loadData(){
+  try{
+    const r=await fetch(`${API}/api/summary`);
+    const{overall}=await r.json();
+    document.getElementById('ts-done').textContent=`${overall.actual_installed}/${overall.total_devices}`;
+    document.getElementById('ts-over').textContent=overall.overdue_items;
+    document.getElementById('pill-rem').textContent=(overall.total_devices-overall.actual_installed).toLocaleString();
+    document.getElementById('pill-hold').textContent=overall.hold;
+    document.getElementById('pill-over').textContent=overall.overdue_items;
+    document.getElementById('hold-cnt').textContent=overall.hold+' รายการ';
+  }catch{}
+}
+
+async function submitUpdate(){
+  const $=id=>document.getElementById(id),al=$('form-alert');al.innerHTML='';
+  const body={no:parseInt($('u-no').value),qty_success:parseInt($('u-qty').value)||undefined,install_date:$('u-date').value||undefined,status:$('u-status').value||undefined,remark:$('u-remark').value||undefined};
+  if(!body.no){al.innerHTML='<div class="falert ferr">⚠ กรุณากรอกเลข No.</div>';return;}
+  try{
+    const r=await fetch(`${API}/api/update`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.success){al.innerHTML=`<div class="falert fok">✅ บันทึกสำเร็จ — No. ${body.no}</div>`;['u-no','u-qty','u-date','u-remark'].forEach(i=>$(i).value='');$('u-status').value='';}
+    else al.innerHTML=`<div class="falert ferr">❌ ${d.error}</div>`;
+  }catch(e){al.innerHTML=`<div class="falert ferr">❌ ${e.message}</div>`;}
 }
 </script>
 </body>
