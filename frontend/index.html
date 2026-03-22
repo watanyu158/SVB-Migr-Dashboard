@@ -1124,11 +1124,14 @@ const _wkStart   = new Date(2026, 1, 10); // 10 Feb 2026
 const _wkDiff    = Math.floor((_todayGMT7 - _wkStart) / (7*24*60*60*1000));
 const TODAY_WK   = Math.max(0, Math.min(19, _wkDiff));
 const PLAN_ALL = [3.8,9.6,15.5,19.0,25.7,28.8,43.8,46.0,49.1,52.4,61.7,62.3,69.1,72.1,76.0,81.9,86.5,92.6,99.6,100.0];
-const ACT_ALL  = [5.3,11.1,15.5,18.8,25.6,27.7,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+const ACT_ALL_RAW = [5.3,11.1,15.5,18.8,25.6,27.7];
+const ACT_ALL  = WK.map((_,i)=>i<ACT_ALL_RAW.length&&i<=TODAY_WK?ACT_ALL_RAW[i]:null);
 const PLAN_SW  = [3.5,7.9,14.1,18.9,28.4,32.6,38.1,39.5,42.6,46.6,53.3,54.1,63.8,68.1,73.6,82.0,87.5,93.3,99.5,100.0];
-const ACT_SW   = [3.2,7.7,13.9,18.6,28.3,31.2,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+const ACT_SW_RAW = [3.2,7.7,13.9,18.6,28.3,31.2];
+const ACT_SW   = WK.map((_,i)=>i<ACT_SW_RAW.length&&i<=TODAY_WK?ACT_SW_RAW[i]:null);
 const PLAN_AP  = [0.0,9.7,15.1,15.1,15.1,15.3,54.8,59.1,62.5,64.5,80.7,80.7,80.7,80.7,80.7,80.7,83.1,90.3,100.0,100.0];
-const ACT_AP   = [5.4,15.1,15.1,15.1,15.1,15.1,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+const ACT_AP_RAW = [5.4,15.1,15.1,15.1,15.1,15.1];
+const ACT_AP   = WK.map((_,i)=>i<ACT_AP_RAW.length&&i<=TODAY_WK?ACT_AP_RAW[i]:null);
 const BD_PLAN  = [1542,1496,1439,1321,1278,1183,942,886,846,810,726,610,551,492,431,372,263,178,87,0];
 const BD_ACT   = [1514,1472,1415,1321,1282,1184];
 const CUM_D=["10/02","16/02","17/02","18/02","19/02","20/02","25/02","26/02","27/02","28/02","1/03","3/03","5/03","6/03","9/03","10/03","11/03","12/03","13/03","14/03","16/03","18/03","19/03"];
@@ -1296,7 +1299,7 @@ function buildGauge(){
 
 function buildBurndown(){
   const tdPl={id:'td',afterDraw(chart){const m=chart.getDatasetMeta(0);if(!m.data[TODAY_WK])return;const x=m.data[TODAY_WK].x,{top,bottom}=chart.chartArea,c=chart.ctx;c.save();c.beginPath();c.moveTo(x,top);c.lineTo(x,bottom);c.strokeStyle='#ee4b4b';c.lineWidth=1.5;c.setLineDash([5,3]);c.stroke();c.restore();}};
-  const actualFull = WK.map((_,i)=>i<BD_ACT.length?BD_ACT[i]:null);
+  const actualFull = WK.map((_,i)=>i<=TODAY_WK&&i<BD_ACT.length?BD_ACT[i]:null);
   const _ch_burndownc = Chart.getChart(document.getElementById('burndown-c'));
   if(_ch_burndownc) _ch_burndownc.destroy();
   new Chart(document.getElementById('burndown-c'),{
@@ -1911,10 +1914,18 @@ async function exportPDF() {
       if(summaryCard) summaryCard.style.pageBreakAfter = 'avoid';
     }
 
-    // Graphs tab: "แยกแต่ละ Fabric" section starts new page
-    main.querySelectorAll('#tab-graphs > *').forEach(el=>{
+    // Graphs tab: "แยกแต่ละ Fabric" section — page break but keep with next element
+    main.querySelectorAll('#tab-graphs > *').forEach((el,i,arr)=>{
       if(el.textContent.includes('อุปกรณ์ที่ติดตั้งตามวันที่') && el.textContent.includes('แยกแต่ละ Fabric')){
         el.style.pageBreakBefore = 'always';
+        el.style.pageBreakAfter = 'avoid'; // keep with next card
+      }
+    });
+    // "สรุป Switch/AP/Infra" header — must NOT be alone on a page
+    main.querySelectorAll('#tab-overview *').forEach(el=>{
+      if(el.textContent.trim() === 'สรุป Switch / AP / Infra แยกตาม Fabric'){
+        el.style.pageBreakAfter = 'avoid';
+        if(el.parentElement) el.parentElement.style.pageBreakAfter = 'avoid';
       }
     });
 
