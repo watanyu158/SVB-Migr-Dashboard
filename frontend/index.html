@@ -1533,6 +1533,10 @@ function buildGraphs(){
     const fabPct = fabPlanTotal>0 ? Math.round(fabDoneTotal/fabPlanTotal*100) : 0;
     const fabPctColor = fabPct>=80?'#065f46':fabPct>=30?'#92400e':'#4361ee';
     const fabPctBg    = fabPct>=80?'#ecfdf5':fabPct>=30?'#fff5e6':'#eef1ff';
+    const canvasId = 'fd-' + fab.replace(/-/g,'') + '-c';
+    const chartHtml = hasData
+      ? '<div style="height:160px"><canvas id="' + canvasId + '"></canvas></div>'
+      : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;background:var(--bg);border-radius:8px">ยังไม่มีการติดตั้ง</div>';
     div.innerHTML = `
       <div class="ch" style="margin-bottom:10px;flex-wrap:wrap;gap:6px">
         <div style="width:10px;height:10px;border-radius:50%;background:${fabColor};flex-shrink:0"></div>
@@ -1545,21 +1549,18 @@ function buildGraphs(){
           <span style="padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;background:${fabPctBg};color:${fabPctColor}">${fabPct}%</span>
         </span>
       </div>
-      ${hasData
-        ? `<div style="height:160px"><canvas id="fd-${fab.replace('-','')}-c"></canvas></div>`
-        : `<div style="height:80px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;background:var(--bg);border-radius:8px">ยังไม่มีการติดตั้ง</div>`
-      }
+      ${chartHtml}
       <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#4361ee;display:inline-block"></span>Switch</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#2bc48a;display:inline-block"></span>AP</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#ff9f43;display:inline-block"></span>Infra</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed ${fabColor};display:inline-block"></span>เป้าตามแผน</span>
-      </div>\`;
+      </div>`;
     wrap.appendChild(div);
 
     if (!hasData) return;
     setTimeout(() => {
-      const ctx = document.getElementById(`fd-${fab.replace('-','')}-c`);
+      const ctx = document.getElementById('fd-' + fab.replace(/-/g,'') + '-c');
       if (!ctx) return;
       const planData = FAB_DAILY_PLAN[fab] || DAILY_L.map(()=>0);
       new Chart(ctx, {
