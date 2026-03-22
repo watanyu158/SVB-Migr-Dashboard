@@ -1121,8 +1121,9 @@ const WK = ["10/02","17/02","24/02","3/03","10/03","17/03","24/03","31/03","7/04
 // TODAY_WK: คำนวณจากวันปัจจุบัน GMT+7 นับจาก 10 ก.พ. 2569
 const _todayGMT7 = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'}));
 const _wkStart   = new Date(2026, 1, 10); // 10 Feb 2026
-const _wkDiff    = Math.floor((_todayGMT7 - _wkStart) / (7*24*60*60*1000));
-const TODAY_WK   = Math.max(0, Math.min(19, _wkDiff));
+const _totalDays = Math.floor((_todayGMT7 - _wkStart) / (24*60*60*1000));
+const TODAY_WK   = Math.max(0, Math.min(18, Math.floor(_totalDays / 7)));
+const TODAY_FRAC = (_totalDays % 7) / 7; // fraction within current week (0-1)
 const PLAN_ALL = [3.8,9.6,15.5,19.0,25.7,28.8,43.8,46.0,49.1,52.4,61.7,62.3,69.1,72.1,76.0,81.9,86.5,92.6,99.6,100.0];
 const ACT_ALL_RAW = [5.3,11.1,15.5,18.8,25.6,27.7];
 const ACT_ALL  = WK.map((_,i)=>i<ACT_ALL_RAW.length&&i<=TODAY_WK?ACT_ALL_RAW[i]:null);
@@ -1302,14 +1303,10 @@ function buildBurndown(){
   const m=chart.getDatasetMeta(0);
   if(!m.data[TODAY_WK]) return;
   const {top,bottom}=chart.chartArea;
-  // Interpolate: today's fractional position between week columns
-  const dayInWeek = _todayGMT7.getDay(); // 0=Sun
-  const daysFromMonday = (_todayGMT7.getDay()+6)%7; // Mon=0
-  const frac = Math.min(daysFromMonday/7, 1);
-  // x position between TODAY_WK column and next column
+  // x position: interpolate between week[TODAY_WK] and week[TODAY_WK+1]
   const x0 = m.data[TODAY_WK].x;
   const x1 = m.data[TODAY_WK+1] ? m.data[TODAY_WK+1].x : x0;
-  const x = x0 + (x1-x0)*frac;
+  const x  = x0 + (x1 - x0) * TODAY_FRAC;
   const cv=chart.ctx;
   cv.save();
   cv.beginPath();
@@ -1319,12 +1316,6 @@ function buildBurndown(){
   cv.lineWidth=1.5;
   cv.setLineDash([5,3]);
   cv.stroke();
-  // Label "วันนี้"
-  cv.setLineDash([]);
-  cv.fillStyle='#ee4b4b';
-  cv.font='bold 10px Segoe UI';
-  cv.textAlign='center';
-  cv.fillText('23/03',x,bottom+14);
   cv.restore();
 }};
   const actualFull = WK.map((_,i)=>i<=TODAY_WK&&i<BD_ACT.length?BD_ACT[i]:null);
