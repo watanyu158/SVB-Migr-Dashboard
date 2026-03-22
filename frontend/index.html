@@ -656,9 +656,8 @@ main { padding: 12px 10px; }
 
   /* ── Hide controls ── */
   .topbar, .actions, .tabs, .tbtn,
-  .hold-tog, #hold-body,
-  #fab-daily-charts-wrap,
-  .prog-fab-grid { display: none !important; }
+  .hold-tog, #hold-body { display: none !important; }
+  #fab-daily-charts-wrap, .prog-fab-grid { display: block !important; }
 
   /* ── Show all tab bodies ── */
   .tab-body { display: block !important; page-break-after: always; }
@@ -1816,7 +1815,15 @@ async function exportPDF() {
     if(window._fabChartPromises && window._fabChartPromises.length > 0){
       await Promise.all(window._fabChartPromises);
     }
-    await new Promise(r=>setTimeout(r,300)); // extra buffer
+    await new Promise(r=>setTimeout(r,800)); // extra buffer for fabric charts to paint
+
+    // Ensure per-fabric canvases are visible before capture
+    document.querySelectorAll('#fab-daily-charts-wrap canvas, .prog-fab-grid canvas').forEach(cv=>{
+      cv.style.display='';
+    });
+    document.getElementById('fab-daily-charts-wrap') && (document.getElementById('fab-daily-charts-wrap').style.display='block');
+    document.querySelectorAll('.prog-fab-grid').forEach(el=>el.style.display='block');
+    await new Promise(r=>setTimeout(r,200));
 
     // จับภาพ canvas ทุกตัว
     const chartImgs = {};
@@ -1842,7 +1849,9 @@ async function exportPDF() {
 
     // ซ่อน/แสดงใน clone
     main.querySelectorAll('.tab-body').forEach(t=>t.style.display='block');
-    main.querySelectorAll('.tabs,.actions,#fab-daily-charts-wrap,.prog-fab-grid').forEach(t=>t.style.display='none');
+    main.querySelectorAll('.tabs,.actions').forEach(t=>t.style.display='none');
+    // Show per-fabric charts and progress charts in PDF
+    main.querySelectorAll('#fab-daily-charts-wrap,.prog-fab-grid').forEach(t=>t.style.display='block');
 
     // แทน canvas ด้วย img
     main.querySelectorAll('canvas').forEach(cv=>{
