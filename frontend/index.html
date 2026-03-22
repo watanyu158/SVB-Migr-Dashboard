@@ -1871,24 +1871,49 @@ async function exportPDF() {
       else { cv.style.display='none'; }
     });
 
-    // ── Plan tab: insert page-break after every 2 fabric pairs (4 fabrics) ──
+    // ── Page breaks: each major section on new page ────────────────────────
+    // Add page break class to each .tab-body
+    main.querySelectorAll('.tab-body').forEach((tb, i)=>{
+      if(i > 0){
+        tb.style.pageBreakBefore = 'always';
+        tb.style.paddingTop = '8px';
+      }
+    });
+
+    // Progress tab: "ความก้าวหน้าแยก Fabric" section starts new page
+    const fabProgHead = main.querySelector('#tab-progress > div[style]');
+    if(fabProgHead && fabProgHead.textContent.includes('Fabric')){
+      fabProgHead.style.pageBreakBefore = 'always';
+    }
+    // More reliable: find by text content
+    main.querySelectorAll('#tab-progress > div').forEach(div=>{
+      if(div.textContent.includes('ความก้าวหน้าแยก Fabric')){
+        div.style.pageBreakBefore = 'always';
+      }
+    });
+
+    // Plan tab: page break after every 4 fabric cards
     const planTab = main.querySelector('#tab-plan');
     if(planTab){
-      // Find all .g2 rows containing fabric cards (.fpc)
-      const fabRows = planTab.querySelectorAll('.g2');
-      let fabCount = 0;
-      fabRows.forEach(row=>{
-        const cards = row.querySelectorAll('.fpc');
-        if(cards.length > 0){
-          fabCount += cards.length;
-          // Page break after every 4 fabrics (every 2 rows of 2)
-          if(fabCount % 4 === 0){
-            row.style.pageBreakAfter = 'always';
-            row.style.marginBottom = '0';
-          }
+      const fabRows = Array.from(planTab.querySelectorAll('.g2')).filter(r=>r.querySelector('.fpc'));
+      fabRows.forEach((row, i)=>{
+        // After row index 1 (= 4 fabrics), break before row 2
+        if(i === 1){
+          row.style.pageBreakAfter = 'always';
         }
       });
+      // Also break before "plan summary" cards vs fab cards
+      const summaryCard = planTab.querySelector('.g3');
+      if(summaryCard) summaryCard.style.pageBreakAfter = 'avoid';
     }
+
+    // Graphs tab: "แยกแต่ละ Fabric" section starts new page
+    main.querySelectorAll('#tab-graphs > *').forEach(el=>{
+      if(el.textContent.includes('อุปกรณ์ที่ติดตั้งตามวันที่') && el.textContent.includes('แยกแต่ละ Fabric')){
+        el.style.pageBreakBefore = 'always';
+      }
+    });
+
 
     const date=new Date().toLocaleDateString('th-TH');
     const html=`<!DOCTYPE html>
@@ -1905,9 +1930,8 @@ ${styles}
 .topbar,.tabs-wrap>.tabs,.actions,.tbtn,.btn,.hold-tog,#hold-body,
 .sec-head .actions { display:none!important }
 
-/* ── Tab bodies: each on new page ── */
+/* ── Tab bodies ── */
 .tab-body { display:block!important; padding:8px 0!important; }
-.tab-body + .tab-body { page-break-before:always!important; }
 .tabs-wrap { box-shadow:none!important; border:none!important; }
 
 /* ── Cards: no break inside ── */
