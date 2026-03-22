@@ -66,8 +66,8 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--t
 .ins-gauge-section{flex-shrink:0}
 .ins-gauge-wrap{position:relative;width:90px;height:90px}
 .ins-gauge-wrap canvas{position:absolute;inset:0;width:90px!important;height:90px!important}
-.ins-gc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ins-gc .gp{font-size:20px;font-weight:700;color:var(--warning)}
+.ins-gc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px}
+.ins-gc .gp{font-size:18px;font-weight:700;color:var(--warning)}
 .ins-kpi-table{display:flex;flex-direction:column;gap:6px;flex:1}
 .ins-kpi-title{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
 .ins-kpi-row{display:flex;align-items:baseline;gap:6px}
@@ -1118,7 +1118,11 @@ const API = window.location.hostname==='localhost'?'http://localhost:3000':'http
 
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
 const WK = ["10/02","17/02","24/02","3/03","10/03","17/03","24/03","31/03","7/04","14/04","21/04","28/04","5/05","12/05","19/05","26/05","2/06","9/06","16/06","23/06"];
-const TODAY_WK = 5;
+// TODAY_WK: คำนวณจากวันปัจจุบัน GMT+7 นับจาก 10 ก.พ. 2569
+const _todayGMT7 = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'}));
+const _wkStart   = new Date(2026, 1, 10); // 10 Feb 2026
+const _wkDiff    = Math.floor((_todayGMT7 - _wkStart) / (7*24*60*60*1000));
+const TODAY_WK   = Math.max(0, Math.min(19, _wkDiff));
 const PLAN_ALL = [3.8,9.6,15.5,19.0,25.7,28.8,43.8,46.0,49.1,52.4,61.7,62.3,69.1,72.1,76.0,81.9,86.5,92.6,99.6,100.0];
 const ACT_ALL  = [5.3,11.1,15.5,18.8,25.6,27.7,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
 const PLAN_SW  = [3.5,7.9,14.1,18.9,28.4,32.6,38.1,39.5,42.6,46.6,53.3,54.1,63.8,68.1,73.6,82.0,87.5,93.3,99.5,100.0];
