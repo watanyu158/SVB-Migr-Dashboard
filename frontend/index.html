@@ -649,12 +649,76 @@ main { padding: 12px 10px; }
 .fab-bd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
 @media print {
-  .topbar, .actions, .tabs, .tbtn { display: none !important; }
-  .insights-box { background: #fffbeb !important; -webkit-print-color-adjust: exact; }
+  /* ── Hide UI chrome ── */
+  .topbar, .actions, .tabs, .tbtn,
+  .hold-tog, #hold-body { display: none !important; }
+
+  /* ── Page setup ── */
+  @page { size: A4 landscape; margin: 12mm 10mm; }
+  body { font-size: 11px; background: #fff !important; }
+  main { padding: 0 !important; max-width: 100% !important; }
+
+  /* ── Show all tabs in print ── */
   .tab-body { display: block !important; }
-  .g2, .g3, .g4 { grid-template-columns: 1fr 1fr; }
-  .card { break-inside: avoid; }
-  main { padding: 0; }
+  .tabs-wrap { box-shadow: none !important; border: none !important; }
+  .tab-body { padding: 8px 0 !important; }
+
+  /* ── Page breaks ── */
+  .tab-body + .tab-body { page-break-before: always; }
+  .card { break-inside: avoid; page-break-inside: avoid; }
+  .fab-breakdown { break-inside: avoid; }
+
+  /* ── Grids: 2-col max for A4 ── */
+  .g2, .g3, .g4 { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .prog-chart-grid, .prog-fab-grid { grid-template-columns: 1fr 1fr !important; }
+  .fab-bd-grid { grid-template-columns: repeat(4,1fr) !important; }
+  .burndown-row { grid-template-columns: 3fr 2fr !important; }
+
+  /* ── Fix table overflow ── */
+  .tblw { overflow: visible !important; }
+  table { min-width: 0 !important; width: 100% !important; table-layout: fixed; font-size: 10px; }
+  th, td { padding: 5px 6px !important; word-break: break-word; }
+  .fab-table { min-width: 0 !important; font-size: 10px; }
+
+  /* ── Insights ── */
+  .insights-box { -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    background: #fffbeb !important; padding: 10px 14px !important; }
+  .ins-alert-card, .ins-gauge-card { border: 1px solid #e5e7eb !important; }
+  .ins-panels { flex-direction: row !important; }
+  .ins-pills { grid-template-columns: repeat(6,1fr) !important; }
+
+  /* ── Fabric breakdown cards ── */
+  .fab-bd-card { border: 1px solid #e5e7eb !important; padding: 8px !important; }
+
+  /* ── Canvas/Charts: render as images ──
+     Charts ARE rendered by Chart.js to canvas — print works IF:
+     1. Canvas has explicit width/height
+     2. -webkit-print-color-adjust: exact is set
+  */
+  canvas { -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    max-width: 100% !important; }
+  .cwrap, [style*="height:200px"], [style*="height:175px"],
+  [style*="height:260px"], [style*="height:180px"] {
+    height: 180px !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  /* Force chart containers to have explicit dimensions */
+  .cwrap canvas { width: 100% !important; }
+
+  /* ── Colors must print ── */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+  /* ── Summary cards ── */
+  .scard { border: 1px solid #e5e7eb !important; padding: 10px !important; }
+  .scard .sn { font-size: 18px !important; }
+
+  /* ── Progress bars: show color ── */
+  .fab-bd-fill, .sfill, .fpc-fill, .fab-bd-cat-fill, .pfill,
+  .tlfill, .locfill, .ins-kpi-gap { print-color-adjust: exact !important; }
+
+  /* ── Hide per-fabric daily charts (too many for print) ── */
+  #fab-daily-charts-wrap { display: none !important; }
+  .prog-fab-grid { display: none !important; }
 }
 </style>
 </head>
@@ -1562,6 +1626,35 @@ async function loadData(){
     if(el('hold-cnt'))el('hold-cnt').textContent=overall.hold+' รายการ';
   }catch{}
 }
+
+// ── Print: convert canvas to static images so they render in PDF ─────────────
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('canvas').forEach(canvas => {
+    if (canvas.dataset.printDone) return;
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
+      const img = document.createElement('img');
+      img.src = dataUrl;
+      img.style.cssText = canvas.style.cssText;
+      img.style.width = canvas.offsetWidth + 'px';
+      img.style.height = canvas.offsetHeight + 'px';
+      img.style.maxWidth = '100%';
+      img.style.display = 'block';
+      img.dataset.printProxy = 'true';
+      canvas.parentNode.insertBefore(img, canvas.nextSibling);
+      canvas.dataset.printDone = 'true';
+      canvas.style.display = 'none';
+    } catch(e) {}
+  });
+});
+
+window.addEventListener('afterprint', () => {
+  document.querySelectorAll('canvas[data-print-done]').forEach(canvas => {
+    canvas.style.display = '';
+    canvas.removeAttribute('data-print-done');
+  });
+  document.querySelectorAll('img[data-print-proxy]').forEach(img => img.remove());
+});
 
 async function submitUpdate(){
   const $=id=>document.getElementById(id),al=$('form-alert');al.innerHTML='';
