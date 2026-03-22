@@ -1199,6 +1199,8 @@ function lineOpts(color, yMax=100, yLabel='%') {
 function makeLineChart(canvasId, planData, actData, planColor, actColor, planLabel, actLabel) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return null;
+  const existing = Chart.getChart(ctx);
+  if (existing) existing.destroy();
   return new Chart(ctx, {
     type:'line',
     data:{
@@ -1278,12 +1280,16 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 
 function buildGauge(){
+  const _ch_gaugec = Chart.getChart(document.getElementById('gauge-c'));
+  if(_ch_gaugec) _ch_gaugec.destroy();
   new Chart(document.getElementById('gauge-c'),{type:'doughnut',data:{datasets:[{data:[82,18],backgroundColor:['#ff9f43','rgba(253,211,77,.3)'],borderWidth:0}]},options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
 }
 
 function buildBurndown(){
   const tdPl={id:'td',afterDraw(chart){const m=chart.getDatasetMeta(0);if(!m.data[TODAY_WK])return;const x=m.data[TODAY_WK].x,{top,bottom}=chart.chartArea,c=chart.ctx;c.save();c.beginPath();c.moveTo(x,top);c.lineTo(x,bottom);c.strokeStyle='#ee4b4b';c.lineWidth=1.5;c.setLineDash([5,3]);c.stroke();c.restore();}};
   const actualFull = WK.map((_,i)=>i<BD_ACT.length?BD_ACT[i]:null);
+  const _ch_burndownc = Chart.getChart(document.getElementById('burndown-c'));
+  if(_ch_burndownc) _ch_burndownc.destroy();
   new Chart(document.getElementById('burndown-c'),{
     type:'line',plugins:[tdPl],
     data:{labels:WK,datasets:[
@@ -1295,6 +1301,8 @@ function buildBurndown(){
 }
 
 function buildDonut(){
+  const _ch_donutc = Chart.getChart(document.getElementById('donut-c'));
+  if(_ch_donutc) _ch_donutc.destroy();
   new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#2bc48a','#4361ee','#ee4b4b','#e2e8f0'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}}});
 }
 
@@ -1375,6 +1383,12 @@ function buildProgressCharts(){
 
 // ── GRAPHS (lazy) ─────────────────────────────────────────────────────────────
 let gblt=false;
+function destroyChart(id){
+  const cv=document.getElementById(id);
+  if(!cv) return;
+  const ch=Chart.getChart(cv);
+  if(ch) ch.destroy();
+}
 function buildGraphs(){
   if(gblt)return;gblt=true;
   new Chart(document.getElementById('type-c'),{type:'doughnut',data:{datasets:[{data:[1121,445,26],backgroundColor:['#4361ee','#2bc48a','#ff9f43'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}}}});
@@ -1532,6 +1546,8 @@ function buildGraphs(){
     setTimeout(() => {
       const ctx = document.getElementById('fd-' + fab.replace(/-/g,'') + '-c');
       if (!ctx) return;
+      const existingCh = Chart.getChart(ctx);
+      if (existingCh) existingCh.destroy();
       const planData = FAB_DAILY_PLAN[fab] || DAILY_L.map(()=>0);
       new Chart(ctx, {
         type: 'bar',
@@ -1779,8 +1795,15 @@ async function exportPDF() {
       const el=document.getElementById('tab-'+t);
       if(el) el.style.display='block';
     });
-    if(typeof buildGraphs==='function') buildGraphs();
+    // Destroy ALL existing charts then rebuild
+    if(typeof Chart !== 'undefined'){
+      Chart.instances && Object.values(Chart.instances).forEach(ch=>{ try{ch.destroy();}catch(e){} });
+    }
+    gblt = false; // reset so buildGraphs runs fresh
     if(typeof buildProgressCharts==='function') buildProgressCharts();
+    if(typeof buildGraphs==='function') buildGraphs();
+    if(typeof buildBurndown==='function') buildBurndown();
+    if(typeof buildDonut==='function') buildDonut();
 
     // รอ chart render
     await new Promise(r=>setTimeout(r,1500));
