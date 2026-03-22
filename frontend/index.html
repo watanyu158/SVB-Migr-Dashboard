@@ -962,7 +962,7 @@ main { padding: 12px 10px; }
       </div>
     </div>
   </div>
-  <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📅</div>ไทม์ไลน์ Fabric</div><div id="tl-wrap"></div><div class="cleg" style="margin-top:11px"><div class="cl"><div class="cll" style="background:var(--primary)"></div>ติดตั้งแล้ว</div><div class="cl"><div class="cll" style="background:#e2e8f0"></div>คงเหลือ</div><div class="cl" style="color:var(--danger)">| วันนี้</div></div></div>
+  <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📅</div>ไทม์ไลน์ Fabric</div><div id="tl-wrap"></div><div class="cleg" style="margin-top:11px"><div class="cl"><div class="cll" style="background:var(--primary)"></div>ติดตั้งแล้ว</div><div class="cl"><div class="cll" style="background:#e2e8f0"></div>คงเหลือ</div><div class="cl" style="color:var(--danger)"><span style="display:inline-block;width:2px;height:12px;background:var(--danger);margin-right:4px;vertical-align:middle"></span>วันนี้</div></div></div>
   <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--hold-l);color:var(--hold)">🗺</div>Fabric Heatmap</div><div class="heatmap" id="hm-wrap"></div></div>
   <div class="hold-tog" onclick="toggleHold(this)"><div class="hold-lbl">⏸ อุปกรณ์ที่ Hold</div><div style="display:flex;align-items:center;gap:7px"><span class="hold-badge" id="hold-cnt">8 รายการ</span><span id="hold-arr" style="color:var(--hold);font-size:12px">▼</span></div></div>
   <div id="hold-body" style="display:none;margin-top:6px"></div>
@@ -1303,12 +1303,12 @@ function buildBurndown(){
   const m=chart.getDatasetMeta(0);
   if(!m.data[TODAY_WK]) return;
   const {top,bottom}=chart.chartArea;
-  // x position: interpolate between week[TODAY_WK] and week[TODAY_WK+1]
-  const x0 = m.data[TODAY_WK].x;
-  const x1 = m.data[TODAY_WK+1] ? m.data[TODAY_WK+1].x : x0;
-  const x  = x0 + (x1 - x0) * TODAY_FRAC;
+  const x0=m.data[TODAY_WK].x;
+  const x1=m.data[TODAY_WK+1]?m.data[TODAY_WK+1].x:x0;
+  const x=x0+(x1-x0)*TODAY_FRAC;
   const cv=chart.ctx;
   cv.save();
+  // Dashed red line
   cv.beginPath();
   cv.moveTo(x,top);
   cv.lineTo(x,bottom);
@@ -1316,6 +1316,21 @@ function buildBurndown(){
   cv.lineWidth=1.5;
   cv.setLineDash([5,3]);
   cv.stroke();
+  // Date label on top of line
+  const label=_todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
+  cv.setLineDash([]);
+  cv.font='bold 10px Segoe UI, sans-serif';
+  const tw=cv.measureText(label).width;
+  // Background pill
+  cv.fillStyle='#ee4b4b';
+  cv.beginPath();
+  cv.roundRect(x-tw/2-4, top-1, tw+8, 16, 4);
+  cv.fill();
+  // Text
+  cv.fillStyle='#fff';
+  cv.textAlign='center';
+  cv.textBaseline='top';
+  cv.fillText(label, x, top+2);
   cv.restore();
 }};
   const actualFull = WK.map((_,i)=>i<=TODAY_WK&&i<BD_ACT.length?BD_ACT[i]:null);
@@ -1338,8 +1353,17 @@ function buildDonut(){
 }
 
 function buildTimeline(){
-  const w=document.getElementById('tl-wrap'),tdp=34;
-  w.innerHTML=FABRICS.map(f=>{const p=Math.round(f.p),bg=p>=80?'#ecfdf5;color:#065f46':p>=30?'#fff5e6;color:#92400e':'#eef1ff;color:var(--primary)';return `<div class="tlr"><div class="tlt"><div class="tln">${f.n}</div><div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)"><span>${f.d}/${f.t}</span><span class="tlpct" style="background:${bg}">${p}%</span></div></div><div class="tltrack"><div style="display:flex;height:100%"><div class="tlfill" style="width:${p}%;background:${f.c}">${p>10?p+'%':''}</div><div style="flex:1;background:#eef1ff"></div></div><div class="tltd" style="left:${tdp}%;background:var(--danger)"></div></div></div>`;}).join('');
+  const w=document.getElementById('tl-wrap');
+  // Today's position: days elapsed / total project days (133)
+  const _projStart=new Date(2026,1,10);
+  const _projEnd=new Date(2026,5,23);
+  const _projDays=Math.round((_projEnd-_projStart)/(24*60*60*1000));
+  const _elapsed=Math.round((_todayGMT7-_projStart)/(24*60*60*1000));
+  const tdp=Math.max(0,Math.min(100,Math.round(_elapsed/_projDays*100)));
+  const _todayLabel=_todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
+  w.innerHTML=FABRICS.map(f=>{const p=Math.round(f.p),bg=p>=80?'#ecfdf5;color:#065f46':p>=30?'#fff5e6;color:#92400e':'#eef1ff;color:var(--primary)';return `<div class="tlr"><div class="tlt"><div class="tln">${f.n}</div><div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)"><span>${f.d}/${f.t}</span><span class="tlpct" style="background:${bg}">${p}%</span></div></div><div class="tltrack"><div style="display:flex;height:100%"><div class="tlfill" style="width:${p}%;background:${f.c}">${p>10?p+'%':''}</div><div style="flex:1;background:#eef1ff"></div></div><div class="tltd" style="left:${tdp}%;background:var(--danger)">
+          <span style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);background:var(--danger);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;white-space:nowrap">${_todayLabel}</span>
+        </div></div></div>`;}).join('');
 }
 
 function buildHeatmap(){
