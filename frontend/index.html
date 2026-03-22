@@ -6,7 +6,6 @@
 <title>SDA Installation Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --bg:#f0f4ff;--card:#fff;--border:#e8edf5;
@@ -651,70 +650,45 @@ main { padding: 12px 10px; }
 .fab-bd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
 @media print {
-  /* ── Hide UI chrome ── */
-  .topbar, .actions, .tabs, .tbtn,
-  .hold-tog, #hold-body { display: none !important; }
-
-  /* ── Page setup ── */
-  @page { size: A4 landscape; margin: 12mm 10mm; }
-  body { font-size: 11px; background: #fff !important; }
-  main { padding: 0 !important; max-width: 100% !important; }
-
-  /* ── Show all tabs in print ── */
-  .tab-body { display: block !important; }
-  .tabs-wrap { box-shadow: none !important; border: none !important; }
-  .tab-body { padding: 8px 0 !important; }
-
-  /* ── Page breaks ── */
-  .tab-body + .tab-body { page-break-before: always; }
-  .card { break-inside: avoid; page-break-inside: avoid; }
-  .fab-breakdown { break-inside: avoid; }
-
-  /* ── Grids: 2-col max for A4 ── */
-  .g2, .g3, .g4 { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-  .prog-chart-grid, .prog-fab-grid { grid-template-columns: 1fr 1fr !important; }
-  .fab-bd-grid { grid-template-columns: repeat(4,1fr) !important; }
-  .burndown-row { grid-template-columns: 3fr 2fr !important; }
-
-  /* ── Fix table overflow ── */
-  .tblw { overflow: visible !important; }
-  table { min-width: 0 !important; width: 100% !important; table-layout: fixed; font-size: 10px; }
-  th, td { padding: 5px 6px !important; word-break: break-word; }
-  .fab-table { min-width: 0 !important; font-size: 10px; }
-
-  /* ── Insights ── */
-  .insights-box { -webkit-print-color-adjust: exact; print-color-adjust: exact;
-    background: #fffbeb !important; padding: 10px 14px !important; }
-  .ins-alert-card, .ins-gauge-card { border: 1px solid #e5e7eb !important; }
-  .ins-panels { flex-direction: row !important; }
-  .ins-pills { grid-template-columns: repeat(6,1fr) !important; }
-
-  /* ── Fabric breakdown cards ── */
-  .fab-bd-card { border: 1px solid #e5e7eb !important; padding: 8px !important; }
-
-  /* ── Canvas/Charts: render as images ──
-     Charts ARE rendered by Chart.js to canvas — print works IF:
-     1. Canvas has explicit width/height
-     2. -webkit-print-color-adjust: exact is set
-  */
-  /* Ctrl+P fallback: try to show charts */
-  canvas { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  img[data-print-proxy] { display: block !important; max-width: 100% !important; }
-
-  /* ── Colors must print ── */
+  /* ── Page ── */
+  @page { size: A4 landscape; margin: 8mm 10mm; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-  /* ── Summary cards ── */
-  .scard { border: 1px solid #e5e7eb !important; padding: 10px !important; }
-  .scard .sn { font-size: 18px !important; }
-
-  /* ── Progress bars: show color ── */
-  .fab-bd-fill, .sfill, .fpc-fill, .fab-bd-cat-fill, .pfill,
-  .tlfill, .locfill, .ins-kpi-gap { print-color-adjust: exact !important; }
-
-  /* ── Hide per-fabric daily charts (too many for print) ── */
-  #fab-daily-charts-wrap { display: none !important; }
+  /* ── Hide controls ── */
+  .topbar, .actions, .tabs, .tbtn,
+  .hold-tog, #hold-body,
+  #fab-daily-charts-wrap,
   .prog-fab-grid { display: none !important; }
+
+  /* ── Show all tab bodies ── */
+  .tab-body { display: block !important; page-break-after: always; }
+  .tabs-wrap { box-shadow: none !important; border: none !important; }
+  .tab-body { padding: 6px 0 !important; }
+
+  /* ── Layout ── */
+  body { background: #fff !important; }
+  main { padding: 0 !important; max-width: 100% !important; }
+  .card { break-inside: avoid; border: 1px solid #e8edf5 !important; }
+  .g2 { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr !important; gap: 8px !important; }
+  .g4 { grid-template-columns: repeat(4,1fr) !important; gap: 8px !important; }
+  .fab-bd-grid { grid-template-columns: repeat(4,1fr) !important; }
+  .burndown-row { grid-template-columns: 3fr 2fr !important; }
+  .prog-chart-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── Tables ── */
+  .tblw { overflow: visible !important; }
+  table { min-width: 0 !important; width: 100% !important; table-layout: fixed !important; font-size: 9px !important; }
+  th, td { padding: 4px 5px !important; }
+
+  /* ── Canvas: hidden — replaced by img[data-pp] via exportPDF() ── */
+  canvas { display: none !important; }
+  img[data-pp] { display: block !important; max-width: 100% !important; }
+
+  /* ── Insights ── */
+  .insights-box { background: #fffbeb !important; padding: 8px 12px !important; }
+  .ins-panels { flex-direction: row !important; }
+  .ins-pills { grid-template-columns: repeat(6,1fr) !important; }
 }
 </style>
 </head>
@@ -1769,120 +1743,61 @@ async function loadData(){
   }
 }
 
-// ── PDF Export: html2canvas + jsPDF ─────────────────────────────────────────
+// ── PDF Export: canvas→img then browser print ────────────────────────────────
 async function exportPDF() {
   const btn = document.getElementById('pdf-btn');
-  if(btn){ btn.textContent = '⏳ กำลัง export...'; btn.disabled = true; }
+  if(btn){ btn.textContent='⏳ กำลัง export...'; btn.disabled=true; }
 
-  try {
-    const TAB_NAMES = ['overview','progress','graphs','location','plan'];
-    const TAB_LABELS = ['ภาพรวม','ความก้าวหน้า','กราฟ','สถานที่','แผนงาน'];
+  // 1. Open every tab so charts exist in DOM
+  ['overview','progress','graphs','location','plan'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el) el.style.display='block';
+  });
 
-    // Show all tabs
-    TAB_NAMES.forEach(t => {
-      const el = document.getElementById('tab-'+t);
-      if(el) el.style.display = 'block';
+  // 2. Build any lazy-loaded charts
+  if(typeof buildGraphs==='function') buildGraphs();
+  if(typeof buildProgressCharts==='function') buildProgressCharts();
+
+  // 3. Wait for Chart.js to finish rendering
+  await new Promise(r=>setTimeout(r,1500));
+
+  // 4. Convert every canvas → <img> at full resolution
+  const swapped=[];
+  document.querySelectorAll('canvas').forEach(cv=>{
+    try{
+      const w=cv.offsetWidth||cv.width||400;
+      const h=cv.offsetHeight||cv.height||200;
+      if(w<10||h<10) return;
+      const url=cv.toDataURL('image/png',1.0);
+      if(!url||url==='data:,') return;
+      const img=document.createElement('img');
+      img.src=url;
+      img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%`;
+      img.setAttribute('data-pp','1');
+      cv.parentNode.insertBefore(img,cv.nextSibling);
+      cv.style.display='none';
+      swapped.push(cv);
+    }catch(e){}
+  });
+
+  // 5. Print
+  window.print();
+
+  // 6. Restore everything
+  setTimeout(()=>{
+    swapped.forEach(cv=>{ cv.style.display=''; });
+    document.querySelectorAll('img[data-pp]').forEach(i=>i.remove());
+    // Restore to current active tab
+    const active=document.querySelector('.tab.on');
+    const name=active?.getAttribute('onclick')?.match(/'([\w]+)'/)?.[1]||'overview';
+    ['overview','progress','graphs','location','plan'].forEach(t=>{
+      const el=document.getElementById('tab-'+t);
+      if(el) el.style.display=t===name?'block':'none';
     });
-
-    // Build graphs
-    if(typeof buildGraphs === 'function') buildGraphs();
-    if(typeof buildFabBreakdown === 'function') buildFabBreakdown();
-
-    // Wait for all charts to render
-    await new Promise(r => setTimeout(r, 1200));
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
-    const pageW = 297; const pageH = 210;
-
-    let firstPage = true;
-
-    for(let i = 0; i < TAB_NAMES.length; i++){
-      const tabEl = document.getElementById('tab-'+TAB_NAMES[i]);
-      if(!tabEl) continue;
-
-      // Scroll to top of tab
-      tabEl.scrollIntoView();
-      await new Promise(r => setTimeout(r, 100));
-
-      const canvas = await html2canvas(tabEl, {
-        scale: 1.5,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: tabEl.scrollWidth,
-        height: tabEl.scrollHeight,
-        windowWidth: tabEl.scrollWidth,
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-      const cw = canvas.width;
-      const ch = canvas.height;
-
-      // Scale to fit A4 landscape width
-      const ratio = pageW / (cw / 1.5);
-      const imgW  = pageW;
-      const imgH  = (ch / 1.5) * ratio;
-
-      // May need multiple pages if content is tall
-      let yPos = 0;
-      let pageCount = 0;
-      while(yPos < imgH) {
-        if(!firstPage || pageCount > 0) pdf.addPage();
-        firstPage = false;
-
-        // Header bar
-        pdf.setFillColor(67, 97, 238);
-        pdf.rect(0, 0, pageW, 8, 'F');
-        pdf.setTextColor(255,255,255);
-        pdf.setFontSize(9);
-        pdf.text('SDA Installation Dashboard — ' + TAB_LABELS[i], 4, 5.5);
-        pdf.text(new Date().toLocaleDateString('th-TH'), pageW-4, 5.5, {align:'right'});
-
-        // Content
-        const srcY   = (yPos / imgH) * ch;
-        const srcH   = Math.min((pageH - 12) / ratio * 1.5, ch - srcY);
-        const sliceH = srcH / 1.5 * ratio;
-
-        // Draw the full canvas image, offset by yPos
-        pdf.addImage(imgData, 'JPEG', 0, 9, imgW, imgH, '', 'FAST', 0);
-
-        // Clip by placing white rect over what's above/below visible area
-        if(yPos > 0){
-          pdf.setFillColor(255,255,255);
-          pdf.rect(0, 9, pageW, (yPos/imgH)*(pageH-12), 'F');
-        }
-        const visibleBottom = ((yPos + pageH - 12) / imgH) * (pageH - 12);
-        if(visibleBottom < pageH - 12){
-          pdf.setFillColor(255,255,255);
-          pdf.rect(0, 9 + visibleBottom, pageW, pageH - 9 - visibleBottom, 'F');
-        }
-
-        yPos += pageH - 12;
-        pageCount++;
-      }
-    }
-
-    // Add insights + topbar as first section
-    pdf.save('SDA_Dashboard_' + new Date().toLocaleDateString('th-TH').replace(/[/]/g,'-') + '.pdf');
-
-  } catch(err) {
-    console.error('PDF export error:', err);
-    alert('Export ไม่สำเร็จ: ' + err.message + '\nลองใช้ Ctrl+P แทนครับ');
-  } finally {
-    // Restore tabs
-    const TABS = ['overview','progress','graphs','location','plan'];
-    const activeTab = document.querySelector('.tab.on');
-    const activeName = activeTab ? activeTab.getAttribute('onclick').match(/'(\w+)'/)?.[1] : 'overview';
-    TABS.forEach(t => {
-      const el = document.getElementById('tab-'+t);
-      if(el) el.style.display = t === activeName ? 'block' : 'none';
-    });
-    const btn = document.getElementById('pdf-btn');
-    if(btn){ btn.textContent = '⬇ PDF'; btn.disabled = false; }
-  }
+    if(btn){ btn.textContent='⬇ PDF'; btn.disabled=false; }
+  },800);
 }
+
 
 async function submitUpdate(){
   const $=id=>document.getElementById(id),al=$('form-alert');al.innerHTML='';
