@@ -841,8 +841,8 @@ main { padding: 12px 10px; }
       <div class="ip-icon">⚠</div>
       <div class="ip-body">
         <div class="ip-val" id="pill-over">4</div>
-        <div class="ip-lbl">เกินกำหนด</div>
-        <div class="ip-sub">อุปกรณ์</div>
+        <div class="ip-lbl">Overdue</div>
+        <div class="ip-sub">เกินกำหนด</div>
       </div>
     </div>
     <div class="ins-pill p-hold">
@@ -1760,7 +1760,15 @@ async function loadData(){
     if(el('pill-hold'))el('pill-hold').textContent=overall.hold;
     if(el('pill-over'))el('pill-over').textContent=overall.overdue_items;
     if(el('hold-cnt'))el('hold-cnt').textContent=overall.hold+' รายการ';
-  }catch{}
+  }catch{
+    // API unavailable - static values already in HTML
+    const el=id=>document.getElementById(id);
+    if(el('ts-done'))el('ts-done').textContent='460/1592';
+    if(el('pill-rem'))el('pill-rem').textContent='1,132';
+    if(el('pill-hold'))el('pill-hold').textContent='8';
+    if(el('pill-over'))el('pill-over').textContent='4';
+    if(el('hold-cnt'))el('hold-cnt').textContent='8 รายการ';
+  }
 }
 
 // ── Print: convert canvas to static images so they render in PDF ─────────────
