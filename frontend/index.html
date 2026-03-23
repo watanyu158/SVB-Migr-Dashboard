@@ -699,7 +699,7 @@ main { padding: 12px 10px; }
     <div class="tb-logo" style="font-size:20px;background:rgba(255,255,255,.15)">✈</div>
     <div>
       <div class="tb-title" style="font-size:15px;letter-spacing:.3px">
-        SDA Migration Dashboard —
+        SDA Migration Progress Dashboard -
         <span style="background:linear-gradient(90deg,#ffd700,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800;font-size:17px;letter-spacing:.5px"> SVB</span>
       </div>
       <div class="tb-sub">อัพเดท <span id="ts-time">22/3/2569</span></div>
@@ -731,7 +731,18 @@ main { padding: 12px 10px; }
     <!-- LEFT: insight alert card -->
     <div class="ins-alert-card">
       <div class="ins-alert-head">
-        <div class="ins-icon">⚡</div>
+        <div class="ins-icon" style="background:linear-gradient(135deg,#ff6b35,#ee4b4b);display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Rocket body -->
+            <path d="M12 2C12 2 7 6 7 12l5 3 5-3c0-6-5-10-5-10z" fill="rgba(255,255,255,0.3)" stroke="#fff"/>
+            <circle cx="12" cy="12" r="2" fill="#fff" stroke="none"/>
+            <!-- Flames -->
+            <path d="M9 17c0 2 1.5 3.5 3 4 1.5-.5 3-2 3-4" fill="rgba(255,200,0,0.7)" stroke="#ffd700" stroke-width="1.5"/>
+            <!-- Side fins -->
+            <path d="M7 12l-2 3 2 1" stroke="#fff" stroke-width="1.5"/>
+            <path d="M17 12l2 3-2 1" stroke="#fff" stroke-width="1.5"/>
+          </svg>
+        </div>
         <div>
           <div class="ins-big">↑ ต้องเพิ่ม <em>2.0</em> อุปกรณ์/วัน
             <span class="ins-pct-tag">↑18% จากอัตราปัจจุบัน</span>
@@ -1986,7 +1997,7 @@ async function exportPDF() {
     const html=`<!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
-<title>SDA Migration Dashboard SVB</title>
+<title>SDA Migration Progress Dashboard - SVB</title>
 <style>
 @page{size:A4 landscape;margin:8mm 12mm}
 *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box}
@@ -2043,7 +2054,7 @@ canvas { display:none!important; }
 </head><body>
 
 <div class="print-hd">
-  <div><span class="print-hd-title">✈ SDA Migration Dashboard —</span><span class="print-hd-svb">SVB</span></div>
+  <div><span class="print-hd-title">✈ SDA Migration Progress Dashboard -</span><span class="print-hd-svb">SVB</span></div>
   <div class="print-hd-date">${date}</div>
 </div>
 
