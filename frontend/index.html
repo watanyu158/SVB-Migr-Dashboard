@@ -871,7 +871,7 @@ main { padding: 12px 10px; }
 <div class="tab-body" id="tab-overview">
   <div class="g4" style="margin-bottom:14px">
     <div class="scard all"><div class="sl" style="color:var(--primary)">🏗 สรุปผลการติดตั้งทั้งหมด</div><div class="sn" id="ov-all">460/1592</div><div class="ss">อุปกรณ์ที่ติดตั้งแล้ว (29%)</div><div class="sbar"><div class="sf" id="ov-all-b" style="width:29%"></div></div><div class="sbadge" style="background:var(--primary-l);color:var(--primary)">29%</div></div>
-    <div class="scard sw"><div class="sl" style="color:#4361ee">🔀 Switch</div><div class="sn" id="ov-sw">350/1121</div><div class="ss">Switch ที่ติดตั้งแล้ว (31.2%)</div><div class="sbar"><div class="sf" id="ov-sw-b" style="width:31.2%"></div></div><div class="sbadge" style="background:var(--primary-l);color:#4361ee">31.2%</div></div>
+    <div class="scard sw"><div class="sl" style="color:#4361ee">🔀 Switch</div><div class="sn" id="ov-sw">369/1121</div><div class="ss">Switch ที่ติดตั้งแล้ว (32.9%)</div><div class="sbar"><div class="sf" id="ov-sw-b" style="width:32.9%"></div></div><div class="sbadge" style="background:var(--primary-l);color:#4361ee">31.2%</div></div>
     <div class="scard ap"><div class="sl" style="color:#065f46">📶 AP</div><div class="sn" id="ov-ap">67/445</div><div class="ss">AP ที่ติดตั้งแล้ว (15.1%)</div><div class="sbar"><div class="sf" id="ov-ap-b" style="width:15.1%"></div></div><div class="sbadge" style="background:var(--success-l);color:#065f46">15.1%</div></div>
     <div class="scard inf"><div class="sl" style="color:#92400e">⚡ Infra</div><div class="sn" id="ov-inf">24/26</div><div class="ss">Infra ที่ติดตั้งแล้ว (92.3%)</div><div class="sbar"><div class="sf" id="ov-inf-b" style="width:92.3%"></div></div><div class="sbadge" style="background:var(--warning-l);color:#92400e">92.3%</div></div>
   </div>
@@ -1164,12 +1164,12 @@ const DAILY_INF=[0,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 // Per-fabric daily installs
 const FAB_DAILY={
   'D1-041':{sw:[1,29,6,21,11,12,6,0,0,0,0,0,0,0,12,13,11,14,8,5,0,29,15,18,16], ap:[0,24,0,15,16,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],inf:[0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'CFZ':   {sw:[0,2,0,0,0,0,0,14,14,17,13,12,24,3,0,0,0,0,0,0,42,0,0,0,0],       ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'T1-015':{sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'D1-091':{sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'RFF':   {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'AMF':   {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'PPW':   {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  'CFZ':   {sw:[0,2,0,0,0,0,0,14,14,17,13,12,24,3,0,0,0,0,0,0,42,0,0,0,0],       ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  'T1-015':{sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  'D1-091':{sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  'RFF':   {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  'AMF':   {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+  'PPW':   {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],              ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],      inf:[0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
 };
 // Fabric colors and totals for charts
 const FAB_COLORS = {'D1-041':'#4361ee','CFZ':'#2bc48a','T1-015':'#ff9f43','D1-091':'#a855f7','RFF':'#22b8cf','AMF':'#f76707','PPW':'#74c0fc'};
@@ -1339,6 +1339,42 @@ function buildTypeBarChart(){
   // Dynamic height based on items
   cv.parentElement.style.height = Math.max(300, sorted.length * 42) + 'px';
 
+  // Label plugin
+  const typeLabelsPlugin = {
+    id: 'typeBarLabels',
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      const sorted = [...TYPE_DATA].sort((a,b)=>b.plan-a.plan);
+      ctx.save();
+      chart.data.datasets.forEach((ds, di) => {
+        const meta = chart.getDatasetMeta(di);
+        if(meta.hidden) return;
+        meta.data.forEach((bar, i) => {
+          const val = ds.data[i];
+          if(!val || val < 1) return;
+          const d = sorted[i];
+          if(di === 0){
+            // plan bar — show total at end
+            ctx.font = '10px Segoe UI';
+            ctx.fillStyle = '#94a3b8';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(val, bar.x + 4, bar.y);
+          } else if(di === 1){
+            // done bar — show done (pct%)
+            const pct = d.plan > 0 ? Math.round(d.done/d.plan*100) : 0;
+            ctx.font = 'bold 10px Segoe UI';
+            ctx.fillStyle = '#4361ee';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${val} (${pct}%)`, bar.x + 4, bar.y);
+          }
+        });
+      });
+      ctx.restore();
+    }
+  };
+
   new Chart(cv, {
     type: 'bar',
     data: {
@@ -1389,7 +1425,8 @@ function buildTypeBarChart(){
           ticks: { font: { size: 10 } },
         }
       }
-    }
+    },
+    plugins: [typeLabelsPlugin]
   });
 }
 
