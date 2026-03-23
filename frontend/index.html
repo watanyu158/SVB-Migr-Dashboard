@@ -1128,67 +1128,41 @@ main { padding: 12px 10px; }
 const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
 
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
-// ── Dynamic chart data — loaded from /api/chart-data ─────────────────────────
-// GMT+7 today (for today-line)
+// ── Today GMT+7 ───────────────────────────────────────────────────────────────
 const _todayGMT7 = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'}));
 const _totalDays = Math.floor((_todayGMT7 - new Date(2026,1,10)) / (24*60*60*1000));
 const TODAY_WK   = Math.max(0, Math.min(18, Math.floor(_totalDays / 7)));
 const TODAY_FRAC = (_totalDays % 7) / 7;
 const _todayLabel = _todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
 
-// Placeholders — filled by loadChartData()
+// ── Placeholders — filled by loadChartData() from /api/chart-data ─────────────
 let WK=[], BD_PLAN=[], BD_ACT=[];
 let PLAN_ALL=[], ACT_ALL=[], PLAN_SW=[], ACT_SW=[], PLAN_AP=[], ACT_AP=[];
 let DAILY_L=[], DAILY_SW=[], DAILY_AP=[], DAILY_INF=[], DAILY_PLAN=[];
 let FAB_DAILY={}, FAB_DAILY_PLAN={}, FAB_COLORS={}, FAB_TOTALS={}, FAB_PLAN_TOTALS={};
 let FABRICS=[], FAB_WEEKLY={}, CUM_D=[], CUM_SW=[], CUM_AP=[], CUM_INF=[];
+const LOC_DATA={};
 
-// These were hardcoded but now we need them for buildBurndown fallback
-// They'll be overwritten by loadChartData()
-const LOC_DATA = {};
-
-async function loadChartData() {
-  try {
-    const r = await fetch(API+'/api/chart-data');
+async function loadChartData(){
+  try{
+    const r=await fetch(API+'/api/chart-data');
     if(!r.ok) throw new Error('HTTP '+r.status);
-    const d = await r.json();
-
-    const w = d.weekly;
-    WK      = w.labels;
-    BD_PLAN = w.bd_plan;
-    BD_ACT  = w.bd_actual.map((v,i) => v !== null ? v : null);
-
-    PLAN_ALL = w.plan_pct;
-    ACT_ALL  = w.actual_pct;
-
-    DAILY_L   = d.daily.labels;
-    DAILY_SW  = d.daily.sw;
-    DAILY_AP  = d.daily.ap;
-    DAILY_INF = d.daily.inf;
-    DAILY_PLAN= d.daily.plan;
-
-    // Cumulative daily
+    const d=await r.json();
+    const w=d.weekly;
+    WK=w.labels; BD_PLAN=w.bd_plan; BD_ACT=w.bd_actual;
+    PLAN_ALL=w.plan_pct; ACT_ALL=w.actual_pct;
+    DAILY_L=d.daily.labels; DAILY_SW=d.daily.sw; DAILY_AP=d.daily.ap;
+    DAILY_INF=d.daily.inf; DAILY_PLAN=d.daily.plan;
     let cs=0,ca=0,ci=0,cd=0;
-    CUM_SW=[]; CUM_AP=[]; CUM_INF=[]; CUM_D=[];
-    DAILY_SW.forEach((v,i)=>{
-      cs+=v; ca+=DAILY_AP[i]; ci+=DAILY_INF[i]; cd+=v+DAILY_AP[i]+DAILY_INF[i];
-      CUM_SW.push(cs); CUM_AP.push(ca); CUM_INF.push(ci); CUM_D.push(cd);
-    });
-
-    FAB_DAILY  = d.fab_daily;
-    FAB_COLORS = d.fab_colors;
-    FABRICS    = Object.keys(d.fab_colors);
-
-    // Rebuild charts that depend on this data
-    const destroyAndRebuild = (ids, fn) => {
-      ids.forEach(id=>{ const cv=document.getElementById(id); if(cv){const ch=Chart.getChart(cv);if(ch)ch.destroy();} });
-      if(typeof fn==='function') fn();
-    };
-    destroyAndRebuild(['burndown-c'], buildBurndown);
-    destroyAndRebuild(['prog-all-c','prog-sw-c','prog-ap-c'], buildProgressCharts);
-    if(gblt){ gblt=false; destroyAndRebuild([], buildGraphs); }
-
-  } catch(e) { console.error('loadChartData error:', e); }
+    CUM_SW=[];CUM_AP=[];CUM_INF=[];CUM_D=[];
+    DAILY_SW.forEach((v,i)=>{cs+=v;ca+=DAILY_AP[i];ci+=DAILY_INF[i];cd+=v+DAILY_AP[i]+DAILY_INF[i];CUM_SW.push(cs);CUM_AP.push(ca);CUM_INF.push(ci);CUM_D.push(cd);});
+    FAB_DAILY=d.fab_daily; FAB_COLORS=d.fab_colors; FABRICS=Object.keys(d.fab_colors);
+    // Rebuild charts
+    ['burndown-c','prog-all-c','prog-sw-c','prog-ap-c'].forEach(id=>{const cv=document.getElementById(id);if(cv){const ch=Chart.getChart(cv);if(ch)ch.destroy();}});
+    if(typeof buildBurndown==='function') buildBurndown();
+    if(typeof buildProgressCharts==='function') buildProgressCharts();
+    if(gblt){gblt=false;if(typeof buildGraphs==='function')buildGraphs();}
+  }catch(e){console.error('loadChartData:',e);}
 }
 
 
@@ -1980,7 +1954,7 @@ async function submitUpdate(){
   }catch(e){al.innerHTML=`<div class="falert ferr">❌ ${e.message}</div>`;}
 }
 
-// ── STARTUP ──────────────────────────────────────────────────────────────────
+// ── STARTUP ─────────────────────────────────────────────────────────────────
 loadChartData();
 loadData();
 buildGauge();
