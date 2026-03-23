@@ -228,20 +228,21 @@ app.get('/api/chart-data', async (req, res) => {
     const wk_plan_cum   = weeklyRows.map(r => num(r[4]));
     const wk_actual_cum = weeklyRows.map(r => num(r[5]));
     const wk_plan_pct   = weeklyRows.map(r => totalPlanned>0 ? Math.round(num(r[4])/totalPlanned*10000)/100 : 0);
-    const wk_actual_pct = weeklyRows.map(r => num(r[5])>0 ? Math.round(num(r[5])/totalPlanned*10000)/100 : null);
-    // null out future weeks for actual
-    let foundNull = false;
-    const wk_actual_pct_trimmed = wk_actual_pct.map(v => {
-      if (foundNull || v === null || v === 0) { foundNull=true; return null; }
-      return v;
+    // actual_pct: null for weeks where actual=0 (not yet happened)
+    // But keep repeating last value for weeks where act equals previous (carry-forward)
+    let lastActual = 0;
+    const wk_actual_pct_trimmed = weeklyRows.map(r => {
+      const act = num(r[5]);
+      if (act > lastActual) { lastActual = act; return Math.round(act/totalPlanned*10000)/100; }
+      if (act === lastActual && act > 0) return Math.round(act/totalPlanned*10000)/100;
+      return null;
     });
 
     const bd_plan   = weeklyRows.map((_,i) => num(weeklyRows[weeklyRows.length-1][4]) - num(weeklyRows[i][4]) + num(weeklyRows[i][2]));
-    const bd_actual = weeklyRows.map(r => num(r[5])>0 ? num(weeklyRows[weeklyRows.length-1][4]) - num(r[5]) : null);
-
-    // SW/AP weekly %
-    const sw_plan_pct   = weeklyRows.map(r => { let cum=0; weeklyRows.slice(0,weeklyRows.indexOf(r)+1).forEach(x=>cum+=num(x[6])); return Math.round(cum/num(dashRows[34][1])*10000)/100; });
-    const sw_actual_pct = weeklyRows.map(r => num(r[7])>0 ? Math.round(num(r[7])/num(dashRows[34][1])*10000)/100 : null);
+    const bd_actual = weeklyRows.map(r => {
+      const act = num(r[5]);
+      return act > 0 ? num(weeklyRows[weeklyRows.length-1][4]) - act : null;
+    });
 
     res.json({
       daily: { labels: daily.labels, sw: daily.sw, ap: daily.ap, inf: daily.inf, total: daily.total, plan: daily_plan },
