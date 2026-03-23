@@ -1361,14 +1361,16 @@ function buildTimeline(){
   const _elapsed=Math.round((_todayGMT7-_projStart)/(24*60*60*1000));
   const tdp=Math.max(0,Math.min(100,Math.round(_elapsed/_projDays*100)));
   const _todayLabel=_todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
-  w.innerHTML=FABRICS.map(f=>{const p=Math.round(f.p),bg=p>=80?'#ecfdf5;color:#065f46':p>=30?'#fff5e6;color:#92400e':'#eef1ff;color:var(--primary)';return `<div class="tlr"><div class="tlt"><div class="tln">${f.n}</div><div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)"><span>${f.d}/${f.t}</span><span class="tlpct" style="background:${bg}">${p}%</span></div></div><div class="tltrack"><div style="display:flex;height:100%"><div class="tlfill" style="width:${p}%;background:${f.c}">${p>10?p+'%':''}</div><div style="flex:1;background:#eef1ff"></div></div><div class="tltd" style="left:${tdp}%;background:var(--danger)">
-          <span style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:var(--danger);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;white-space:nowrap;pointer-events:none">${_todayLabel}</span>
+  const _fabLen=FABRICS.length;
+w.innerHTML=FABRICS.map((f,_fi)=>{const p=Math.round(f.p),bg=p>=80?'#ecfdf5;color:#065f46':p>=30?'#fff5e6;color:#92400e':'#eef1ff;color:var(--primary)';return `<div class="tlr"><div class="tlt"><div class="tln">${f.n}</div><div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)"><span>${f.d}/${f.t}</span><span class="tlpct" style="background:${bg}">${p}%</span></div></div><div class="tltrack"><div style="display:flex;height:100%"><div class="tlfill" style="width:${p}%;background:${f.c}">${p>10?p+'%':''}</div><div style="flex:1;background:#eef1ff"></div></div><div class="tltd" style="left:${tdp}%;background:var(--danger)">
+          ${_fi===_fabLen-1?`<span style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:var(--danger);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;white-space:nowrap;pointer-events:none">${_todayLabel}</span>`:""}
         </div></div></div>`;}).join('');
 }
 
 function buildHeatmap(){
   const w=document.getElementById('hm-wrap');
-  w.innerHTML=FABRICS.map(f=>{const p=Math.round(f.p),cls=p===100?'hmfu':p>=70?'hmhi':p>=30?'hmmi':p>0?'hmlo':'hm0';return `<div class="hmc ${cls}"><div class="hmn">${f.n}</div><div class="hmp">${p}%</div><div class="hms">${f.d}/${f.t}</div></div>`;}).join('');
+  const _fabLen=FABRICS.length;
+w.innerHTML=FABRICS.map((f,_fi)=>{const p=Math.round(f.p),cls=p===100?'hmfu':p>=70?'hmhi':p>=30?'hmmi':p>0?'hmlo':'hm0';return `<div class="hmc ${cls}"><div class="hmn">${f.n}</div><div class="hmp">${p}%</div><div class="hms">${f.d}/${f.t}</div></div>`;}).join('');
 }
 
 // ── PROGRESS LINE CHARTS ──────────────────────────────────────────────────────
