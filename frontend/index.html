@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SDA Installation Dashboard</title>
+<title>SVB Migration Progress Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -1125,189 +1125,72 @@ main { padding: 12px 10px; }
 </main>
 
 <script>
-const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://svb-migr-api.onrender.com';
+const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
 
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
-const WK = ["10/02","17/02","24/02","3/03","10/03","17/03","24/03","31/03","7/04","14/04","21/04","28/04","5/05","12/05","19/05","26/05","2/06","9/06","16/06","23/06"];
-// TODAY_WK: คำนวณจากวันปัจจุบัน GMT+7 นับจาก 10 ก.พ. 2569
+// ── Dynamic chart data — loaded from /api/chart-data ─────────────────────────
+// GMT+7 today (for today-line)
 const _todayGMT7 = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'}));
-const _wkStart   = new Date(2026, 1, 10); // 10 Feb 2026
-const _totalDays = Math.floor((_todayGMT7 - _wkStart) / (24*60*60*1000));
+const _totalDays = Math.floor((_todayGMT7 - new Date(2026,1,10)) / (24*60*60*1000));
 const TODAY_WK   = Math.max(0, Math.min(18, Math.floor(_totalDays / 7)));
-const TODAY_FRAC = (_totalDays % 7) / 7; // fraction within current week (0-1)
-const PLAN_ALL = [3.8,9.6,15.5,19.0,25.7,28.8,43.8,46.0,49.1,52.4,61.7,62.3,69.1,72.1,76.0,81.9,86.5,92.6,99.6,100.0];
-const ACT_ALL_RAW = [5.3,11.1,15.5,18.8,25.6,27.7];
-const ACT_ALL  = WK.map((_,i)=>i<ACT_ALL_RAW.length&&i<=TODAY_WK?ACT_ALL_RAW[i]:null);
-const PLAN_SW  = [3.5,7.9,14.1,18.9,28.4,32.6,38.1,39.5,42.6,46.6,53.3,54.1,63.8,68.1,73.6,82.0,87.5,93.3,99.5,100.0];
-const ACT_SW_RAW = [3.2,7.7,13.9,18.6,28.3,31.2];
-const ACT_SW   = WK.map((_,i)=>i<ACT_SW_RAW.length&&i<=TODAY_WK?ACT_SW_RAW[i]:null);
-const PLAN_AP  = [0.0,9.7,15.1,15.1,15.1,15.3,54.8,59.1,62.5,64.5,80.7,80.7,80.7,80.7,80.7,80.7,83.1,90.3,100.0,100.0];
-const ACT_AP_RAW = [5.4,15.1,15.1,15.1,15.1,15.1];
-const ACT_AP   = WK.map((_,i)=>i<ACT_AP_RAW.length&&i<=TODAY_WK?ACT_AP_RAW[i]:null);
-const BD_PLAN  = [1542,1496,1439,1321,1278,1183,942,886,846,810,726,610,551,492,431,372,263,178,87,0];
-const BD_ACT   = [1514,1472,1415,1321,1282,1184];
-const CUM_D=["10/02","16/02","17/02","18/02","19/02","20/02","25/02","26/02","27/02","28/02","1/03","3/03","5/03","6/03","9/03","10/03","11/03","12/03","13/03","14/03","16/03","18/03","19/03"];
-const CUM_SW=[30,36,57,68,80,86,100,114,131,144,156,180,183,195,208,219,233,241,246,288,317,332,350];
-const CUM_AP=[24,24,39,55,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67,67];
-const CUM_INF=[24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24];
-const DAILY_L=["10/02","16/02","17/02","18/02","19/02","20/02","25/02","26/02","27/02","28/02","1/03","3/03","5/03","6/03","9/03","10/03","11/03","12/03","13/03","14/03","16/03","18/03","19/03"];
-const DAILY_SW=[30,6,21,11,12,6,14,14,17,13,12,24,3,12,13,11,14,8,5,42,29,15,18];
-const DAILY_AP=[24,0,15,16,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-const DAILY_INF=[24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const TODAY_FRAC = (_totalDays % 7) / 7;
+const _todayLabel = _todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
 
-// Per-fabric daily installs
-const FAB_DAILY = {
-  'D1-041': {sw:[28,6,21,11,12,6,0,0,0,0,0,0,0,12,13,11,14,8,5,0,29,15,18], ap:[0,0,15,16,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], inf:[10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'CFZ':    {sw:[2,0,0,0,0,0,14,14,17,13,12,24,3,0,0,0,0,0,0,42,0,0,0],    ap:[24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],  inf:[4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'T1-015': {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],           ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],   inf:[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'D1-091': {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],           ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],   inf:[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'RFF':    {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],           ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],   inf:[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'AMF':    {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],           ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],   inf:[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-  'PPW':    {sw:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],           ap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],   inf:[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
-};
-// Fabric colors and totals for charts
-const FAB_COLORS = {'D1-041':'#4361ee','CFZ':'#2bc48a','T1-015':'#ff9f43','D1-091':'#a855f7','RFF':'#22b8cf','AMF':'#f76707','PPW':'#74c0fc'};
-const FAB_TOTALS = {'D1-041':{sw:209,ap:43,inf:10},'CFZ':{sw:141,ap:24,inf:4},'T1-015':{sw:0,ap:0,inf:2},'D1-091':{sw:0,ap:0,inf:2},'RFF':{sw:0,ap:0,inf:2},'AMF':{sw:0,ap:0,inf:2},'PPW':{sw:0,ap:0,inf:2}};
+// Placeholders — filled by loadChartData()
+let WK=[], BD_PLAN=[], BD_ACT=[];
+let PLAN_ALL=[], ACT_ALL=[], PLAN_SW=[], ACT_SW=[], PLAN_AP=[], ACT_AP=[];
+let DAILY_L=[], DAILY_SW=[], DAILY_AP=[], DAILY_INF=[], DAILY_PLAN=[];
+let FAB_DAILY={}, FAB_DAILY_PLAN={}, FAB_COLORS={}, FAB_TOTALS={}, FAB_PLAN_TOTALS={};
+let FABRICS=[], FAB_WEEKLY={}, CUM_D=[], CUM_SW=[], CUM_AP=[], CUM_INF=[];
 
-// Plan targets (scheduled qty) per date matching DAILY_L
-const DAILY_PLAN = [50,11,35,27,24,6,14,38,17,13,12,24,3,12,15,11,14,8,5,41,27,15,18];
+// These were hardcoded but now we need them for buildBurndown fallback
+// They'll be overwritten by loadChartData()
+const LOC_DATA = {};
 
-// Per-fabric plan on those same dates
-const FAB_DAILY_PLAN = {
-  'D1-041': [36,11,35,27,24,6,0,0,0,0,0,0,0,12,15,11,14,8,5,0,27,15,18],
-  'CFZ':    [4,0,0,0,0,0,14,38,17,13,12,24,3,0,0,0,0,0,0,41,0,0,0],
-  'T1-015': [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  'D1-091': [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  'RFF':    [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  'AMF':    [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  'PPW':    [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-};
-// Plan totals per fabric (total scheduled devices)
-const FAB_PLAN_TOTALS = {'D1-041':710,'CFZ':187,'T1-015':327,'D1-091':147,'RFF':99,'AMF':114,'PPW':8};
+async function loadChartData() {
+  try {
+    const r = await fetch(API+'/api/chart-data');
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
 
-const FAB_WEEKLY = {"D1-041":{sw_plan:[9.0,21.0,21.0,27.6,43.4,51.5,66.6,70.5,79.0,89.8,98.5,98.5,98.5,98.5,98.5,100.0,100.0,100.0,100.0,100.0],sw_act:[8.3,20.5,20.5,26.6,42.9,51.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,14.8,14.8,14.8,14.8,14.8,75.5,82.1,87.2,90.3,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],ap_act:[0.0,14.8,14.8,14.8,14.8,14.8,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"CFZ":{sw_plan:[1.3,1.3,46.2,63.5,89.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,98.7,100.0,100.0,100.0,100.0,100.0],sw_act:[1.3,1.3,46.2,63.5,90.4,90.4,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,96.0,96.0,96.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],ap_act:[96.0,96.0,96.0,96.0,96.0,96.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"T1-015":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,13.9,17.4,55.9,73.0,95.0,100.0,100.0,100.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"D1-091":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,53.7,100.0,100.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"RFF":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"AMF":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0,100.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"PPW":{sw_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,100.0],sw_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null],ap_plan:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],ap_act:[0.0,0.0,0.0,0.0,0.0,0.0,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}};
+    const w = d.weekly;
+    WK      = w.labels;
+    BD_PLAN = w.bd_plan;
+    BD_ACT  = w.bd_actual.map((v,i) => v !== null ? v : null);
 
-const FABRICS=[
-  {n:'D1-041',t:710,d:281,p:39.6,h:6,r:429,s:'10 ก.พ. 69',e:'1 มิ.ย. 69',sw:{t:410,d:209},ap:{t:290,d:43},inf:{t:10,d:10},c:'#4361ee'},
-  {n:'CFZ',   t:187,d:169,p:90.4,h:2,r:18, s:'10 ก.พ. 69',e:'1 มิ.ย. 69',sw:{t:156,d:141},ap:{t:25,d:24},inf:{t:6,d:4},c:'#2bc48a'},
-  {n:'T1-015',t:327,d:2,  p:0.6, h:0,r:325,s:'10 ก.พ. 69',e:'27 พ.ค. 69',sw:{t:281,d:0},ap:{t:44,d:0},inf:{t:2,d:2},c:'#ff9f43'},
-  {n:'D1-091',t:147,d:2,  p:1.4, h:0,r:145,s:'10 ก.พ. 69',e:'8 มิ.ย. 69',sw:{t:134,d:0},ap:{t:11,d:0},inf:{t:2,d:2},c:'#a855f7'},
-  {n:'RFF',   t:99, d:2,  p:2.0, h:0,r:97, s:'10 ก.พ. 69',e:'15 มิ.ย. 69',sw:{t:65,d:0},ap:{t:32,d:0},inf:{t:2,d:2},c:'#22b8cf'},
-  {n:'AMF',   t:114,d:2,  p:1.8, h:0,r:112,s:'10 ก.พ. 69',e:'22 มิ.ย. 69',sw:{t:69,d:0},ap:{t:43,d:0},inf:{t:2,d:2},c:'#f76707'},
-  {n:'PPW',   t:8,  d:2,  p:25,  h:0,r:6,  s:'10 ก.พ. 69',e:'23 มิ.ย. 69',sw:{t:6,d:0},ap:{t:0,d:0},inf:{t:2,d:2},c:'#74c0fc'},
-];
-const LOC_DATA={"D1-041":[{l:"อาคารสนง.ท่าอากาศยาน",t:318,d:122,p:38},{l:"Concourse D",t:106,d:35,p:33},{l:"Concourse A",t:71,d:60,p:85},{l:"AIMS",t:64,d:10,p:16},{l:"Concourse C",t:35,d:24,p:69},{l:"Concourse B",t:26,d:13,p:50}],"CFZ":[{l:"อาคาร BFZ",t:59,d:59,p:100},{l:"อาคาร BC-1",t:35,d:33,p:94},{l:"อาคาร S1",t:17,d:17,p:100},{l:"อาคาร CI-1",t:14,d:14,p:100},{l:"อาคาร CE-1",t:11,d:11,p:100}],"T1-015":[{l:"อาคารผู้โดยสาร",t:232,d:0,p:0},{l:"Carpark West",t:44,d:0,p:0},{l:"Carpark East",t:39,d:0,p:0},{l:"Terminal",t:4,d:2,p:50}],"D1-091":[{l:"Concourse G",t:59,d:0,p:0},{l:"Concourse E",t:36,d:0,p:0},{l:"Concourse F",t:23,d:0,p:0}],"RFF":[{l:"RFF",t:49,d:2,p:4},{l:"ศูนย์การขนส่ง",t:23,d:0,p:0},{l:"MTS",t:3,d:0,p:0}],"AMF":[{l:"AMF1",t:50,d:2,p:4},{l:"AMF4",t:16,d:0,p:0},{l:"AMF2",t:15,d:0,p:0}],"PPW":[{l:"PPW",t:6,d:2,p:33},{l:"Power house 01L",t:2,d:0,p:0}]};
+    PLAN_ALL = w.plan_pct;
+    ACT_ALL  = w.actual_pct;
 
-// ── CHART OPTIONS FACTORY ─────────────────────────────────────────────────────
-function lineOpts(color, yMax=100, yLabel='%') {
-  return {
-    responsive:true, maintainAspectRatio:false,
-    interaction:{mode:'index', intersect:false},
-    plugins:{
-      legend:{display:false},
-      tooltip:{
-        backgroundColor:'rgba(30,45,77,.92)',
-        titleColor:'#fff', bodyColor:'rgba(255,255,255,.8)',
-        padding:10, cornerRadius:8,
-        callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y != null ? c.parsed.y.toFixed(1)+'%' : '–'}`}
-      }
-    },
-    scales:{
-      x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
-      y:{min:0,max:yMax,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
-    }
-  };
+    DAILY_L   = d.daily.labels;
+    DAILY_SW  = d.daily.sw;
+    DAILY_AP  = d.daily.ap;
+    DAILY_INF = d.daily.inf;
+    DAILY_PLAN= d.daily.plan;
+
+    // Cumulative daily
+    let cs=0,ca=0,ci=0,cd=0;
+    CUM_SW=[]; CUM_AP=[]; CUM_INF=[]; CUM_D=[];
+    DAILY_SW.forEach((v,i)=>{
+      cs+=v; ca+=DAILY_AP[i]; ci+=DAILY_INF[i]; cd+=v+DAILY_AP[i]+DAILY_INF[i];
+      CUM_SW.push(cs); CUM_AP.push(ca); CUM_INF.push(ci); CUM_D.push(cd);
+    });
+
+    FAB_DAILY  = d.fab_daily;
+    FAB_COLORS = d.fab_colors;
+    FABRICS    = Object.keys(d.fab_colors);
+
+    // Rebuild charts that depend on this data
+    const destroyAndRebuild = (ids, fn) => {
+      ids.forEach(id=>{ const cv=document.getElementById(id); if(cv){const ch=Chart.getChart(cv);if(ch)ch.destroy();} });
+      if(typeof fn==='function') fn();
+    };
+    destroyAndRebuild(['burndown-c'], buildBurndown);
+    destroyAndRebuild(['prog-all-c','prog-sw-c','prog-ap-c'], buildProgressCharts);
+    if(gblt){ gblt=false; destroyAndRebuild([], buildGraphs); }
+
+  } catch(e) { console.error('loadChartData error:', e); }
 }
 
-// ── SINGLE LINE CHART BUILDER ─────────────────────────────────────────────────
-function makeLineChart(canvasId, planData, actData, planColor, actColor, planLabel, actLabel) {
-  const ctx = document.getElementById(canvasId);
-  if (!ctx) return null;
-  const existing = Chart.getChart(ctx);
-  if (existing) existing.destroy();
-  return new Chart(ctx, {
-    type:'line',
-    data:{
-      labels: WK,
-      datasets:[
-        {label:planLabel||'แผน',data:planData,borderColor:planColor||'#94a3c4',borderWidth:2,borderDash:[5,3],pointRadius:3,pointBackgroundColor:planColor||'#94a3c4',tension:0.3,fill:false,spanGaps:false},
-        {label:actLabel||'จริง',data:actData,borderColor:actColor||'#4361ee',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?4:0,pointBackgroundColor:actColor||'#4361ee',tension:0.3,fill:false,spanGaps:false}
-      ]
-    },
-    options: lineOpts(actColor)
-  });
-}
-
-// ── BOOT ──────────────────────────────────────────────────────────────────────
-function buildFabBreakdown() {
-  const wrap = document.getElementById('fab-bd-grid');
-  if (!wrap) return;
-
-  const data = [
-    {n:'D1-041',c:'#4361ee',tot:{d:262,t:710}, sw:{d:209,t:410}, ap:{d:43,t:290},  inf:{d:10,t:10}},
-    {n:'CFZ',   c:'#2bc48a',tot:{d:169,t:187}, sw:{d:141,t:156}, ap:{d:24,t:25},   inf:{d:4,t:6}},
-    {n:'T1-015',c:'#ff9f43',tot:{d:2,  t:327}, sw:{d:0,  t:281}, ap:{d:0,  t:44},  inf:{d:2,t:2}},
-    {n:'D1-091',c:'#a855f7',tot:{d:2,  t:147}, sw:{d:0,  t:134}, ap:{d:0,  t:11},  inf:{d:2,t:2}},
-    {n:'RFF',   c:'#22b8cf',tot:{d:2,  t:99},  sw:{d:0,  t:65},  ap:{d:0,  t:32},  inf:{d:2,t:2}},
-    {n:'AMF',   c:'#f76707',tot:{d:2,  t:114}, sw:{d:0,  t:69},  ap:{d:0,  t:43},  inf:{d:2,t:2}},
-    {n:'PPW',   c:'#74c0fc',tot:{d:2,  t:8},   sw:{d:0,  t:6},   ap:{d:0,  t:0},   inf:{d:2,t:2}},
-  ];
-
-  wrap.innerHTML = data.map(f => {
-    const totPct = Math.round(f.tot.d / Math.max(f.tot.t,1) * 100);
-    const swPct  = Math.round(f.sw.d  / Math.max(f.sw.t,1)  * 100);
-    const apPct  = Math.round(f.ap.d  / Math.max(f.ap.t,1)  * 100);
-    const infPct = Math.round(f.inf.d / Math.max(f.inf.t,1) * 100);
-
-    const pctBg  = totPct >= 80 ? '#ecfdf5' : totPct >= 30 ? '#fff5e6' : '#eef1ff';
-    const pctCol = totPct >= 80 ? '#065f46' : totPct >= 30 ? '#92400e' : '#3451d1';
-
-    const catRow = (icon, label, done, total, pct, color) => `
-      <div class="fab-bd-cat">
-        <div class="fab-bd-dot" style="background:${color}"></div>
-        <span style="min-width:28px;font-size:10px">${label}</span>
-        <div class="fab-bd-cat-bar">
-          <div class="fab-bd-cat-fill" style="width:${pct}%;background:${color}"></div>
-        </div>
-        <span class="fab-bd-cat-val">${done}/${total}</span>
-      </div>`;
-
-    return `<div class="fab-bd-card" style="--fab-c:${f.c}">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${f.c}"></div>
-      <div class="fab-bd-top">
-        <span class="fab-bd-name">${f.n}</span>
-        <span class="fab-bd-pct" style="background:${pctBg};color:${pctCol}">${totPct}%</span>
-      </div>
-      <div class="fab-bd-total">
-        <strong>${f.tot.d}</strong>/${f.tot.t}
-        <span style="font-size:9px;margin-left:3px">เครื่อง</span>
-      </div>
-      <div class="fab-bd-bar">
-        <div class="fab-bd-fill" style="width:${totPct}%;background:${f.c}"></div>
-      </div>
-      <div class="fab-bd-cats">
-        ${catRow('🔀','SW', f.sw.d,  f.sw.t,  swPct,  '#4361ee')}
-        ${f.ap.t > 0 ? catRow('📶','AP',  f.ap.d,  f.ap.t,  apPct,  '#2bc48a') : ''}
-        ${catRow('⚡','Inf',f.inf.d, f.inf.t, infPct, '#ff9f43')}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-window.addEventListener('DOMContentLoaded',()=>{
-  buildGauge(); buildBurndown(); buildDonut();
-  buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards();
-  buildProgressCharts();
-  buildFabBreakdown();
-  document.getElementById('update-ts')?.remove?.();
-  manualRefresh();
-});
-
-function buildGauge(){
-  const _ch_gaugec = Chart.getChart(document.getElementById('gauge-c'));
-  if(_ch_gaugec) _ch_gaugec.destroy();
-  new Chart(document.getElementById('gauge-c'),{type:'doughnut',data:{datasets:[{data:[82,18],backgroundColor:['#ff9f43','rgba(253,211,77,.3)'],borderWidth:0}]},options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
-}
 
 function buildBurndown(){
   const tdPl={id:'td',afterDraw(chart){
@@ -1824,6 +1707,7 @@ async function manualRefresh(){
   }catch(e){}
 
   loadData();
+  loadChartData();
 
   const now=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const el=document.getElementById('last-sync-lbl');
@@ -2095,6 +1979,18 @@ async function submitUpdate(){
     else al.innerHTML=`<div class="falert ferr">❌ ${d.error}</div>`;
   }catch(e){al.innerHTML=`<div class="falert ferr">❌ ${e.message}</div>`;}
 }
+
+// ── STARTUP ──────────────────────────────────────────────────────────────────
+loadChartData();
+loadData();
+buildGauge();
+buildDonut();
+buildTimeline();
+buildHeatmap();
+buildLocList();
+buildFabCards();
+buildFabBreakdown();
+
 </script>
 </body>
 </html>
