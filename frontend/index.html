@@ -2225,7 +2225,7 @@ function buildLocList(){
   w.innerHTML=Object.entries(LOC_DATA).map(([fab,locs])=>{
     const f=FABRICS.find(x=>x.n===fab)||{c:'var(--primary)'};
     const td=locs.reduce((a,l)=>a+l.d,0),tt=locs.reduce((a,l)=>a+l.t,0),tp=tt>0?Math.round(td/tt*100):0;
-    const _pageBreak=['T1-015','PPW'].includes(fab)?'page-break-before:always;break-before:page;':'';
+    const _pageBreak=['T1-015','AMF'].includes(fab)?'page-break-before:always;break-before:page;':'';
     return `<div class="fg" style="${_pageBreak}"><div class="fgh" onclick="togFab(this)"><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>${fab}</div><div style="display:flex;align-items:center;gap:7px;font-size:12px"><span style="color:var(--text2)">${td}/${tt} (${tp}%)</span><span>›</span></div></div><div class="fgb">${locs.map(l=>{const pc=Math.min(l.p,100),bc=pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';return `<div class="locrow"><div style="display:flex;align-items:center;gap:5px;flex:1;min-width:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${f.c}" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="locname">${l.l}</span></div><div class="loci"><div class="locc">${l.d}/${l.t} (${pc}%)</div><div class="locbar"><div class="locfill" style="width:${pc}%;background:${bc}"></div></div></div></div>`;}).join('')}</div></div>`;
   }).join('');
 }
