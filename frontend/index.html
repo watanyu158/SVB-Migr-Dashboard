@@ -1114,7 +1114,13 @@ main { padding: 12px 10px; }
 
 <!-- ════ TAB: สถานที่ ════ -->
 <div class="tab-body" id="tab-location" style="display:none">
-  <div class="loc-sec-h">📍 รายละเอียดแยกตามสถานที่</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div class="loc-sec-h" style="margin-bottom:0">📍 รายละเอียดแยกตามสถานที่</div>
+    <div style="display:flex;gap:6px">
+      <button onclick="expandAllLoc()" style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--primary-l);color:var(--primary);cursor:pointer;font-family:inherit">▼ แตกทั้งหมด</button>
+      <button onclick="collapseAllLoc()" style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text2);cursor:pointer;font-family:inherit">▲ ยุบทั้งหมด</button>
+    </div>
+  </div>
   <div id="loc-list"></div>
 </div>
 
@@ -2222,6 +2228,21 @@ function buildLocList(){
     return `<div class="fg"><div class="fgh" onclick="togFab(this)"><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>${fab}</div><div style="display:flex;align-items:center;gap:7px;font-size:12px"><span style="color:var(--text2)">${td}/${tt} (${tp}%)</span><span>›</span></div></div><div class="fgb">${locs.map(l=>{const pc=Math.min(l.p,100),bc=pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';return `<div class="locrow"><div style="display:flex;align-items:center;gap:5px;flex:1;min-width:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${f.c}" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="locname">${l.l}</span></div><div class="loci"><div class="locc">${l.d}/${l.t} (${pc}%)</div><div class="locbar"><div class="locfill" style="width:${pc}%;background:${bc}"></div></div></div></div>`;}).join('')}</div></div>`;
   }).join('');
 }
+
+function expandAllLoc(){
+  document.querySelectorAll('#loc-list .fgb').forEach(b=>{
+    b.classList.add('open');
+    const arr=b.previousElementSibling?.querySelector('span:last-child');
+    if(arr) arr.textContent='∨';
+  });
+}
+function collapseAllLoc(){
+  document.querySelectorAll('#loc-list .fgb').forEach(b=>{
+    b.classList.remove('open');
+    const arr=b.previousElementSibling?.querySelector('span:last-child');
+    if(arr) arr.textContent='›';
+  });
+}
 function togFab(el){const b=el.nextElementSibling,a=el.querySelector('span:last-child');b.classList.toggle('open');if(a)a.textContent=b.classList.contains('open')?'∨':'›';}
 
 function buildFabCards(){
@@ -2395,6 +2416,8 @@ async function exportPDF() {
       const el=document.getElementById('tab-'+t);
       if(el) el.style.display='block';
     });
+    // แตกทุก location ก่อน export
+    expandAllLoc();
     const fabWrap=document.getElementById('fab-daily-charts-wrap');
     if(fabWrap) fabWrap.style.display='block';
     document.querySelectorAll('.prog-fab-grid').forEach(el=>el.style.display='block');
@@ -2542,7 +2565,9 @@ ${styles}
 .card,.scard,.fpc,.fab-bd-card { break-inside:avoid!important; page-break-inside:avoid!important; }
 
 /* ── Canvas: hidden (replaced by img) ── */
-canvas { display:none!important; }
+canvas { display:none!important; 
+#tab-location .fgb{display:block!important}
+}
 
 /* ── Overview tab ── */
 #tab-overview .g4 { display:grid!important; grid-template-columns:repeat(4,1fr)!important; gap:10px!important; }
