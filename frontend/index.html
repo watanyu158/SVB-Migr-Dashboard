@@ -1159,13 +1159,16 @@ const TODAY_WK   = Math.max(0, Math.min(19, Math.floor(_totalDays / 7)));
 const TODAY_FRAC = (_totalDays % 7) / 7;
 const PLAN_ALL = [3.64, 11.14, 17.99, 20.98, 27.82, 32.19, 49.75, 53.31, 56.95, 59.65, 65.48, 72.25, 79.32, 82.96, 87.04, 92.79, 100.0];
 const ACT_ALL_RAW = [5.83, 13.04, 18.14, 20.98, 27.75, 33.43, null, null, null, null, null, null, null, null, null, null, null];
-const ACT_ALL  = WK.map((_,i)=>i<ACT_ALL_RAW.length&&i<=TODAY_WK?ACT_ALL_RAW[i]:null);
+// carry-forward ACT_ALL ถึง TODAY_WK
+const ACT_ALL = (()=>{let _l=null;return WK.map((_,i)=>{if(i<ACT_ALL_RAW.length&&ACT_ALL_RAW[i]!==null)_l=ACT_ALL_RAW[i];return i<=TODAY_WK?_l:null;});})();
 const PLAN_SW  = [2.5, 7.76, 13.92, 17.39, 26.0, 31.49, 37.11, 39.79, 42.55, 45.31, 49.96, 56.56, 65.57, 70.03, 75.29, 81.27, 100.0];
 const ACT_SW_RAW = [2.85, 7.76, 13.92, 17.39, 25.69, 32.74, null, null, null, null, null, null, null, null, null, null, null];
-const ACT_SW   = WK.map((_,i)=>i<ACT_SW_RAW.length&&i<=TODAY_WK?ACT_SW_RAW[i]:null);
+// carry-forward ACT_SW ถึง TODAY_WK
+const ACT_SW = (()=>{let _l=null;return WK.map((_,i)=>{if(i<ACT_SW_RAW.length&&ACT_SW_RAW[i]!==null)_l=ACT_SW_RAW[i];return i<=TODAY_WK?_l:null;});})();
 const PLAN_AP  = [0.0, 5.39, 5.39, 5.39, 5.39, 5.39, 45.17, 49.44, 52.81, 52.81, 61.12, 71.24, 84.27, 84.27, 84.27, 84.27, 96.63];
 const ACT_AP_RAW = [0.0, 5.39, 5.39, 5.39, 5.39, 5.39, null, null, null, null, null, null, null, null, null, null, null];
-const ACT_AP   = WK.map((_,i)=>i<ACT_AP_RAW.length&&i<=TODAY_WK?ACT_AP_RAW[i]:null);
+// carry-forward ACT_AP ถึง TODAY_WK
+const ACT_AP = (()=>{let _l=null;return WK.map((_,i)=>{if(i<ACT_AP_RAW.length&&ACT_AP_RAW[i]!==null)_l=ACT_AP_RAW[i];return i<=TODAY_WK?_l:null;});})();
 const BD_PLAN  = [1373, 1323, 1220, 1126, 1085, 991, 931, 690, 641, 591, 541, 510, 424, 331, 238, 141, 98];
 const BD_ACT   = [1293, 1194, 1124, 1085, 992, 914, null, null, null, null, null, null, null, null, null, null, null];
 const CUM_D=[1,80,86,122,149,173,179,193,207,224,237,249,273,276,288,301,312,326,334,339,381,410,425,443,459];
@@ -1694,7 +1697,12 @@ function buildBurndown(){
   cv.fillText(label, x, top+2);
   cv.restore();
 }};
-  const actualFull = WK.map((_,i)=>i<=TODAY_WK&&i<BD_ACT.length?BD_ACT[i]:null);
+  // carry-forward: ต่อเส้นจริงถึง TODAY_WK แม้ว่า weekly ยังไม่บันทึก
+  let _bdLast = null;
+  const actualFull = WK.map((_,i) => {
+    if(i < BD_ACT.length && BD_ACT[i] !== null) _bdLast = BD_ACT[i];
+    return (i <= TODAY_WK) ? _bdLast : null;
+  });
   const _ch_burndownc = Chart.getChart(document.getElementById('burndown-c'));
   if(_ch_burndownc) _ch_burndownc.destroy();
   new Chart(document.getElementById('burndown-c'),{
