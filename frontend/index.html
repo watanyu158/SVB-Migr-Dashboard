@@ -2409,8 +2409,8 @@ async function loadData(){
     // Insight: rate/gauge
     if(el('gauge-pct-lbl')) el('gauge-pct-lbl').textContent = ins.gauge_pct+'%';
     const thM=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    const fd = new Date(ins.finish_date); fd.setDate(fd.getDate()+1);
-    const finTH = `${fd.getDate()} ${thM[fd.getMonth()]} ${fd.getFullYear()-2500+43}`;
+    const fd = new Date(ins.finish_date+'T00:00:00');
+    const finTH = `${fd.getDate()} ${thM[fd.getMonth()]} ${(fd.getFullYear()+543)%100}`;
 
     document.querySelectorAll('.ins-big em').forEach(em => em.textContent = ins.need_more);
     document.querySelectorAll('.ins-pct-tag').forEach(t => {
