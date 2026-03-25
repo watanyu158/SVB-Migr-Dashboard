@@ -1504,35 +1504,81 @@ function buildVelocityChart(){
   if(!cv) return;
   const ex = Chart.getChart(cv); if(ex) ex.destroy();
 
-  // คำนวณ SW+AP ติดตั้งต่อสัปดาห์จาก WK (17 สัปดาห์แรก)
-  const wkSW = [30,56,0,12,51,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; // from install dates
-  const wkAP = [0,43,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-  const wkTot= wkSW.map((v,i)=>v+(wkAP[i]||0));
+  // รวม SW+AP+Inf รายสัปดาห์จาก arrays ที่ได้จาก API
+  const N_WK = WK.length;
+  const wkTotals = WK.map((_,i)=>{
+    const sw  = i>0 ? (ACT_SW_RAW[i]||0)-(ACT_SW_RAW[i-1]||0)  : (ACT_SW_RAW[i]||0);
+    const ap  = i>0 ? (ACT_AP_RAW[i]||0)-(ACT_AP_RAW[i-1]||0)  : (ACT_AP_RAW[i]||0);
+    return Math.max(0, sw+ap);
+  });
 
-  // เฉพาะ week ที่มีข้อมูล (ไม่เกิน TODAY_WK+1)
-  const activeWks  = WK.slice(0, TODAY_WK+1);
-  const activeTot  = wkTot.slice(0, TODAY_WK+1);
+  // ใช้ weekly actual จาก DAILY_L/DAILY_SW/DAILY_AP แทน — นับตาม WK bounds
+  const WK_BOUNDS_MS = [
+    ['2026-02-09','2026-02-15'],['2026-02-16','2026-02-22'],['2026-02-23','2026-03-01'],
+    ['2026-03-02','2026-03-08'],['2026-03-09','2026-03-15'],['2026-03-16','2026-03-22'],
+    ['2026-03-23','2026-03-29'],['2026-03-30','2026-04-05'],['2026-04-06','2026-04-12'],
+    ['2026-04-13','2026-04-19'],['2026-04-20','2026-04-26'],['2026-04-27','2026-05-03'],
+    ['2026-05-04','2026-05-10'],['2026-05-11','2026-05-17'],['2026-05-18','2026-05-24'],
+    ['2026-05-25','2026-05-31'],['2026-06-01','2026-06-08'],['2026-06-09','2026-06-15'],
+    ['2026-06-16','2026-06-22'],['2026-06-23','2026-06-29'],
+  ].map(([s,e])=>[new Date(s+'T00:00:00').getTime(), new Date(e+'T00:00:00').getTime()]);
 
-  // ไล่เฉดสีตามปริมาณ: 0=เทา, น้อย=ฟ้าอ่อน, มาก=น้ำเงินเข้ม
-  const maxV = Math.max(...activeTot, 1);
-  const colors = activeTot.map(v => {
-    if(v === 0) return 'rgba(148,163,196,0.3)';
-    const t = v / maxV;  // 0→1
-    // interpolate: #bfdbfe (light) → #1d4ed8 (dark)
-    const r = Math.round(191 + (29-191)*t);
-    const g = Math.round(219 + (78-219)*t);
-    const b = Math.round(254 + (216-254)*t);
+  const wkSW2  = new Array(N_WK).fill(0);
+  const wkAP2  = new Array(N_WK).fill(0);
+  const wkInf2 = new Array(N_WK).fill(0);
+
+  DAILY_L.forEach((lbl,di)=>{
+    const [day,mo]=lbl.split('/').map(Number);
+    const dt = new Date(2026, mo-1, day).getTime();
+    for(let wi=0;wi<N_WK;wi++){
+      if(dt>=WK_BOUNDS_MS[wi][0]&&dt<=WK_BOUNDS_MS[wi][1]){
+        wkSW2[wi]  +=(DAILY_SW[di]||0);
+        wkAP2[wi]  +=(DAILY_AP[di]||0);
+        wkInf2[wi] +=(DAILY_INF[di]||0);
+        break;
+      }
+    }
+  });
+
+  // เฉพาะ 7 สัปดาห์ล่าสุดที่มีข้อมูล (≤ TODAY_WK)
+  const endWk   = Math.min(TODAY_WK, N_WK-1);
+  const startWk = Math.max(0, endWk - 6);
+  const sliceSW  = wkSW2.slice(startWk, endWk+1);
+  const sliceAP  = wkAP2.slice(startWk, endWk+1);
+  const sliceTot = sliceSW.map((v,i)=>v+sliceAP[i]+(wkInf2[startWk+i]||0));
+
+  // Labels: "W7\n09/02-15/02"
+  const WK_DATE_RANGES = [
+    '09/02-15/02','16/02-22/02','23/02-01/03','02/03-08/03','09/03-15/03',
+    '16/03-22/03','23/03-29/03','30/03-05/04','06/04-12/04','13/04-19/04',
+    '20/04-26/04','27/04-03/05','04/05-10/05','11/05-17/05','18/05-24/05',
+    '25/05-31/05','01/06-08/06','09/06-15/06','16/06-22/06','23/06-29/06',
+  ];
+  const WK_NAMES = WK.map((_,i)=>`W${i+7}`);
+  const sliceLabels = sliceTot.map((_,i)=>{
+    const wi=startWk+i;
+    return WK_NAMES[wi];
+  });
+  const sliceDateLabels = sliceTot.map((_,i)=>{
+    const wi=startWk+i;
+    return WK_DATE_RANGES[wi]||'';
+  });
+
+  const maxV = Math.max(...sliceTot, 1);
+  const colors = sliceTot.map(v=>{
+    if(v===0) return 'rgba(148,163,196,0.3)';
+    const t=v/maxV;
+    const r=Math.round(191+(29-191)*t), g=Math.round(219+(78-219)*t), b=Math.round(254+(216-254)*t);
     return `rgba(${r},${g},${b},0.85)`;
   });
-  const borders = activeTot.map(v => {
+  const borders = sliceTot.map(v=>{
     if(v===0) return 'rgba(148,163,196,0.5)';
-    const t = v/maxV;
+    const t=v/maxV;
     const r=Math.round(191+(29-191)*t), g=Math.round(219+(78-219)*t), b=Math.round(254+(216-254)*t);
     return `rgb(${r},${g},${b})`;
   });
 
-  // plugin: label บน bar
-  const velLabelPlugin = {
+  const velLabelPlugin={
     id:'velLabels',
     afterDatasetsDraw(chart){
       const ctx=chart.ctx;
@@ -1540,25 +1586,22 @@ function buildVelocityChart(){
         if(!v||v<1) return;
         const bar=chart.getDatasetMeta(0).data[i];
         ctx.save();
-        ctx.font='bold 10px Segoe UI';
-        ctx.fillStyle='#1e2d4d';
-        ctx.textAlign='center';
-        ctx.textBaseline='bottom';
+        ctx.font='bold 10px Segoe UI'; ctx.fillStyle='#1e2d4d';
+        ctx.textAlign='center'; ctx.textBaseline='bottom';
         ctx.fillText(v, bar.x, bar.y-2);
         ctx.restore();
       });
     }
   };
 
-  new Chart(cv, {
+  new Chart(cv,{
     type:'bar', plugins:[velLabelPlugin],
     data:{
-      labels: activeWks,
+      labels: sliceLabels,
       datasets:[{
-        label:'ติดตั้ง (SW+AP)',
-        data: activeTot,
-        backgroundColor: colors,
-        borderColor: borders,
+        label:'ติดตั้ง (SW+AP+Inf)',
+        data: sliceTot,
+        backgroundColor: colors, borderColor: borders,
         borderWidth:1, borderRadius:4,
       }]
     },
@@ -1567,18 +1610,25 @@ function buildVelocityChart(){
       layout:{padding:{top:20}},
       plugins:{
         legend:{display:false},
-        tooltip:{callbacks:{label:c=>{
-          const i=c.dataIndex;
-          return [` SW: ${wkSW[i]} เครื่อง`, ` AP: ${wkAP[i]} เครื่อง`, ` รวม: ${activeTot[i]} เครื่อง`];
-        }}}
+        tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
+          callbacks:{
+            title:ctx=>{const i=ctx[0].dataIndex; return `${sliceLabels[i]}  (${sliceDateLabels[i]})`;},
+            label:ctx=>{const i=ctx[0].dataIndex; return [` SW: ${sliceSW[i]}`, ` AP: ${sliceAP[i]}`, ` รวม: ${sliceTot[i]} เครื่อง`];}
+          }
+        }
       },
       scales:{
-        x:{grid:{display:false},ticks:{font:{size:10},maxRotation:45}},
+        x:{grid:{display:false},
+          ticks:{font:{size:10},
+            callback(val,i){ return [sliceLabels[i], sliceDateLabels[i]]; }
+          }
+        },
         y:{grid:{color:'#f0f4ff'},ticks:{font:{size:10}},min:0}
       }
     }
   });
 }
+
 
 // ── ผลผลิตรายวัน แยกตามวันในสัปดาห์ ────────────────────────────────────────
 function buildWeekdayChart(){
@@ -1604,8 +1654,8 @@ function buildWeekdayChart(){
     dayCounts[dow]+= 1;
   });
 
-  // เฉพาะ จ-ศ (1-5) ที่มีข้อมูล
-  const activeDays  = [1,2,3,4,5].filter(d=>dayCounts[d]>0);
+  // แสดงทุกวัน จ-อา (0=อา, 1=จ, ... 6=ส) — เรียง จ-ศ-ส-อา
+  const activeDays  = [1,2,3,4,5,6,0];
   const avgVals     = activeDays.map(d=>dayCounts[d]>0?Math.round(daySums[d]/dayCounts[d]*10)/10:0);
   const totalVals   = activeDays.map(d=>daySums[d]);
   const labels      = activeDays.map(d=>dayTH[d]);
