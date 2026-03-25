@@ -2007,7 +2007,54 @@ function destroyChart(id){
 function buildGraphs(){
   if(gblt)return;gblt=true;
   new Chart(document.getElementById('type-c'),{type:'doughnut',data:{datasets:[{data:[1121,445,26],backgroundColor:['#4361ee','#2bc48a','#ff9f43'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}}}});
-  new Chart(document.getElementById('fab-bar-c'),{type:'bar',data:{labels:FABRICS.map(f=>f.n),datasets:[{data:FABRICS.map(f=>Math.round(f.p)),backgroundColor:FABRICS.map(f=>f.c),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.parsed.y}%`}}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}});
+  new Chart(document.getElementById('fab-bar-c'),{
+  type:'bar',
+  data:{
+    labels:FABRICS.map(f=>f.n),
+    datasets:[{
+      data:FABRICS.map(f=>Math.round(f.p)),
+      backgroundColor:FABRICS.map(f=>f.c),
+      borderRadius:5
+    }]
+  },
+  plugins:[{
+    id:'fabLabels',
+    afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      chart.getDatasetMeta(0).data.forEach((bar,i)=>{
+        const val=chart.data.datasets[0].data[i];
+        const fab=FABRICS[i];
+        const done=fab.d, total=fab.t;
+        ctx.save();
+        ctx.font='bold 10px Segoe UI';
+        ctx.fillStyle='#1e293b';
+        ctx.textAlign='center';
+        ctx.textBaseline='bottom';
+        ctx.fillText(val+'%', bar.x, bar.y-3);
+        ctx.font='9px Segoe UI';
+        ctx.fillStyle='#64748b';
+        ctx.textBaseline='bottom';
+        ctx.fillText(done+'/'+total, bar.x, bar.y-14);
+        ctx.restore();
+      });
+    }
+  }],
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    layout:{padding:{top:28}},
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
+        callbacks:{label:(c)=>{const f=FABRICS[c.dataIndex];return ` ${c.parsed.y}% (${f.d}/${f.t})`;}}
+      }
+    },
+    scales:{
+      y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},
+      x:{ticks:{font:{size:10}},grid:{display:false}}
+    }
+  }
+});
   new Chart(document.getElementById('daily-c'),{type:'bar',data:{labels:DAILY_L,datasets:[{label:'Switch',data:DAILY_SW,backgroundColor:'#4361ee',borderRadius:3,stack:'s'},{label:'AP',data:DAILY_AP,backgroundColor:'#2bc48a',borderRadius:3,stack:'s'},{label:'Infra',data:DAILY_INF,backgroundColor:'#ff9f43',borderRadius:3,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
   new Chart(document.getElementById('cum-c'),{type:'line',data:{labels:CUM_D,datasets:[{label:'Switch',data:CUM_SW,fill:true,backgroundColor:'rgba(67,97,238,.12)',borderColor:'#4361ee',borderWidth:1.5,tension:0.4,pointRadius:0},{label:'AP',data:CUM_AP,fill:true,backgroundColor:'rgba(43,196,138,.12)',borderColor:'#2bc48a',borderWidth:1.5,tension:0.4,pointRadius:0},{label:'Infra',data:CUM_INF,fill:true,backgroundColor:'rgba(255,159,67,.15)',borderColor:'#ff9f43',borderWidth:1.5,tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y} เครื่อง`}}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
   const tl=[['อาคารสนง.',38],['Concourse D',33],['Concourse A',85],['AIMS',16],['Concourse C',69],['CFZ BFZ',100],['Concourse G',0],['AMF1',4]];
