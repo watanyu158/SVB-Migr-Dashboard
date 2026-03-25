@@ -1720,14 +1720,15 @@ function buildFabGap(){
 }
 
 function buildWeekdayChart(){
-  const cv = document.getElementById('weekday-c');
+  const cv=document.getElementById('weekday-c');
   if(!cv) return;
-  const ex = Chart.getChart(cv); if(ex) ex.destroy();
+  const ex=Chart.getChart(cv); if(ex) ex.destroy();
 
   const dayNames=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
   const dayFull =['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์'];
 
-  const wkIdx = Math.max(0, TODAY_WK-1);
+  // ใช้ wkIdx เดียวกับ buildFabGap
+  const wkIdx=Math.max(0,TODAY_WK-1);
   const WK_BOUNDS_ARR=[
     ['2026-02-09','2026-02-15'],['2026-02-16','2026-02-22'],['2026-02-23','2026-03-01'],
     ['2026-03-02','2026-03-08'],['2026-03-09','2026-03-15'],['2026-03-16','2026-03-22'],
@@ -1743,9 +1744,8 @@ function buildWeekdayChart(){
   const rangeEl=document.getElementById('weekday-range');
   if(rangeEl) rangeEl.textContent=`W${wkIdx+7}: ${fmtD(wkStart)} – ${fmtD(wkEnd)}`;
 
-  // เก็บข้อมูลแต่ละวัน × แต่ละ Fabric จาก FAB_DAILY
-  // FAB_DAILY[fab][i] = จำนวนติดตั้งวันที่ DAILY_L[i]
-  const days7=[]; const fullLabels=[];
+  // สร้าง 7 วันในสัปดาห์นี้ (จ-อา)
+  const days7=[], fullLabels=[];
   for(let d=0;d<7;d++){
     const dt=new Date(wkStart); dt.setDate(wkStart.getDate()+d);
     const dk=`${dt.getDate()}/${String(dt.getMonth()+1).padStart(2,'0')}`;
@@ -1754,29 +1754,37 @@ function buildWeekdayChart(){
   }
   const labels=days7.map(d=>[dayNames[d.dow], fmtD(d.dt)]);
 
-  // per-Fabric per-day values
-  const fabDatasets=FABRICS.map(f=>{
-    const data=days7.map(day=>{
+  // คำนวณจาก FAB_DAILY (เหมือน buildFabGap — ข้อมูลเดียวกัน)
+  const fabDataMap={}; // fab.n → [val per day7]
+  FABRICS.forEach(f=>{
+    fabDataMap[f.n]=days7.map(day=>{
       const di=DAILY_L.indexOf(day.dk);
-      if(di<0) return 0;
-      return (FAB_DAILY[f.n]&&FAB_DAILY[f.n][di])||0;
+      return di>=0 ? ((FAB_DAILY[f.n]&&FAB_DAILY[f.n][di])||0) : 0;
     });
-    return {label:f.n, data, backgroundColor:f.c+'bb', borderColor:f.c,
-            borderWidth:1, borderRadius:3, stack:'s'};
-  }).filter(ds=>ds.data.some(v=>v>0));
+  });
 
-  // total per day
-  const totals=days7.map((_,di)=>fabDatasets.reduce((s,ds)=>s+ds.data[di],0));
+  const totals=days7.map((_,di)=>FABRICS.reduce((s,f)=>s+fabDataMap[f.n][di],0));
+
+  // ไล่เฉดสีตามจำนวน: น้อย=ฟ้าอ่อน → มาก=น้ำเงินเข้ม (stacked แยก Fabric ใช้สี Fabric)
+  const fabDatasets=FABRICS.map(f=>{
+    const data=fabDataMap[f.n];
+    return {
+      label:f.n, data,
+      backgroundColor:f.c+'bb', borderColor:f.c,
+      borderWidth:1, borderRadius:3, stack:'s'
+    };
+  }).filter(ds=>ds.data.some(v=>v>0));
 
   const wdLabelPlugin={
     id:'wdLabels',
     afterDatasetsDraw(chart){
       const ctx=chart.ctx;
-      // label รวมบนสุดของ stacked bar
+      if(!chart.data.datasets.length) return;
       const lastMeta=chart.getDatasetMeta(chart.data.datasets.length-1);
       totals.forEach((tot,i)=>{
         if(!tot) return;
         const bar=lastMeta.data[i];
+        if(!bar) return;
         ctx.save();
         ctx.font='bold 10px Segoe UI'; ctx.fillStyle='#1e2d4d';
         ctx.textAlign='center'; ctx.textBaseline='bottom';
@@ -1788,12 +1796,17 @@ function buildWeekdayChart(){
 
   new Chart(cv,{
     type:'bar', plugins:[wdLabelPlugin],
-    data:{labels, datasets:fabDatasets},
+    data:{labels, datasets:fabDatasets.length?fabDatasets:[{
+      label:'ไม่มีข้อมูล', data:days7.map(()=>0),
+      backgroundColor:'rgba(148,163,196,0.2)', stack:'s'
+    }]},
     options:{
       responsive:true, maintainAspectRatio:false,
       layout:{padding:{top:22}},
       plugins:{
-        legend:{display:true,position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}},
+        legend:{display:true,position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8,
+          filter:item=>fabDatasets.some(ds=>ds.label===item.text)
+        }},
         tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
           callbacks:{
             title:ctx=>`${fullLabels[ctx[0].dataIndex]}  (รวม ${totals[ctx[0].dataIndex]} เครื่อง)`,
@@ -2402,7 +2415,7 @@ function buildLocList(){
         +'<div style="display:flex;align-items:center;gap:7px">'
           +'<span style="font-size:12px;color:var(--text2);font-weight:600">'+td+'/'+tt+'</span>'
           +'<span style="font-size:13px;font-weight:800;color:'+(tp>=80?'var(--success)':tp>=30?'var(--warning)':'var(--danger)')+'">'+tp+'%</span>'
-          +'<span>›</span>'
+          +'<span class="fg-arrow">›</span>'
         +'</div>'
       +'</div>'
       +'<div class="fgb">'+rows+'</div>'
@@ -2424,7 +2437,12 @@ function collapseAllLoc(){
     if(arr) arr.textContent='›';
   });
 }
-function togFab(el){const b=el.nextElementSibling,a=el.querySelector('span:last-child');b.classList.toggle('open');if(a)a.textContent=b.classList.contains('open')?'∨':'›';}
+function togFab(el){
+  const b=el.nextElementSibling;
+  const arrow=el.querySelector('.fg-arrow');
+  const isOpen=b.classList.toggle('open');
+  if(arrow) arrow.textContent=isOpen?'∨':'›';
+}
 
 function buildFabCards(){
   const w=document.getElementById('fpc-list');
