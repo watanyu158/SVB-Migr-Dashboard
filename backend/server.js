@@ -108,25 +108,42 @@ function calcDashboard(wb) {
   const dRows = XLSX.utils.sheet_to_json(wsD, { header:1, defval:null });
   const aRows = XLSX.utils.sheet_to_json(wsA, { defval:null });
 
-  // Overview from Dashboard sheet
+  // Overview
+  // installed = R7[3] Actual Installed
   const installed = dRows[6][3] || 0;
-  const hold      = dRows[5][7] || 0;
-  const overdue   = dRows[6][8] || 0;
+
+  // hold = นับจำนวน rows ที่ Status='Hold' (ไม่ใช่ qty)
+  const hold = aRows.filter(r => r['Status'] === 'Hold').length;
+
+  // overdue = Hold Qty + Days<0 qty>0 not done
+  const holdQty = aRows.filter(r => r['Status']==='Hold')
+    .reduce((s,r) => s + (r['Qty']||0), 0);
+  const overdueNotDone = aRows.filter(r => {
+    const days = r['Days Until Due'];
+    const qty  = r['Qty'] || 0;
+    const ok   = r['Qty. Success'] || 0;
+    return typeof days==='number' && days<0 && qty>0 && ok===0;
+  }).reduce((s,r) => s + (r['Qty']||0), 0);
+  const overdue = holdQty + overdueNotDone;
+
   const remaining = TOTAL - installed;
 
   // TODAY & insight
   const today = new Date(); today.setHours(0,0,0,0);
-  const elapsed   = Math.max(1, Math.floor((today - PROJ_START) / 86400000));
-  const daysLeft  = Math.max(1, Math.floor((PROJ_END - today) / 86400000));
+  // elapsed: นับรวมวันแรก (proj_start) ด้วย → +1
+  const elapsed   = Math.max(1, Math.floor((today - PROJ_START) / 86400000) + 1);
+  // daysLeft: นับรวมวันนี้ด้วย → +1
+  const daysLeft  = Math.max(1, Math.floor((PROJ_END - today) / 86400000) + 1);
   const dailyRate = Math.round(installed / elapsed * 10) / 10;
-  const reqRate   = Math.round(remaining / daysLeft * 10) / 10;
+  // reqRate ปัดขึ้นเต็มจำนวน
+  const reqRate   = Math.ceil(remaining / daysLeft);
   const needMore  = Math.round((reqRate - dailyRate) * 10) / 10;
   const pctMore   = dailyRate > 0 ? Math.round((reqRate / dailyRate - 1) * 100) : 0;
   const daysNeeded= dailyRate > 0 ? Math.ceil(remaining / dailyRate) : 9999;
   const finishDt  = new Date(today); finishDt.setDate(today.getDate() + daysNeeded);
   const daysLate  = Math.max(0, Math.floor((finishDt - PROJ_END) / 86400000));
   const gaugePct  = reqRate > 0 ? Math.min(150, Math.round(dailyRate / reqRate * 100)) : 100;
-  const todayWk   = Math.max(0, Math.min(N_WK - 1, Math.floor(elapsed / 7)));
+  const todayWk   = Math.max(0, Math.min(N_WK - 1, Math.floor((elapsed-1) / 7)));
 
   // Arrays
   const planWk=new Array(N_WK).fill(0); const actWk =new Array(N_WK).fill(0);
