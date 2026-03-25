@@ -1174,7 +1174,9 @@ main { padding: 12px 10px; }
     </div>
   </div>
 </div>
-</div><!const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
+</div>
+<script>
+const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
 
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
 let WK = ['09 Feb', '16 Feb', '23 Feb', '02 Mar', '09 Mar', '16 Mar', '23 Mar', '30 Mar', '06 Apr', '13 Apr', '20 Apr', '27 Apr', '04 May', '11 May', '18 May', '25 May', '01 Jun', '09 Jun', '16 Jun', '23 Jun'];
@@ -2949,7 +2951,6 @@ async function submitUpdate(){
     if(d.success){al.innerHTML=`<div class="falert fok">✅ บันทึกสำเร็จ — No. ${body.no}</div>`;['u-no','u-qty','u-date','u-remark'].forEach(i=>$(i).value='');$('u-status').value='';}
     else al.innerHTML=`<div class="falert ferr">❌ ${d.error}</div>`;
   }catch(e){al.innerHTML=`<div class="falert ferr">❌ ${e.message}</div>`;}
-}lert ferr">❌ ${e.message}</div>`;}
 }
 </script>
 </body>
