@@ -115,16 +115,13 @@ function calcDashboard(wb) {
   // hold = นับจำนวน rows ที่ Status='Hold' (ไม่ใช่ qty)
   const hold = aRows.filter(r => r['Status'] === 'Hold').length;
 
-  // overdue = Hold Qty + Days<0 qty>0 not done
-  const holdQty = aRows.filter(r => r['Status']==='Hold')
-    .reduce((s,r) => s + (r['Qty']||0), 0);
-  const overdueNotDone = aRows.filter(r => {
+  // overdue = นับ rows ที่ Days Until Due < 0 และยังไม่เสร็จ (ok < qty)
+  const overdue = aRows.filter(r => {
     const days = r['Days Until Due'];
     const qty  = r['Qty'] || 0;
     const ok   = r['Qty. Success'] || 0;
-    return typeof days==='number' && days<0 && qty>0 && ok===0;
-  }).reduce((s,r) => s + (r['Qty']||0), 0);
-  const overdue = holdQty + overdueNotDone;
+    return typeof days === 'number' && days < 0 && ok < qty;
+  }).length;
 
   const remaining = TOTAL - installed;
 

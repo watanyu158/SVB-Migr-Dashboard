@@ -712,16 +712,16 @@ main { padding: 12px 10px; }
       </div>
       <div class="tb-sub">อัพเดท <span id="ts-time">22/3/2569</span></div>
     </div>
-    <div class="sdot-wrap"><div class="sdot"></div>ตรงแผน</div>
+    <div class="sdot-wrap" id="tb-status-wrap"><div class="sdot" id="tb-sdot"></div><span id="tb-status-txt">ตรงแผน</span></div>
   </div>
   <div class="tb-stats">
-    <div class="tb-stat"><div class="v" id="ts-done">–/1592</div><div class="l">ติดตั้งแล้ว (29%)</div></div>
+    <div class="tb-stat"><div class="v" id="ts-done">–/1592</div><div class="l">ติดตั้งแล้ว (<span id="tb-pct">29.9%</span>)</div></div>
     <div class="tb-div"></div>
-    <div class="tb-stat"><div class="v">11.0</div><div class="l">อุปกรณ์/วัน</div></div>
+    <div class="tb-stat"><div class="v" id="tb-rate">10.3</div><div class="l">อุปกรณ์/วัน</div></div>
     <div class="tb-div"></div>
-    <div class="tb-stat"><div class="v" id="tb-days">94</div><div class="l">วันเหลือ</div></div>
+    <div class="tb-stat"><div class="v" id="tb-days">90</div><div class="l">วันเหลือ</div></div>
     <div class="tb-div"></div>
-    <div class="tb-stat"><div class="v" id="tb-over" style="color:#ff9f43">0</div><div class="l">เกินกำหนด</div></div>
+    <div class="tb-stat"><div class="v" id="tb-over" style="color:#ff9f43">35</div><div class="l">เกินกำหนด</div></div>
   </div>
   <div style="display:flex;gap:6px">
     <button class="tbtn" id="auto-sync-btn" onclick="toggleAutoSync()">🔄 ซิงค์อัตโนมัติ</button>
@@ -2654,7 +2654,22 @@ async function loadData(){
     // topbar
     if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${meta.total}`;
     if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
+    if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
     if(_e('tb-over'))   _e('tb-over').textContent   = meta.overdue;
+    if(_e('tb-rate'))   _e('tb-rate').textContent   = Number(ins.daily_rate).toFixed(1);
+    if(_e('tb-pct'))    _e('tb-pct').textContent    = (meta.installed/meta.total*100).toFixed(1)+'%';
+    // tb-status: ช้า/ตรงแผน/เร็วกว่า
+    const tbTxt=document.getElementById('tb-status-txt');
+    const tbDot=document.getElementById('tb-sdot');
+    if(tbTxt){
+      if(ins.days_late>0){
+        tbTxt.textContent='ช้ากว่าแผน';
+        if(tbDot){tbDot.style.background='#ff9f43';tbDot.style.boxShadow='0 0 0 0 rgba(255,159,67,.4)';}
+      } else {
+        tbTxt.textContent='ตรงแผน';
+        if(tbDot){tbDot.style.background='';tbDot.style.boxShadow='';}
+      }
+    }
 
     // overview cards
     const sw=fabrics.reduce((a,f)=>a+f.sw.d,0);
@@ -2766,7 +2781,7 @@ async function manualRefresh(){
 function showLoading(){
   // แสดง – บน topbar stats ทันที
   ['ts-done','pill-rem','pill-hold','pill-over','gauge-pct-lbl',
-   'ov-all','ov-sw','ov-ap','ov-inf','tb-days'].forEach(id=>{
+   'ov-all','ov-sw','ov-ap','ov-inf','tb-days','tb-rate','tb-over','tb-pct'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML='<span style="opacity:.4">–</span>';
   });
