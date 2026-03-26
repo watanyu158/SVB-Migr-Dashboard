@@ -1013,7 +1013,7 @@ main { padding: 12px 10px; }
       </div>
     </div>
   </div>
-  <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📅</div>ไทม์ไลน์ Fabric</div><div id="tl-wrap"></div><div class="cleg" style="margin-top:11px"><div class="cl"><div class="cll" style="background:var(--primary)"></div>ติดตั้งแล้ว</div><div class="cl"><div class="cll" style="background:#e2e8f0"></div>คงเหลือ</div><div class="cl" style="color:var(--danger)"><span style="display:inline-block;width:2px;height:12px;background:var(--danger);margin-right:4px;vertical-align:middle"></span>วันนี้</div></div></div>
+  <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📊</div>Fabric Progress</div><div style="height:210px"><canvas id="tl-chart"></canvas></div><div class="cleg" style="margin-top:11px"><div class="cl"><div class="cll" style="background:var(--primary)"></div>ติดตั้งแล้ว</div><div class="cl"><div class="cll" style="background:#e2e8f0"></div>คงเหลือ</div><div class="cl" style="color:var(--danger)"><span style="display:inline-block;width:2px;height:12px;background:var(--danger);margin-right:4px;vertical-align:middle"></span>วันนี้</div></div></div>
   <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--hold-l);color:var(--hold)">🗺</div>Fabric Heatmap</div><div class="heatmap" id="hm-wrap"></div></div>
   <div class="hold-tog" onclick="toggleHold(this)"><div class="hold-lbl">⏸ อุปกรณ์ที่ Hold</div><div style="display:flex;align-items:center;gap:7px"><span class="hold-badge" id="hold-cnt">– รายการ</span><span id="hold-arr" style="color:var(--hold);font-size:12px">▼</span></div></div>
   <div id="hold-body" style="display:none;margin-top:6px"></div>
@@ -1117,7 +1117,7 @@ main { padding: 12px 10px; }
   <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--info-l);color:var(--info)">📆</div>อุปกรณ์ที่ติดตั้งตามวันที่</div><div style="height:175px"><canvas id="daily-c"></canvas></div></div>
   <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📈</div>ความคืบหน้าสะสม (Switch / AP / Infra)</div><div style="height:175px"><canvas id="cum-c"></canvas></div></div>
   <div class="g2">
-    <div class="card"><div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">📊</div>Fabric Progress Gap — <span id="fab-gap-title" style="color:var(--text2);font-weight:400;font-size:11px">แผน vs จริง ณ ปัจจุบัน</span></div><div style="height:230px"><canvas id="fab-gap-c"></canvas></div></div>
+    <div class="card"><div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">📦</div>ผลการติดตั้งในสัปดาห์ที่ผ่านมา — <span id="fab-gap-title" style="color:var(--text2);font-weight:400;font-size:11px">แผน vs จริง ณ ปัจจุบัน</span></div><div style="height:230px"><canvas id="fab-gap-c"></canvas></div></div>
     <div class="card"><div class="ch"><div class="chi" style="background:var(--success-l);color:var(--success)">📅</div>ผลต่อวัน (แต่ละวันในสัปดาห์)</div><div id="wd-cells" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:4px"></div></div>
   </div>
 
@@ -1937,18 +1937,13 @@ function buildDonut(){
 }
 
 function buildTimeline(){
-  const w=document.getElementById('tl-wrap');
-  const _projStart=new Date(2026,1,10);
-  const _projEnd=new Date(2026,5,23);
-  const _projDays=Math.round((_projEnd-_projStart)/(24*60*60*1000));
-  const _elapsed=Math.round((_todayGMT7-_projStart)/(24*60*60*1000));
-  const tdp=Math.max(0,Math.min(100,Math.round(_elapsed/_projDays*100)));
-  const _todayLabel=_todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
-  const _fabLen=FABRICS.length;
+  const cv=document.getElementById('tl-chart');
+  if(!cv) return;
+  const ex=Chart.getChart(cv); if(ex) ex.destroy();
 
-  // plan % ณ วันนี้ per Fabric จาก FAB_DAILY_PLAN
+  // plan % ณ วันนี้ per Fabric
   const todayDT=new Date(); todayDT.setHours(0,0,0,0);
-  const planPcts={};
+  const planPcts=[];
   FABRICS.forEach(f=>{
     let planCum=0;
     const planTotal=FAB_PLAN_TOTALS[f.n]||f.t||1;
@@ -1959,43 +1954,100 @@ function buildTimeline(){
         if(dt<=todayDT) planCum+=(FAB_DAILY_PLAN[f.n][di]||0);
       });
     }
-    planPcts[f.n]=Math.round(planCum/planTotal*100);
+    planPcts.push(Math.round(planCum/planTotal*100));
   });
 
-  w.innerHTML=FABRICS.map((f,_fi)=>{
-    const p=Math.round(f.p);
-    const pp=planPcts[f.n]||0;
-    const gap=p-pp;
-    const gapStr=(gap>=0?'+':'')+gap+'%';
-    const gapColor=gap>=0?'#16a34a':'#dc2626';
-    const bg=p>=80?'#ecfdf5;color:#065f46':p>=30?'#fff5e6;color:#92400e':'#eef1ff;color:var(--primary)';
+  const labels   = FABRICS.map(f=>f.n);
+  const actVals  = FABRICS.map(f=>Math.round(f.p));
+  const planVals = planPcts;
+  const gaps     = actVals.map((a,i)=>a-planVals[i]);
 
-    return `<div class="tlr">
-      <div class="tlt">
-        <div class="tln">${f.n}</div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:11px;flex-wrap:wrap">
-          <span style="color:var(--text2)">${f.d}/${f.t}</span>
-          <span class="tlpct" style="background:${bg}">${p}%</span>
-          <span style="font-size:10px;font-weight:700;color:${gapColor}">(แผน${pp}% ${gapStr})</span>
-        </div>
-      </div>
-      <div class="tltrack">
-        <div style="position:relative;height:100%">
-          <!-- plan bar (เทา) -->
-          <div style="position:absolute;top:0;left:0;width:${pp}%;height:100%;background:rgba(148,163,196,0.25);border-right:2px dashed rgba(148,163,196,0.8)"></div>
-          <!-- actual bar (สี Fabric) -->
-          <div style="position:absolute;top:0;left:0;width:${p}%;height:100%;background:${f.c};display:flex;align-items:center;justify-content:flex-end">
-            ${p>8?`<span style="font-size:10px;font-weight:700;color:#fff;padding-right:4px">${p}%</span>`:''}
-          </div>
-          <!-- remaining -->
-          <div style="position:absolute;top:0;left:${p}%;right:0;height:100%;background:#eef1ff"></div>
-        </div>
-        <div class="tltd" style="left:${tdp}%;background:var(--danger)">
-          ${_fi===_fabLen-1?`<span style="position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);background:var(--danger);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;white-space:nowrap;pointer-events:none">${_todayLabel}</span>`:""}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  // plugin: label ปลาย bar + gap
+  const tlLabelPlugin={
+    id:'tlLabel',
+    afterDatasetsDraw(chart){
+      const ctx=chart.ctx;
+      // actual bars (dataset 0)
+      chart.getDatasetMeta(0).data.forEach((bar,i)=>{
+        const act=actVals[i], plan=planVals[i], gap=gaps[i];
+        const gapStr=(gap>=0?'+':'')+gap+'%';
+        const gapColor=gap>=0?'#16a34a':'#dc2626';
+        ctx.save();
+        // actual %
+        ctx.font='bold 10px Segoe UI'; ctx.fillStyle='#1e2d4d';
+        ctx.textAlign='left'; ctx.textBaseline='middle';
+        ctx.fillText(`${act}%`, bar.x+5, bar.y-6);
+        // gap
+        ctx.font='9px Segoe UI'; ctx.fillStyle=gapColor;
+        ctx.fillText(`แผน ${plan}% (${gapStr})`, bar.x+5, bar.y+5);
+        ctx.restore();
+      });
+    }
+  };
+
+  new Chart(cv,{
+    type:'bar', plugins:[tlLabelPlugin],
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'จริง %', type:'bar',
+          data:actVals,
+          backgroundColor:FABRICS.map(f=>f.c+'cc'),
+          borderColor:FABRICS.map(f=>f.c),
+          borderWidth:1.5, borderRadius:4,
+          barPercentage:0.6,
+        },
+        {
+          label:'แผน %', type:'bar',
+          data:planVals,
+          backgroundColor:'rgba(148,163,196,0.15)',
+          borderColor:'rgba(148,163,196,0.6)',
+          borderWidth:1.5, borderRadius:4,
+          borderDash:[4,3],
+          barPercentage:0.6,
+        }
+      ]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      layout:{padding:{right:140, top:4, bottom:4}},
+      plugins:{
+        legend:{
+          position:'bottom',
+          labels:{font:{size:10}, boxWidth:10, padding:10}
+        },
+        tooltip:{
+          backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
+          bodyColor:'rgba(255,255,255,.8)',padding:10,
+          callbacks:{
+            title:ctx=>`${labels[ctx[0].dataIndex]}`,
+            label:ctx=>{
+              const i=ctx[0].dataIndex;
+              const gap=gaps[i];
+              return [
+                ` จริง: ${actVals[i]}%  (${FABRICS[i].d}/${FABRICS[i].t})`,
+                ` แผน: ${planVals[i]}%`,
+                ` ${gap>=0?'✅ เร็วกว่า':'⚠ ช้ากว่า'}: ${Math.abs(gap)}%`
+              ];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          max:100,
+          ticks:{callback:v=>v+'%', font:{size:10}},
+          grid:{color:'#f0f4ff'}
+        },
+        y:{
+          ticks:{font:{size:11}, color:'#1e2d4d'},
+          grid:{display:false}
+        }
+      }
+    }
+  });
 }
 
 function buildHeatmap(){
