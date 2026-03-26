@@ -697,6 +697,30 @@ main { padding: 12px 10px; }
   border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .card.is-loading{position:relative;pointer-events:none}
+
+/* ── Card loading progress ───────────────────────────────────── */
+.card-progress-overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.82);border-radius:var(--r);
+  z-index:10;backdrop-filter:blur(3px);gap:8px;
+}
+.card-progress-bar-wrap{
+  width:72%;height:6px;background:rgba(0,0,0,.08);
+  border-radius:99px;overflow:hidden;
+}
+.card-progress-bar{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--primary),#6c4de4);
+  transition:width .25s ease;
+}
+.card-progress-pct{
+  font-size:12px;font-weight:700;color:var(--primary);line-height:1;
+}
+.card-progress-lbl{
+  font-size:10px;color:var(--text2);line-height:1;
+}
+.card.is-loading{position:relative;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -712,7 +736,15 @@ main { padding: 12px 10px; }
       </div>
       <div class="tb-sub">อัพเดท <span id="ts-time">22/3/2569</span></div>
     </div>
-    <div class="sdot-wrap" id="tb-status-wrap"><div class="sdot" id="tb-sdot"></div><span id="tb-status-txt">ตรงแผน</span></div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div class="sdot-wrap" id="tb-status-wrap">
+        <div class="sdot" id="tb-sdot" style="animation:none;background:rgba(255,255,255,.4)"></div>
+        <span id="tb-status-txt">⏳</span>
+      </div>
+      <div style="font-size:9px;opacity:.7;color:#fff">
+        ข้อมูลล่าสุด: <span id="tb-last-install">กำลังโหลด...</span>
+      </div>
+    </div>
   </div>
   <div class="tb-stats">
     <div class="tb-stat"><div class="v" id="ts-done">–/1592</div><div class="l">ติดตั้งแล้ว (<span id="tb-pct">29.9%</span>)</div></div>
@@ -1172,18 +1204,7 @@ main { padding: 12px 10px; }
     <div id="form-alert"></div>
     <div class="fw">
       <div class="fg2">
-        <div class="fgr"><label>เลข No.</label><input type="number" id="u-no" placeholder="เช่น 3"/></div>
-        <div class="fgr"><label>Qty. Success</label><input type="number" id="u-qty" placeholder="จำนวนที่ติดตั้ง"/></div>
-        <div class="fgr"><label>วันที่ติดตั้ง</label><input type="date" id="u-date"/></div>
-        <div class="fgr"><label>สถานะ</label><select id="u-status"><option value="">-- เลือก --</option><option>Success</option><option>On Plan</option><option>Hold</option><option>Pending</option></select></div>
-      </div>
-      <div class="fgr"><label>หมายเหตุ</label><textarea id="u-remark" placeholder="หมายเหตุ..."></textarea></div>
-      <button class="btn primary" style="width:100%;justify-content:center;padding:10px" onclick="submitUpdate()">✓ บันทึกข้อมูล</button>
-    </div>
-  </div>
-</div>
-</div>
-<script>
+        <div class="fgr"><label>เลข No.</labe
 const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
 
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
@@ -2658,17 +2679,33 @@ async function loadData(){
     if(_e('tb-over'))   _e('tb-over').textContent   = meta.overdue;
     if(_e('tb-rate'))   _e('tb-rate').textContent   = Number(ins.daily_rate).toFixed(1);
     if(_e('tb-pct'))    _e('tb-pct').textContent    = (meta.installed/meta.total*100).toFixed(1)+'%';
-    // tb-status: ช้า/ตรงแผน/เร็วกว่า
+
+    // tb-status: ช้า/ตรงแผน
     const tbTxt=document.getElementById('tb-status-txt');
     const tbDot=document.getElementById('tb-sdot');
     if(tbTxt){
       if(ins.days_late>0){
         tbTxt.textContent='ช้ากว่าแผน';
-        if(tbDot){tbDot.style.background='#ff9f43';tbDot.style.boxShadow='0 0 0 0 rgba(255,159,67,.4)';}
+        if(tbDot){
+          tbDot.style.animation='';
+          tbDot.style.background='#ff9f43';
+          tbDot.style.boxShadow='0 0 0 0 rgba(255,159,67,.4)';
+        }
       } else {
         tbTxt.textContent='ตรงแผน';
-        if(tbDot){tbDot.style.background='';tbDot.style.boxShadow='';}
+        if(tbDot){
+          tbDot.style.animation='';
+          tbDot.style.background='';
+          tbDot.style.boxShadow='';
+        }
       }
+    }
+
+    // last install date
+    if(d.last_install_date && _e('tb-last-install')){
+      const ld=new Date(d.last_install_date+'T00:00:00');
+      const thM2=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+      _e('tb-last-install').textContent=`${ld.getDate()} ${thM2[ld.getMonth()]} ${(ld.getFullYear()+543)%100}`;
     }
 
     // overview cards
@@ -2720,11 +2757,28 @@ async function loadData(){
       if(el.closest('.p-date')) el.textContent=ins.days_late>0?'ช้า '+ins.days_late+' วัน':'ก่อนกำหนด';
     });
 
-    // ── Rebuild charts ───────────────────────────────────────────────────
-    buildGauge(); buildBurndown(); buildDonut();
-    buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
-    buildVelocityChart(); buildWeekdayChart(); buildFabGap();
-    buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards();
+    // ── Rebuild charts พร้อม progress ────────────────────────────────────
+    const steps=[
+      [buildGauge,         'Gauge'],
+      [buildBurndown,      'Burndown'],
+      [buildDonut,         'Donut'],
+      [buildProgressCharts,'Progress Charts'],
+      [buildFabBreakdown,  'Fabric Breakdown'],
+      [buildTypeBarChart,  'Type Chart'],
+      [buildVelocityChart, 'Velocity'],
+      [buildWeekdayChart,  'Weekday'],
+      [buildFabGap,        'Fabric Gap'],
+      [buildTimeline,      'Timeline'],
+      [buildHeatmap,       'Heatmap'],
+      [buildLocList,       'Location List'],
+      [buildFabCards,      'Fabric Cards'],
+    ];
+    for(let si=0; si<steps.length; si++){
+      const pct=Math.round((si+1)/steps.length*100);
+      updateLoadingProgress(pct, steps[si][1]);
+      await new Promise(r=>setTimeout(r,0)); // yield to browser
+      steps[si][0]();
+    }
     gblt=false;
 
     // ── Build hold list ─────────────────────────────────────────────────
@@ -2779,13 +2833,17 @@ async function manualRefresh(){
 
 // ── Loading helpers ──────────────────────────────────────────────────────────
 function showLoading(){
-  // แสดง – บน topbar stats ทันที
+  // reset topbar
+  const _stxt=document.getElementById('tb-status-txt');
+  const _sdot=document.getElementById('tb-sdot');
+  if(_stxt) _stxt.textContent='⏳';
+  if(_sdot){ _sdot.style.animation='none'; _sdot.style.background='rgba(255,255,255,.4)'; }
+  // reset numbers
   ['ts-done','pill-rem','pill-hold','pill-over','gauge-pct-lbl',
    'ov-all','ov-sw','ov-ap','ov-inf','tb-days','tb-rate','tb-over','tb-pct'].forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.innerHTML='<span style="opacity:.4">–</span>';
+    if(el) el.innerHTML='<span style="opacity:.35">–</span>';
   });
-  // reset text elements
   ['pill-finish','pill-late'].forEach(id=>{
     const e=document.getElementById(id); if(e) e.textContent='–';
   });
@@ -2793,34 +2851,44 @@ function showLoading(){
   document.querySelectorAll('.ins-big em').forEach(em=>em.textContent='–');
   document.querySelectorAll('.ins-rate-val').forEach(el=>el.textContent='–');
   document.querySelectorAll('.ins-kpi-val').forEach(el=>el.textContent='–');
-  // spinner บน cards
+  // เพิ่ม progress overlay บน cards
   document.querySelectorAll('.card').forEach(card=>{
-    if(card.querySelector('canvas')||card.querySelector('.shdr-stats')||card.querySelector('.ins-box')){
+    if(card.querySelector('canvas')||card.classList.contains('ins-card')||
+       card.querySelector('.shdr-stats')||card.querySelector('.tlr')){
       card.classList.add('is-loading');
-      if(!card.querySelector('.loading-overlay')){
+      if(!card.querySelector('.card-progress-overlay')){
         const ov=document.createElement('div');
-        ov.className='loading-overlay';
-        ov.innerHTML='<div class="spinner"></div>';
+        ov.className='card-progress-overlay';
+        ov.innerHTML=`<div class="card-progress-bar-wrap">
+          <div class="card-progress-bar" style="width:0%"></div>
+        </div>
+        <div class="card-progress-pct">0%</div>
+        <div class="card-progress-lbl">กำลังโหลด...</div>`;
+        card.style.position='relative';
         card.appendChild(ov);
       }
     }
   });
-  // ins-box spinner
-  const ins=document.querySelector('.ins-box');
-  if(ins&&!ins.querySelector('.loading-overlay')){
-    ins.style.position='relative';
-    const ov=document.createElement('div');
-    ov.className='loading-overlay';
-    ov.innerHTML='<div class="spinner"></div>';
-    ins.appendChild(ov);
-  }
 }
 
 function hideLoading(){
-  document.querySelectorAll('.loading-overlay').forEach(ov=>ov.remove());
-  document.querySelectorAll('.is-loading').forEach(c=>c.classList.remove('is-loading'));
-  const ins=document.querySelector('.ins-box');
-  if(ins) ins.style.position='';
+  document.querySelectorAll('.card-progress-overlay').forEach(ov=>ov.remove());
+  document.querySelectorAll('.is-loading').forEach(card=>{
+    card.classList.remove('is-loading');
+    card.style.position='';
+  });
+}
+
+// อัพเดท progress ทุก card พร้อมกัน
+function updateLoadingProgress(pct, label){
+  document.querySelectorAll('.card-progress-overlay').forEach(ov=>{
+    const bar=ov.querySelector('.card-progress-bar');
+    const pctEl=ov.querySelector('.card-progress-pct');
+    const lblEl=ov.querySelector('.card-progress-lbl');
+    if(bar) bar.style.width=pct+'%';
+    if(pctEl) pctEl.textContent=pct+'%';
+    if(lblEl && label) lblEl.textContent=label;
+  });
 }
 
     // ── อัพเดท pills by ID ─────────────────────────────────────────────
@@ -2837,6 +2905,23 @@ function hideLoading(){
       if(lbl==='คาดเสร็จ') el.innerHTML=`<span id="pill-finish">${finTH}</span>`;
       if(lbl==='วันเหลือ') el.innerHTML=`<span style="color:var(--success)">${ins.days_left}</span>`;
     });
+    // ip-sub
+    document.querySelectorAll('.ip-sub').forEach(el=>{
+      const txt=el.textContent;
+      if(txt.includes('ช้า')||txt.includes('–')||el.querySelector('#pill-late'))
+        el.innerHTML=ins.days_late>0?`<span id="pill-late">ช้า ${ins.days_late} วัน</span>`:
+                                     `<span id="pill-late" style="color:var(--success)">ก่อนกำหนด</span>`;
+    });
+    // ins-warn — อัพเดทเสมอไม่ว่าข้อความจะเป็นอะไร
+    document.querySelectorAll('.ins-warn').forEach(w=>{
+      w.textContent=ins.days_late>0
+        ?`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`
+        :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
+    });
+    a    // ── อัพเดท pills by ID ─────────────────────────────────────────────
+    
+    // คาดเสร็จ + วันเหลือ
+    _);
     // ip-sub
     document.querySelectorAll('.ip-sub').forEach(el=>{
       const txt=el.textContent;

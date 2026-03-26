@@ -319,9 +319,21 @@ function calcDashboard(wb) {
       rem:  r['Qty. Remaining']||0,
     }));
 
+  // Last install date
+  let lastInstallDate = null;
+  aRows.forEach(r => {
+    let d = r['Install Date'];
+    if (typeof d === 'number') d = new Date((d - 25569) * 86400000);
+    if (d instanceof Date && !isNaN(d)) {
+      const ds = d.toISOString().slice(0,10);
+      if (!lastInstallDate || ds > lastInstallDate) lastInstallDate = ds;
+    }
+  });
+
   return {
     wk:        WK_BOUNDS.map(w => w.label),
     today_wk:  todayWk,
+    last_install_date: lastInstallDate,
     meta:      { total:TOTAL, installed, remaining, hold, overdue },
     hold_items: holdItems,
     insight:   { daily_rate:dailyRate, req_rate:reqRate, need_more:needMore,
