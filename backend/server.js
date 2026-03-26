@@ -310,10 +310,23 @@ function calcDashboard(wb) {
       .sort((a,b) => b.t - a.t);
   });
 
+  // hold items list
+  const holdItems = aRows
+    .filter(r => r['Status']==='Hold')
+    .map(r => ({
+      fab:  r['Fabric']||'',
+      loc:  r['Location']||'',
+      dev:  r['Device Type']||'',
+      qty:  r['Qty']||0,
+      done: r['Qty. Success']||0,
+      rem:  r['Qty. Remaining']||0,
+    }));
+
   return {
     wk:        WK_BOUNDS.map(w => w.label),
     today_wk:  todayWk,
     meta:      { total:TOTAL, installed, remaining, hold, overdue },
+    hold_items: holdItems,
     insight:   { daily_rate:dailyRate, req_rate:reqRate, need_more:needMore,
                  pct_more:pctMore, days_late:daysLate, gauge_pct:gaugePct,
                  finish_date:finishDt.toISOString().slice(0,10), days_left:daysLeft },

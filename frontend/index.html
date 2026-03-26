@@ -2679,10 +2679,10 @@ async function loadData(){
     if(_e('gauge-pct-lbl')) _e('gauge-pct-lbl').textContent = ins.gauge_pct+'%';
 
     // insight text — อัพเดทเสมอโดยไม่ check ข้อความเดิม
-    document.querySelectorAll('.ins-big em').forEach(em=>em.textContent=ins.need_more);
+    document.querySelectorAll('.ins-big em').forEach(em=>em.textContent=Number(ins.need_more).toFixed(1));
     document.querySelectorAll('.ins-pct-tag').forEach(t=>t.textContent='↑'+ins.pct_more+'% จากอัตราปัจจุบัน');
     const rv=document.querySelectorAll('.ins-rate-val');
-    if(rv[0]) rv[0].textContent=ins.daily_rate;
+    if(rv[0]) rv[0].textContent=Number(ins.daily_rate).toFixed(1);
     if(rv[1]) rv[1].textContent=ins.req_rate;
     document.querySelectorAll('.ins-warn').forEach(w=>{
       w.textContent=ins.days_late>0
@@ -2690,9 +2690,9 @@ async function loadData(){
         :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
     });
     const kv=document.querySelectorAll('.ins-kpi-val');
-    if(kv[0]) kv[0].textContent=ins.daily_rate;
+    if(kv[0]) kv[0].textContent=Number(ins.daily_rate).toFixed(1);
     if(kv[1]) kv[1].textContent=ins.req_rate;
-    if(kv[2]) kv[2].textContent='+'+ins.need_more;
+    if(kv[2]) kv[2].textContent='+'+Number(ins.need_more).toFixed(1);
 
     // pills คาดเสร็จ / วันเหลือ
     document.querySelectorAll('.ip-val').forEach(el=>{
@@ -2711,6 +2711,27 @@ async function loadData(){
     buildVelocityChart(); buildWeekdayChart(); buildFabGap();
     buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards();
     gblt=false;
+
+    // ── Build hold list ─────────────────────────────────────────────────
+    const holdBody = document.getElementById('hold-body');
+    if(holdBody && d.hold_items){
+      if(d.hold_items.length===0){
+        holdBody.innerHTML='<div style="padding:10px 14px;color:var(--text2);font-size:13px">ไม่มีรายการ Hold</div>';
+      } else {
+        holdBody.innerHTML = d.hold_items.map(h=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;
+                      padding:9px 14px;border-bottom:1px solid var(--border);gap:8px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:var(--text)">${h.dev}</div>
+              <div style="font-size:11px;color:var(--text2)">${h.fab} · ${h.loc}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:12px;font-weight:700;color:var(--hold)">${h.done}/${h.qty}</div>
+              <div style="font-size:10px;color:var(--text3)">เหลือ ${h.rem}</div>
+            </div>
+          </div>`).join('');
+      }
+    }
 
     console.log(`✓ SVB Dynamic: ${meta.installed}/${meta.total} rate=${ins.daily_rate} req=${ins.req_rate} W${d.today_wk+7}`);
   } catch(e){
