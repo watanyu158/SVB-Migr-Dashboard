@@ -2765,27 +2765,10 @@ async function loadData(){
     });
 
     // ── Rebuild charts พร้อม progress ────────────────────────────────────
-    const steps=[
-      [buildGauge,         'Gauge'],
-      [buildBurndown,      'Burndown'],
-      [buildDonut,         'Donut'],
-      [buildProgressCharts,'Progress Charts'],
-      [buildFabBreakdown,  'Fabric Breakdown'],
-      [buildTypeBarChart,  'Type Chart'],
-      [buildVelocityChart, 'Velocity'],
-      [buildWeekdayChart,  'Weekday'],
-      [buildFabGap,        'Fabric Gap'],
-      [buildTimeline,      'Timeline'],
-      [buildHeatmap,       'Heatmap'],
-      [buildLocList,       'Location List'],
-      [buildFabCards,      'Fabric Cards'],
-    ];
-    for(let si=0; si<steps.length; si++){
-      try{ steps[si][0](); } catch(e){ console.warn('chart error:',steps[si][1],e.message); }
-      const pct=Math.round((si+1)/steps.length*100);
-      updateLoadingProgress(pct, steps[si][1]);
-      await new Promise(res=>setTimeout(res,16)); // yield to browser (~1 frame)
-    }
+    buildGauge(); buildBurndown(); buildDonut();
+    buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
+    buildVelocityChart(); buildWeekdayChart(); buildFabGap();
+    buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards();
     gblt=false;
 
     // ── Build hold list ─────────────────────────────────────────────────
@@ -2817,6 +2800,32 @@ async function loadData(){
   }
 }
 
+function showLoading(){
+  // reset topbar
+  const _stxt=document.getElementById('tb-status-txt');
+  const _sdot=document.getElementById('tb-sdot');
+  if(_stxt) _stxt.textContent='⏳';
+  if(_sdot){ _sdot.style.animation='none'; _sdot.style.background='rgba(255,255,255,.4)'; }
+  // reset numbers เป็น –
+  ['ts-done','pill-rem','pill-hold','pill-over','gauge-pct-lbl',
+   'ov-all','ov-sw','ov-ap','ov-inf','tb-days','tb-rate','tb-over','tb-pct',
+   'pill-ontime','pill-ontime-sub','donut-ontime-pct','donut-ontime-sub'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML='<span style="opacity:.35">–</span>';
+  });
+  ['pill-finish','pill-late'].forEach(id=>{
+    const e=document.getElementById(id); if(e) e.textContent='–';
+  });
+  document.querySelectorAll('.ins-warn').forEach(w=>w.textContent='⏳ กำลังคำนวณ...');
+  document.querySelectorAll('.ins-big em').forEach(em=>em.textContent='–');
+  document.querySelectorAll('.ins-rate-val').forEach(el=>el.textContent='–');
+  document.querySelectorAll('.ins-kpi-val').forEach(el=>el.textContent='–');
+}
+
+function hideLoading(){}
+
+function updateLoadingProgress(pct, label){}
+
 async function manualRefresh(){
   // Show loading on all refresh buttons
   const btns = document.querySelectorAll('[onclick*="manualRefresh"]');
@@ -2839,68 +2848,12 @@ async function manualRefresh(){
 // ── API ───────────────────────────────────────────────────────────────────────
 
 // ── Loading helpers ──────────────────────────────────────────────────────────
-function showLoading(){
-  // reset topbar
-  const _stxt=document.getElementById('tb-status-txt');
-  const _sdot=document.getElementById('tb-sdot');
-  if(_stxt) _stxt.textContent='⏳';
-  if(_sdot){ _sdot.style.animation='none'; _sdot.style.background='rgba(255,255,255,.4)'; }
-  // reset numbers
-  ['ts-done','pill-rem','pill-hold','pill-over','gauge-pct-lbl',
-   'ov-all','ov-sw','ov-ap','ov-inf','tb-days','tb-rate','tb-over','tb-pct',
-   'pill-ontime','pill-ontime-sub','donut-ontime-pct','donut-ontime-sub'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.innerHTML='<span style="opacity:.35">–</span>';
-  });
-  ['pill-finish','pill-late'].forEach(id=>{
-    const e=document.getElementById(id); if(e) e.textContent='–';
-  });
-  document.querySelectorAll('.ins-warn').forEach(w=>w.textContent='⏳ กำลังคำนวณ...');
-  document.querySelectorAll('.ins-big em').forEach(em=>em.textContent='–');
-  document.querySelectorAll('.ins-rate-val').forEach(el=>el.textContent='–');
-  document.querySelectorAll('.ins-kpi-val').forEach(el=>el.textContent='–');
-  // เพิ่ม progress overlay บน cards ทั้งหมดที่มี canvas หรือ content
-  document.querySelectorAll('.card').forEach(card=>{
-    if(!card.querySelector('canvas') && !card.querySelector('.tlr') &&
-       !card.querySelector('.shdr-stats') && !card.querySelector('.ins-box')) return;
-    card.classList.add('is-loading');
-    // ลบ overlay เก่าออกก่อน
-    card.querySelectorAll('.card-progress-overlay').forEach(o=>o.remove());
-    const ov=document.createElement('div');
-    ov.className='card-progress-overlay';
-    ov.innerHTML='<div class="card-progress-bar-wrap"><div class="card-progress-bar" style="width:0%"></div></div><div class="card-progress-pct">0%</div><div class="card-progress-lbl">กำลังโหลด...</div>';
-    card.style.position='relative';
-    card.appendChild(ov);
-  });
-}
 
-function hideLoading(){
-  // แสดง 100% ก่อนแล้วค่อย fade out
-  updateLoadingProgress(100,'เสร็จแล้ว');
-  setTimeout(()=>{
-    document.querySelectorAll('.card-progress-overlay').forEach(ov=>{
-      ov.style.transition='opacity .3s';
-      ov.style.opacity='0';
-      setTimeout(()=>ov.remove(), 300);
-    });
-    document.querySelectorAll('.is-loading').forEach(card=>{
-      card.classList.remove('is-loading');
-      card.style.position='';
-    });
-  }, 200);
-}
+
+
 
 // อัพเดท progress ทุก card พร้อมกัน
-function updateLoadingProgress(pct, label){
-  document.querySelectorAll('.card-progress-overlay').forEach(ov=>{
-    const bar=ov.querySelector('.card-progress-bar');
-    const pctEl=ov.querySelector('.card-progress-pct');
-    const lblEl=ov.querySelector('.card-progress-lbl');
-    if(bar) bar.style.width=Math.min(pct,100)+'%';
-    if(pctEl) pctEl.textContent=Math.min(pct,100)+'%';
-    if(lblEl && label) lblEl.textContent=label;
-  });
-}
+
 
     // ── อัพเดท pills by ID ─────────────────────────────────────────────
     const _set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
