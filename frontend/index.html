@@ -1224,28 +1224,28 @@ const _wkStart   = new Date(2026, 1, 9);
 function _totalDays(){ return Math.floor((_todayGMT7() - _wkStart) / (24*60*60*1000)); }
 let TODAY_WK = 6; // populated from API
 function getTodayFrac(){ return (_totalDays()%7)/7; }
-let PLAN_ALL = [3.14, 9.61, 15.52, 18.09, 23.99, 27.76, 42.9, 45.98, 49.12, 51.07, 56.47, 62.31, 68.4, 71.55, 75.19, 80.03, 86.49, 92.59, 99.62, 100.0];
-let ACT_ALL_RAW = [5.03, 11.24, 15.64, 18.09, 23.93, 28.83, 28.83, null, null, null, null, null, null, null, null, null, null, null, null, null];
+let PLAN_ALL = []; // populated from API
+let ACT_ALL_RAW = []; // populated from API
 // carry-forward ACT_ALL ถึง TODAY_WK
 function getActAll(){let _l=null;return WK.map((_,i)=>{if(i<ACT_ALL_RAW.length&&ACT_ALL_RAW[i]!==null)_l=ACT_ALL_RAW[i];return i<=TODAY_WK?_l:null;});}
-let PLAN_SW = [2.5, 7.85, 14.09, 17.57, 25.96, 31.31, 36.84, 39.52, 42.64, 45.41, 49.78, 54.15, 62.8, 67.26, 72.44, 79.3, 87.51, 93.31, 99.46, 100.0];
-let ACT_SW_RAW = [2.85, 7.85, 14.09, 17.57, 25.87, 32.83, 32.83, null, null, null, null, null, null, null, null, null, null, null, null, null];
+let PLAN_SW = []; // populated from API
+let ACT_SW_RAW = []; // populated from API
 // carry-forward ACT_SW ถึง TODAY_WK
 function getActSW(){let _l=null;return WK.map((_,i)=>{if(i<ACT_SW_RAW.length&&ACT_SW_RAW[i]!==null)_l=ACT_SW_RAW[i];return i<=TODAY_WK?_l:null;});}
-let PLAN_AP = [0.0, 9.66, 15.06, 15.06, 15.06, 15.06, 54.83, 59.1, 62.47, 62.47, 70.79, 80.67, 80.67, 80.67, 80.67, 80.67, 83.15, 90.34, 100.0, 100.0];
-let ACT_AP_RAW = [5.39, 15.06, 15.06, 15.06, 15.06, 15.06, 15.06, null, null, null, null, null, null, null, null, null, null, null, null, null];
+let PLAN_AP = []; // populated from API
+let ACT_AP_RAW = []; // populated from API
 // carry-forward ACT_AP ถึง TODAY_WK
 function getActAP(){let _l=null;return WK.map((_,i)=>{if(i<ACT_AP_RAW.length&&ACT_AP_RAW[i]!==null)_l=ACT_AP_RAW[i];return i<=TODAY_WK?_l:null;});}
-let BD_PLAN = [1542, 1439, 1345, 1304, 1210, 1150, 909, 860, 810, 779, 693, 600, 503, 453, 395, 318, 215, 118, 6, 0];
-let BD_ACT = [1512, 1413, 1343, 1304, 1211, 1133, 1133, null, null, null, null, null, null, null, null, null, null, null, null, null];
-let CUM_D = [1, 80, 86, 122, 149, 173, 179, 193, 207, 224, 237, 249, 273, 273, 276, 288, 301, 312, 326, 334, 339, 381, 410, 425, 443, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459];
-let CUM_SW = [1, 32, 38, 59, 70, 82, 88, 102, 116, 133, 146, 158, 182, 182, 185, 197, 210, 221, 235, 243, 248, 290, 319, 334, 352, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368];
-let CUM_AP = [0, 24, 24, 39, 55, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67];
-let CUM_INF = [0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24];
-let DAILY_L = ['9/02', '10/02', '16/02', '17/02', '18/02', '19/02', '20/02', '25/02', '26/02', '27/02', '28/02', '1/03', '3/03', '4/03', '5/03', '6/03', '9/03', '10/03', '11/03', '12/03', '13/03', '14/03', '16/03', '18/03', '19/03', '20/03', '23/03', '24/03', '25/03', '26/03', '27/03', '30/03', '31/03', '1/04', '2/04', '7/04', '8/04', '9/04', '10/04', '16/04', '17/04', '20/04', '21/04', '22/04', '23/04', '24/04', '27/04', '30/04', '5/05', '6/05', '7/05', '8/05', '11/05', '13/05', '14/05', '15/05', '18/05', '19/05', '20/05', '21/05', '22/05', '25/05', '26/05', '27/05', '28/05', '29/05', '1/06', '2/06', '4/06', '5/06', '8/06', '9/06', '10/06', '11/06', '12/06', '15/06', '16/06', '17/06', '18/06', '19/06', '22/06', '23/06'];
-let DAILY_SW = [1, 31, 6, 21, 11, 12, 6, 14, 14, 17, 13, 12, 24, 0, 3, 12, 13, 11, 14, 8, 5, 42, 29, 15, 18, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-let DAILY_AP = [0, 24, 0, 15, 16, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-let DAILY_INF = [0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+let BD_PLAN = []; // populated from API
+let BD_ACT = []; // populated from API
+let CUM_D = []; // populated from API
+let CUM_SW = []; // populated from API
+let CUM_AP = []; // populated from API
+let CUM_INF = []; // populated from API
+let DAILY_L = []; // populated from API
+let DAILY_SW = []; // populated from API
+let DAILY_AP = []; // populated from API
+let DAILY_INF = []; // populated from API
 
 // Per-fabric daily installs
 let FAB_DAILY = {};
@@ -1254,7 +1254,7 @@ let FAB_COLORS = {'D1-041': '#4361ee', 'CFZ': '#2bc48a', 'T1-015': '#ff9f43', 'D
 let FAB_TOTALS = {'D1-041': {'sw': 228, 'ap': 43, 'inf': 10}, 'CFZ': {'sw': 141, 'ap': 24, 'inf': 4}, 'T1-015': {'sw': 0, 'ap': 0, 'inf': 2}, 'D1-091': {'sw': 0, 'ap': 0, 'inf': 2}, 'RFF': {'sw': 0, 'ap': 0, 'inf': 2}, 'AMF': {'sw': 0, 'ap': 0, 'inf': 2}, 'PPW': {'sw': 0, 'ap': 0, 'inf': 2}};
 
 // Plan targets (scheduled qty) per date matching DAILY_L
-let DAILY_PLAN = [0, 50, 11, 35, 27, 24, 6, 14, 38, 17, 13, 12, 24, 2, 3, 12, 15, 11, 14, 8, 5, 41, 27, 15, 18, 0, 17, 191, 10, 13, 10, 14, 9, 19, 7, 14, 14, 11, 11, 10, 21, 22, 31, 16, 15, 2, 83, 10, 49, 12, 12, 24, 11, 13, 14, 12, 9, 13, 12, 11, 13, 13, 10, 4, 26, 24, 30, 25, 35, 9, 4, 37, 12, 25, 21, 2, 31, 15, 25, 24, 17, 6];
+let DAILY_PLAN = []; // populated from API
 
 // Per-fabric plan on those same dates
 let FAB_DAILY_PLAN = {};
@@ -1312,7 +1312,8 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
   });
 
   // today line plugin
-  const _tdPlg={id:'td_'+canvasId,afterDraw(chart){
+  const _pid=canvasId+'_'+Date.now();
+  const _tdPlg={id:'td_'+_pid,afterDraw(chart){
     const m=chart.getDatasetMeta(0);
     if(!m.data[TODAY_WK]) return;
     const {top,bottom}=chart.chartArea;
@@ -1325,7 +1326,7 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
   }};
 
   // datalabels plugin
-  const _lblPlg={id:'lbl_'+canvasId,afterDatasetsDraw(chart){
+  const _lblPlg={id:'lbl_'+_pid,afterDatasetsDraw(chart){
     const ctx2=chart.ctx;
     chart.data.datasets.forEach((ds,di)=>{
       const meta=chart.getDatasetMeta(di); if(meta.hidden) return;
@@ -1371,7 +1372,60 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
-// buildFabBreakdown ใช้ FABRICS จาก API (ดูฟังก์ชันด้านล่าง)
+function buildFabBreakdown() {
+  const wrap = document.getElementById('fab-bd-grid');
+  if (!wrap) return;
+
+  const data = [
+    {n:'D1-041',c:'#4361ee',tot:{d:281,t:710}, sw:{d:228,t:410}, ap:{d:43,t:290},  inf:{d:10,t:10}},
+    {n:'CFZ',   c:'#2bc48a',tot:{d:169,t:187}, sw:{d:141,t:156}, ap:{d:24,t:25},   inf:{d:4,t:6}},
+    {n:'T1-015',c:'#ff9f43',tot:{d:2,  t:327}, sw:{d:0,  t:281}, ap:{d:0,  t:44},  inf:{d:2,t:2}},
+    {n:'D1-091',c:'#9b59b6',tot:{d:2,  t:147}, sw:{d:0,  t:134}, ap:{d:0,  t:11},  inf:{d:2,t:2}},
+    {n:'RFF',   c:'#1abc9c',tot:{d:2,  t:99},  sw:{d:0,  t:65},  ap:{d:0,  t:32},  inf:{d:2,t:2}},
+    {n:'AMF',   c:'#e74c3c',tot:{d:2,  t:114}, sw:{d:0,  t:69},  ap:{d:0,  t:43},  inf:{d:2,t:2}},
+    {n:'PPW',   c:'#3498db',tot:{d:2,  t:8},   sw:{d:0,  t:6},   ap:{d:0,  t:0},   inf:{d:2,t:2}},
+  ];
+
+  wrap.innerHTML = data.map(f => {
+    const totPct = Math.round(f.tot.d / Math.max(f.tot.t,1) * 100);
+    const swPct  = Math.round(f.sw.d  / Math.max(f.sw.t,1)  * 100);
+    const apPct  = Math.round(f.ap.d  / Math.max(f.ap.t,1)  * 100);
+    const infPct = Math.round(f.inf.d / Math.max(f.inf.t,1) * 100);
+
+    const pctBg  = totPct >= 80 ? '#ecfdf5' : totPct >= 30 ? '#fff5e6' : '#eef1ff';
+    const pctCol = totPct >= 80 ? '#065f46' : totPct >= 30 ? '#92400e' : '#3451d1';
+
+    const catRow = (icon, label, done, total, pct, color) => `
+      <div class="fab-bd-cat">
+        <div class="fab-bd-dot" style="background:${color}"></div>
+        <span style="min-width:28px;font-size:10px">${label}</span>
+        <div class="fab-bd-cat-bar">
+          <div class="fab-bd-cat-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <span class="fab-bd-cat-val">${done}/${total}</span>
+      </div>`;
+
+    return `<div class="fab-bd-card" style="--fab-c:${f.c}">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${f.c}"></div>
+      <div class="fab-bd-top">
+        <span class="fab-bd-name">${f.n}</span>
+        <span class="fab-bd-pct" style="background:${pctBg};color:${pctCol}">${totPct}%</span>
+      </div>
+      <div class="fab-bd-total">
+        <strong>${f.tot.d}</strong>/${f.tot.t}
+        <span style="font-size:9px;margin-left:3px">เครื่อง</span>
+      </div>
+      <div class="fab-bd-bar">
+        <div class="fab-bd-fill" style="width:${totPct}%;background:${f.c}"></div>
+      </div>
+      <div class="fab-bd-cats">
+        ${catRow('🔀','SW', f.sw.d,  f.sw.t,  swPct,  '#4361ee')}
+        ${f.ap.t > 0 ? catRow('📶','AP',  f.ap.d,  f.ap.t,  apPct,  '#2bc48a') : ''}
+        ${catRow('⚡','Inf',f.inf.d, f.inf.t, infPct, '#ff9f43')}
+      </div>
+    </div>`;
+  }).join('');
+}
 
 
 // ── Device type horizontal bar chart ─────────────────────────────────────────
@@ -1968,7 +2022,8 @@ function buildProgressCharts(){
     const actFull=getActAll();
 
     // today line plugin
-    const tdPlugin={id:'tdAll',afterDraw(chart){
+    const _uid=Date.now();
+    const tdPlugin={id:'tdAll_'+_uid,afterDraw(chart){
       const m=chart.getDatasetMeta(0);
       if(!m.data[TODAY_WK]) return;
       const {top,bottom}=chart.chartArea;
@@ -1987,7 +2042,7 @@ function buildProgressCharts(){
     }};
 
     // datalabels: แสดง % ที่จุดข้อมูล plan=บน actual=ล่าง
-    const lblPlugin={id:'allLabels',afterDatasetsDraw(chart){
+    const lblPlugin={id:'allLabels_'+_uid,afterDatasetsDraw(chart){
       const ctx=chart.ctx;
       chart.data.datasets.forEach((ds,di)=>{
         if(ds.data.every(v=>v==null)) return;
@@ -2052,7 +2107,6 @@ function buildProgressCharts(){
   // Per fabric cards
   const wrap = document.getElementById('fab-prog-charts');
   if (!wrap) return;
-  wrap.innerHTML = ''; // clear ก่อนทุกครั้ง
   FABRICS.forEach(f => {
     const fd = FAB_WEEKLY[f.n];
     if (!fd) return;
@@ -2549,33 +2603,6 @@ function buildFabBreakdown(){
     <td class="fab-cell" style="font-weight:700;color:var(--primary)">${tTotD}</td>
     <td style="color:var(--text2)">${tTotT} <span style="font-size:10px;background:var(--primary-l);color:var(--primary);padding:1px 5px;border-radius:4px">${pct(tTotD,tTotT)}%</span></td>
   </tr>`;
-
-  // render fab-bd-grid cards จาก FABRICS (API data)
-  const grid = document.getElementById('fab-bd-grid');
-  if(grid){
-    const _catRow = (label, done, total, p2, color) =>
-      `<div class="fab-bd-cat"><div class="fab-bd-dot" style="background:${color}"></div>`+
-      `<span style="min-width:28px;font-size:10px">${label}</span>`+
-      `<div class="fab-bd-cat-bar"><div class="fab-bd-cat-fill" style="width:${p2}%;background:${color}"></div></div>`+
-      `<span class="fab-bd-cat-val">${done}/${total}</span></div>`;
-    grid.innerHTML = FABRICS.map(f=>{
-      const tp=Math.round(f.d/Math.max(f.t,1)*100);
-      const sp=Math.round(f.sw.d/Math.max(f.sw.t,1)*100);
-      const ap2=Math.round(f.ap.d/Math.max(f.ap.t,1)*100);
-      const ip=Math.round(f.inf.d/Math.max(f.inf.t,1)*100);
-      const pb=tp>=80?'#ecfdf5':tp>=30?'#fff5e6':'#eef1ff';
-      const pc=tp>=80?'#065f46':tp>=30?'#92400e':'#3451d1';
-      return `<div class="fab-bd-card" style="--fab-c:${f.c}">`+
-        `<div style="position:absolute;top:0;left:0;right:0;height:3px;background:${f.c}"></div>`+
-        `<div class="fab-bd-top"><span class="fab-bd-name">${f.n}</span>`+
-        `<span class="fab-bd-pct" style="background:${pb};color:${pc}">${tp}%</span></div>`+
-        `<div class="fab-bd-total"><strong>${f.d}</strong>/${f.t}<span style="font-size:9px;margin-left:3px">เครื่อง</span></div>`+
-        `<div class="fab-bd-bar"><div class="fab-bd-fill" style="width:${tp}%;background:${f.c}"></div></div>`+
-        `<div class="fab-bd-cats">${_catRow('SW',f.sw.d,f.sw.t,sp,'#4361ee')}`+
-        `${f.ap.t>0?_catRow('AP',f.ap.d,f.ap.t,ap2,'#2bc48a'):''}`+
-        `${_catRow('Inf',f.inf.d,f.inf.t,ip,'#ff9f43')}</div></div>`;
-    }).join('');
-  }
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────────

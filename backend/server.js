@@ -387,6 +387,7 @@ async function getDashboard(forceRefresh = false) {
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.get('/api/dashboard', async (req, res) => {
+  res.set('Cache-Control','no-store');
   try   { res.json(await getDashboard()); }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
