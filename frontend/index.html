@@ -2613,7 +2613,8 @@ function showTab(n,btn){
   TABS.forEach(t=>document.getElementById('tab-'+t).style.display=t===n?'block':'none');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   btn.classList.add('on');
-  if(n==='graphs')buildGraphs();
+  if(n==='graphs')   buildGraphs();
+  if(n==='progress') buildProgressCharts();
 }
 
 // ── HOLD ──────────────────────────────────────────────────────────────────────
