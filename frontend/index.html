@@ -2656,6 +2656,10 @@ async function loadData(){
     WK.length=0;           d.wk.forEach(v=>WK.push(v));
     PLAN_ALL.length=0;     weekly.plan_all.forEach(v=>PLAN_ALL.push(v));
     ACT_ALL_RAW.length=0;  weekly.act_all.forEach(v=>ACT_ALL_RAW.push(v));
+    console.warn('=== API DATA ===');
+    console.warn('act_all W12=', weekly.act_all[5], 'W13=', weekly.act_all[6]);
+    console.warn('bd_act  W12=', weekly.bd_act[5],  'W13=', weekly.bd_act[6]);
+    console.warn('today_wk=', d.today_wk, '| last_install=', d.last_install_date);
     PLAN_SW.length=0;      weekly.plan_sw.forEach(v=>PLAN_SW.push(v));
     ACT_SW_RAW.length=0;   weekly.act_sw.forEach(v=>ACT_SW_RAW.push(v));
     PLAN_AP.length=0;      weekly.plan_ap.forEach(v=>PLAN_AP.push(v));
@@ -2888,63 +2892,6 @@ async function manualRefresh(){
   btns.forEach(b=>{ b.textContent=b._orig||'↺ รีเฟรชข้อมูล'; b.disabled=false; });
 }
 
-// ── API ───────────────────────────────────────────────────────────────────────
-
-// ── Loading helpers ──────────────────────────────────────────────────────────
-
-
-
-
-// อัพเดท progress ทุก card พร้อมกัน
-
-
-    // ── อัพเดท pills by ID ─────────────────────────────────────────────
-    const _set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
-    const _html=(id,h)=>{const e=document.getElementById(id);if(e)e.innerHTML=h;};
-
-    // คาดเสร็จ + วันเหลือ
-    _set('pill-finish', finTH);
-    _set('pill-late', ins.days_late>0?'ช้า '+ins.days_late+' วัน':'ก่อนกำหนด');
-    _html('tb-days', ins.days_left);
-    // ip-val loop
-    document.querySelectorAll('.ip-val').forEach(el=>{
-      const lbl=el.nextElementSibling?.textContent||'';
-      if(lbl==='คาดเสร็จ') el.innerHTML=`<span id="pill-finish">${finTH}</span>`;
-      if(lbl==='วันเหลือ') el.innerHTML=`<span style="color:var(--success)">${ins.days_left}</span>`;
-    });
-    // ip-sub
-    document.querySelectorAll('.ip-sub').forEach(el=>{
-      const txt=el.textContent;
-      if(txt.includes('ช้า')||txt.includes('–')||el.querySelector('#pill-late'))
-        el.innerHTML=ins.days_late>0?`<span id="pill-late">ช้า ${ins.days_late} วัน</span>`:
-                                     `<span id="pill-late" style="color:var(--success)">ก่อนกำหนด</span>`;
-    });
-    // ins-warn — อัพเดทเสมอไม่ว่าข้อความจะเป็นอะไร
-    document.querySelectorAll('.ins-warn').forEach(w=>{
-      w.textContent=ins.days_late>0
-        ?`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`
-        :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
-    });
-    // ── อัพเดท pills by ID ─────────────────────────────────────────────
-    // คาดเสร็จ + วันเหลือ
-    // ip-sub
-    document.querySelectorAll('.ip-sub').forEach(el=>{
-      const txt=el.textContent;
-      if(txt.includes('ช้า')||txt.includes('–')||el.querySelector('#pill-late'))
-        el.innerHTML=ins.days_late>0?`<span id="pill-late">ช้า ${ins.days_late} วัน</span>`:
-                                     `<span id="pill-late" style="color:var(--success)">ก่อนกำหนด</span>`;
-    });
-    // ins-warn — อัพเดทเสมอไม่ว่าข้อความจะเป็นอะไร
-    document.querySelectorAll('.ins-warn').forEach(w=>{
-      w.textContent=ins.days_late>0
-        ?`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`
-        :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
-    });
-    // ── อัพเดท pills by ID ─────────────────────────────────────────────
-    
-    // คาดเสร็จ + วันเหลือ
-    
-    // คาดเสร็จ + วันเหลือ
 </script>
 </body>
 </html>
