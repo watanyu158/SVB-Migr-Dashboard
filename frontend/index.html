@@ -1371,60 +1371,7 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
-function buildFabBreakdown() {
-  const wrap = document.getElementById('fab-bd-grid');
-  if (!wrap) return;
-
-  const data = [
-    {n:'D1-041',c:'#4361ee',tot:{d:281,t:710}, sw:{d:228,t:410}, ap:{d:43,t:290},  inf:{d:10,t:10}},
-    {n:'CFZ',   c:'#2bc48a',tot:{d:169,t:187}, sw:{d:141,t:156}, ap:{d:24,t:25},   inf:{d:4,t:6}},
-    {n:'T1-015',c:'#ff9f43',tot:{d:2,  t:327}, sw:{d:0,  t:281}, ap:{d:0,  t:44},  inf:{d:2,t:2}},
-    {n:'D1-091',c:'#9b59b6',tot:{d:2,  t:147}, sw:{d:0,  t:134}, ap:{d:0,  t:11},  inf:{d:2,t:2}},
-    {n:'RFF',   c:'#1abc9c',tot:{d:2,  t:99},  sw:{d:0,  t:65},  ap:{d:0,  t:32},  inf:{d:2,t:2}},
-    {n:'AMF',   c:'#e74c3c',tot:{d:2,  t:114}, sw:{d:0,  t:69},  ap:{d:0,  t:43},  inf:{d:2,t:2}},
-    {n:'PPW',   c:'#3498db',tot:{d:2,  t:8},   sw:{d:0,  t:6},   ap:{d:0,  t:0},   inf:{d:2,t:2}},
-  ];
-
-  wrap.innerHTML = data.map(f => {
-    const totPct = Math.round(f.tot.d / Math.max(f.tot.t,1) * 100);
-    const swPct  = Math.round(f.sw.d  / Math.max(f.sw.t,1)  * 100);
-    const apPct  = Math.round(f.ap.d  / Math.max(f.ap.t,1)  * 100);
-    const infPct = Math.round(f.inf.d / Math.max(f.inf.t,1) * 100);
-
-    const pctBg  = totPct >= 80 ? '#ecfdf5' : totPct >= 30 ? '#fff5e6' : '#eef1ff';
-    const pctCol = totPct >= 80 ? '#065f46' : totPct >= 30 ? '#92400e' : '#3451d1';
-
-    const catRow = (icon, label, done, total, pct, color) => `
-      <div class="fab-bd-cat">
-        <div class="fab-bd-dot" style="background:${color}"></div>
-        <span style="min-width:28px;font-size:10px">${label}</span>
-        <div class="fab-bd-cat-bar">
-          <div class="fab-bd-cat-fill" style="width:${pct}%;background:${color}"></div>
-        </div>
-        <span class="fab-bd-cat-val">${done}/${total}</span>
-      </div>`;
-
-    return `<div class="fab-bd-card" style="--fab-c:${f.c}">
-      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${f.c}"></div>
-      <div class="fab-bd-top">
-        <span class="fab-bd-name">${f.n}</span>
-        <span class="fab-bd-pct" style="background:${pctBg};color:${pctCol}">${totPct}%</span>
-      </div>
-      <div class="fab-bd-total">
-        <strong>${f.tot.d}</strong>/${f.tot.t}
-        <span style="font-size:9px;margin-left:3px">เครื่อง</span>
-      </div>
-      <div class="fab-bd-bar">
-        <div class="fab-bd-fill" style="width:${totPct}%;background:${f.c}"></div>
-      </div>
-      <div class="fab-bd-cats">
-        ${catRow('🔀','SW', f.sw.d,  f.sw.t,  swPct,  '#4361ee')}
-        ${f.ap.t > 0 ? catRow('📶','AP',  f.ap.d,  f.ap.t,  apPct,  '#2bc48a') : ''}
-        ${catRow('⚡','Inf',f.inf.d, f.inf.t, infPct, '#ff9f43')}
-      </div>
-    </div>`;
-  }).join('');
-}
+// buildFabBreakdown ใช้ FABRICS จาก API (ดูฟังก์ชันด้านล่าง)
 
 
 // ── Device type horizontal bar chart ─────────────────────────────────────────
@@ -2105,6 +2052,7 @@ function buildProgressCharts(){
   // Per fabric cards
   const wrap = document.getElementById('fab-prog-charts');
   if (!wrap) return;
+  wrap.innerHTML = ''; // clear ก่อนทุกครั้ง
   FABRICS.forEach(f => {
     const fd = FAB_WEEKLY[f.n];
     if (!fd) return;
@@ -2601,6 +2549,33 @@ function buildFabBreakdown(){
     <td class="fab-cell" style="font-weight:700;color:var(--primary)">${tTotD}</td>
     <td style="color:var(--text2)">${tTotT} <span style="font-size:10px;background:var(--primary-l);color:var(--primary);padding:1px 5px;border-radius:4px">${pct(tTotD,tTotT)}%</span></td>
   </tr>`;
+
+  // render fab-bd-grid cards จาก FABRICS (API data)
+  const grid = document.getElementById('fab-bd-grid');
+  if(grid){
+    const _catRow = (label, done, total, p2, color) =>
+      `<div class="fab-bd-cat"><div class="fab-bd-dot" style="background:${color}"></div>`+
+      `<span style="min-width:28px;font-size:10px">${label}</span>`+
+      `<div class="fab-bd-cat-bar"><div class="fab-bd-cat-fill" style="width:${p2}%;background:${color}"></div></div>`+
+      `<span class="fab-bd-cat-val">${done}/${total}</span></div>`;
+    grid.innerHTML = FABRICS.map(f=>{
+      const tp=Math.round(f.d/Math.max(f.t,1)*100);
+      const sp=Math.round(f.sw.d/Math.max(f.sw.t,1)*100);
+      const ap2=Math.round(f.ap.d/Math.max(f.ap.t,1)*100);
+      const ip=Math.round(f.inf.d/Math.max(f.inf.t,1)*100);
+      const pb=tp>=80?'#ecfdf5':tp>=30?'#fff5e6':'#eef1ff';
+      const pc=tp>=80?'#065f46':tp>=30?'#92400e':'#3451d1';
+      return `<div class="fab-bd-card" style="--fab-c:${f.c}">`+
+        `<div style="position:absolute;top:0;left:0;right:0;height:3px;background:${f.c}"></div>`+
+        `<div class="fab-bd-top"><span class="fab-bd-name">${f.n}</span>`+
+        `<span class="fab-bd-pct" style="background:${pb};color:${pc}">${tp}%</span></div>`+
+        `<div class="fab-bd-total"><strong>${f.d}</strong>/${f.t}<span style="font-size:9px;margin-left:3px">เครื่อง</span></div>`+
+        `<div class="fab-bd-bar"><div class="fab-bd-fill" style="width:${tp}%;background:${f.c}"></div></div>`+
+        `<div class="fab-bd-cats">${_catRow('SW',f.sw.d,f.sw.t,sp,'#4361ee')}`+
+        `${f.ap.t>0?_catRow('AP',f.ap.d,f.ap.t,ap2,'#2bc48a'):''}`+
+        `${_catRow('Inf',f.inf.d,f.inf.t,ip,'#ff9f43')}</div></div>`;
+    }).join('');
+  }
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────────
