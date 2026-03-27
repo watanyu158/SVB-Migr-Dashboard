@@ -982,28 +982,28 @@ main { padding: 12px 10px; }
             <span style="width:12px;height:12px;border-radius:3px;background:var(--success);display:inline-block;flex-shrink:0"></span>
             ตรงเวลา
           </span>
-          <span style="font-weight:600;font-size:14px">435</span>
+          <span style="font-weight:600;font-size:14px" id="donut-ontime-cnt">–</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="display:flex;align-items:center;gap:7px">
             <span style="width:12px;height:12px;border-radius:3px;background:var(--primary);display:inline-block;flex-shrink:0"></span>
             เร็วกว่าแผน
           </span>
-          <span style="font-weight:600;font-size:14px">23</span>
+          <span style="font-weight:600;font-size:14px" id="donut-early-cnt">–</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="display:flex;align-items:center;gap:7px">
             <span style="width:12px;height:12px;border-radius:3px;background:var(--danger);display:inline-block;flex-shrink:0"></span>
             ช้ากว่าแผน
           </span>
-          <span style="font-weight:600;font-size:14px">2</span>
+          <span style="font-weight:600;font-size:14px" id="donut-late-cnt">–</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="display:flex;align-items:center;gap:7px">
             <span style="width:12px;height:12px;border-radius:3px;background:#e2e8f0;display:inline-block;flex-shrink:0"></span>
             รอดำเนินการ
           </span>
-          <span style="font-weight:600;font-size:14px">1,132</span>
+          <span style="font-weight:600;font-size:14px" id="donut-pending-cnt">–</span>
         </div>
       </div>
     </div>
@@ -1204,14 +1204,7 @@ main { padding: 12px 10px; }
     <div id="form-alert"></div>
     <div class="fw">
       <div class="fg2">
-        <div class="fgr"><label>เลข No.</label>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<script>
+        <div class=
 const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
 
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
@@ -1349,7 +1342,7 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
     data:{
       labels: WK,
       datasets:[
-        {label:planLabel||'แผน',data:planData,borderColor:planColor||'#94a3c4',borderWidth:2,borderDash:[5,3],pointRadius:3,pointBackgroundColor:planColor||'#94a3c4',tension:0.3,fill:false,spanGaps:false},
+        {label:planLabel||'แผน',data:planData,borderColor:planColor||'#64748b',borderWidth:2,borderDash:[5,3],pointRadius:3,pointBackgroundColor:planColor||'#64748b',tension:0.3,fill:false,spanGaps:false},
         {label:actLabel||'จริง',data:actFull,borderColor:actColor||'#4361ee',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?4:0,pointBackgroundColor:actColor||'#4361ee',tension:0.3,fill:false,spanGaps:false}
       ]
     },
@@ -2101,8 +2094,8 @@ function buildProgressCharts(){
     if(aEl && actNow!=null) aEl.textContent='จริง: '+actNow.toFixed(1)+'%';
   })();
 
-  makeLineChart('prog-sw-c',  PLAN_SW,  ACT_SW,  '#a5b4fc','#4361ee','แผน Switch (%)','จริง Switch (%)');
-  makeLineChart('prog-ap-c',  PLAN_AP,  ACT_AP,  '#6ee7b7','#2bc48a','แผน AP (%)','จริง AP (%)');
+  makeLineChart('prog-sw-c',  PLAN_SW,  ACT_SW,  '#818cf8','#4361ee','แผน Switch (%)','จริง Switch (%)');
+  makeLineChart('prog-ap-c',  PLAN_AP,  ACT_AP,  '#34d399','#2bc48a','แผน AP (%)','จริง AP (%)');
 
   // Per fabric cards
   const wrap = document.getElementById('fab-prog-charts');
@@ -2136,9 +2129,9 @@ function buildProgressCharts(){
         data:{
           labels: WK,
           datasets:[
-            {label:'Switch แผน',data:fd.sw_plan,borderColor:'#a5b4fc',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#a5b4fc',tension:0.3,fill:false,spanGaps:false},
+            {label:'Switch แผน',data:fd.sw_plan,borderColor:'#818cf8',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#818cf8',tension:0.3,fill:false,spanGaps:false},
             {label:'Switch จริง',data:(()=>{let l=null;return WK.map((_,i)=>{if(i<fd.sw_act.length&&fd.sw_act[i]!==null)l=fd.sw_act[i];return i<=TODAY_WK?l:null;});})(),borderColor:'#4361ee',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?3:0,pointBackgroundColor:'#4361ee',tension:0.3,fill:false,spanGaps:false},
-            {label:'AP แผน',data:fd.ap_plan,borderColor:'#6ee7b7',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#6ee7b7',tension:0.3,fill:false,spanGaps:false},
+            {label:'AP แผน',data:fd.ap_plan,borderColor:'#34d399',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#34d399',tension:0.3,fill:false,spanGaps:false},
             {label:'AP จริง',data:(()=>{let l=null;return WK.map((_,i)=>{if(i<fd.ap_act.length&&fd.ap_act[i]!==null)l=fd.ap_act[i];return i<=TODAY_WK?l:null;});})(),borderColor:'#2bc48a',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?3:0,pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
           ]
         },
@@ -2794,7 +2787,23 @@ async function loadData(){
     });
 
     // ── Rebuild charts พร้อม progress ────────────────────────────────────
-    buildGauge(); buildBurndown(); buildDonut();
+    // rebuild donut with dynamic counts
+    const onQ    = meta.on_time_qty   || 0;
+    const earlyQ = meta.on_time_early || 0;
+    const lateQ  = meta.on_time_late  || 0;
+    const pendQ  = meta.remaining     || 0;
+    // rebuild chart
+    (()=>{
+      const cv=document.getElementById('donut-c');
+      if(!cv) return;
+      const ex=Chart.getChart(cv); if(ex) ex.destroy();
+      new Chart(cv,{type:'doughnut',data:{datasets:[{data:[onQ-earlyQ,earlyQ,lateQ,pendQ],backgroundColor:['#2bc48a','#4361ee','#ee4b4b','#e2e8f0'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}}});
+    })();
+    if(_e('donut-ontime-cnt'))  _e('donut-ontime-cnt').textContent  = (onQ-earlyQ).toLocaleString();
+    if(_e('donut-early-cnt'))   _e('donut-early-cnt').textContent   = earlyQ.toLocaleString();
+    if(_e('donut-late-cnt'))    _e('donut-late-cnt').textContent    = lateQ.toLocaleString();
+    if(_e('donut-pending-cnt')) _e('donut-pending-cnt').textContent = pendQ.toLocaleString();
+    buildGauge(); buildBurndown();
     buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
     buildVelocityChart(); buildWeekdayChart(); buildFabGap();
     buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards();
@@ -2838,7 +2847,8 @@ function showLoading(){
   // reset numbers เป็น –
   ['ts-done','pill-rem','pill-hold','pill-over','gauge-pct-lbl',
    'ov-all','ov-sw','ov-ap','ov-inf','tb-days','tb-rate','tb-over','tb-pct',
-   'pill-ontime','pill-ontime-sub','donut-ontime-pct','donut-ontime-sub'].forEach(id=>{
+   'pill-ontime','pill-ontime-sub','donut-ontime-pct','donut-ontime-sub',
+   'donut-ontime-cnt','donut-early-cnt','donut-late-cnt','donut-pending-cnt'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.innerHTML='<span style="opacity:.35">–</span>';
   });
@@ -2927,6 +2937,9 @@ async function manualRefresh(){
         :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
     });
     a    // ── อัพเดท pills by ID ─────────────────────────────────────────────
+    
+    // คาดเสร็จ + วันเหลือ
+    _─────────────────────────────────────────
     
     // คาดเสร็จ + วันเหลือ
     _

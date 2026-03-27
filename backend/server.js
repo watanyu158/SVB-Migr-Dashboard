@@ -308,7 +308,7 @@ function calcDashboard(wb) {
   });
 
   // on-time = installed ที่ Install Date <= Scheduled Date
-  let onTimeQty = 0;
+  let onTimeQty = 0, earlyQty = 0, lateQty = 0;
   aRows.forEach(r => {
     const ok    = r['Qty. Success'] || 0;
     let instDt  = r['Install Date'];
@@ -317,7 +317,13 @@ function calcDashboard(wb) {
     if (typeof schedDt === 'number') schedDt = new Date((schedDt - 25569) * 86400000);
     if (ok > 0 && instDt instanceof Date && schedDt instanceof Date && !isNaN(instDt) && !isNaN(schedDt)) {
       instDt.setHours(0,0,0,0); schedDt.setHours(0,0,0,0);
-      if (instDt <= schedDt) onTimeQty += ok;
+      if (instDt <= schedDt) {
+        onTimeQty += ok;
+        const diff = Math.floor((schedDt - instDt) / 86400000);
+        if (diff > 0) earlyQty += ok; // ติดตั้งก่อน scheduled date
+      } else {
+        lateQty += ok;
+      }
     }
   });
   const onTimePct = installed > 0 ? Math.round(onTimeQty / installed * 1000) / 10 : 0;
@@ -349,7 +355,7 @@ function calcDashboard(wb) {
     wk:        WK_BOUNDS.map(w => w.label),
     today_wk:  todayWk,
     last_install_date: lastInstallDate,
-    meta:      { total:TOTAL, installed, remaining, hold, overdue, on_time_qty:onTimeQty, on_time_pct:onTimePct },
+    meta:      { total:TOTAL, installed, remaining, hold, overdue, on_time_qty:onTimeQty, on_time_pct:onTimePct, on_time_early:earlyQty, on_time_late:lateQty },
     hold_items: holdItems,
     insight:   { daily_rate:dailyRate, req_rate:reqRate, need_more:needMore,
                  pct_more:pctMore, days_late:daysLate, gauge_pct:gaugePct,
