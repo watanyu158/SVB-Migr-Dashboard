@@ -1219,11 +1219,11 @@ const API = window.location.hostname==='localhost'?'http://localhost:3000':'http
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
 let WK = ['09 Feb', '16 Feb', '23 Feb', '02 Mar', '09 Mar', '16 Mar', '23 Mar', '30 Mar', '06 Apr', '13 Apr', '20 Apr', '27 Apr', '04 May', '11 May', '18 May', '25 May', '01 Jun', '09 Jun', '16 Jun', '23 Jun'];
 // TODAY_WK: คำนวณจากวันปัจจุบัน GMT+7 นับจาก 9 ก.พ. 2569 (W7=09Feb=index 0)
-const _todayGMT7 = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'}));
+function _todayGMT7(){ return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'})); }
 const _wkStart   = new Date(2026, 1, 9);
-const _totalDays = Math.floor((_todayGMT7 - _wkStart) / (24*60*60*1000));
+function _totalDays(){ return Math.floor((_todayGMT7() - _wkStart) / (24*60*60*1000)); }
 let TODAY_WK = 6; // populated from API
-function getTodayFrac(){ const t=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'})); const d=Math.floor((t-new Date(2026,1,9))/(24*60*60*1000)); return (d%7)/7; }
+function getTodayFrac(){ return (_totalDays()%7)/7; }
 let PLAN_ALL = [3.14, 9.61, 15.52, 18.09, 23.99, 27.76, 42.9, 45.98, 49.12, 51.07, 56.47, 62.31, 68.4, 71.55, 75.19, 80.03, 86.49, 92.59, 99.62, 100.0];
 let ACT_ALL_RAW = [5.03, 11.24, 15.64, 18.09, 23.93, 28.83, 28.83, null, null, null, null, null, null, null, null, null, null, null, null, null];
 // carry-forward ACT_ALL ถึง TODAY_WK
@@ -1898,7 +1898,7 @@ function buildBurndown(){
   cv.setLineDash([5,3]);
   cv.stroke();
   // Date label on top of line
-  const label=_todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
+  const label=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
   cv.setLineDash([]);
   cv.font='bold 10px Segoe UI, sans-serif';
   const tw=cv.measureText(label).width;
@@ -1944,9 +1944,9 @@ function buildTimeline(){
   const _projStart=new Date(2026,1,10);
   const _projEnd  =new Date(2026,5,23);
   const _projDays =Math.round((_projEnd-_projStart)/(24*60*60*1000));
-  const _elapsed  =Math.round((_todayGMT7-_projStart)/(24*60*60*1000));
+  const _elapsed  =Math.round((_todayGMT7()-_projStart)/(24*60*60*1000));
   const tdp=Math.max(0,Math.min(100,Math.round(_elapsed/_projDays*100)));
-  const _todayLabel=_todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
+  const _todayLabel=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
   const _fabLen=FABRICS.length;
 
   // plan % ณ วันนี้ per Fabric
@@ -2035,7 +2035,7 @@ function buildProgressCharts(){
       cv.beginPath(); cv.moveTo(x,top); cv.lineTo(x,bottom);
       cv.strokeStyle='#ee4b4b'; cv.lineWidth=1.5; cv.setLineDash([5,3]); cv.stroke();
       cv.setLineDash([]);
-      const lbl=_todayGMT7.getDate()+'/'+(String(_todayGMT7.getMonth()+1).padStart(2,'0'));
+      const lbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
       cv.font='bold 10px Segoe UI'; const tw=cv.measureText(lbl).width;
       cv.fillStyle='#ee4b4b';
       cv.beginPath(); cv.roundRect(x-tw/2-4,top-1,tw+8,16,4); cv.fill();
