@@ -512,8 +512,11 @@ app.get('/health', (req, res) => res.json({
   cache_age_s: cacheTime ? Math.round((Date.now() - cacheTime) / 1000) : null,
 }));
 
-app.use(express.static(path.join(__dirname, '../frontend')));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../frontend/index.html')));
+app.use(express.static(path.join(__dirname, '../frontend'), {etag:false, maxAge:0}));
+app.get('*', (req, res) => {
+  res.set('Cache-Control','no-store,no-cache,must-revalidate');
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`SVB Dashboard running on port ${PORT}`));
