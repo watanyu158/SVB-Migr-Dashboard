@@ -2865,6 +2865,7 @@ async function loadData(){
     const r = await fetch(`${API}/api/dashboard`);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
+    if(!d.weekly || !d.meta) throw new Error('Invalid API response');
     const {meta, insight:ins, weekly, fabrics, types, daily, locations} = d;
 
     // ── อัพเดท arrays ────────────────────────────────────────────────────
@@ -2887,10 +2888,8 @@ async function loadData(){
       Object.keys(dp.fab||{}).forEach(f=>{
         DAILY_FAB_PROG[f]={plan:[...(dp.fab[f].plan||[])], act:[...(dp.fab[f].act||[])]};
       });
-    console.warn('=== API DATA ===');
-    console.warn('act_all W12=', weekly.act_all[5], 'W13=', weekly.act_all[6]);
-    console.warn('bd_act  W12=', weekly.bd_act[5],  'W13=', weekly.bd_act[6]);
-    console.warn('today_wk=', d.today_wk, '| last_install=', d.last_install_date);
+    console.warn('today_wk=', d.today_wk, '| last_install=', d.last_install_date,
+      '| act_all W13=', weekly&&weekly.act_all?weekly.act_all[6]:'?');
     PLAN_SW.length=0;      weekly.plan_sw.forEach(v=>PLAN_SW.push(v));
     ACT_SW_RAW.length=0;   weekly.act_sw.forEach(v=>ACT_SW_RAW.push(v));
     PLAN_AP.length=0;      weekly.plan_ap.forEach(v=>PLAN_AP.push(v));

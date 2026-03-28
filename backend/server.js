@@ -110,7 +110,7 @@ function calcDashboard(wb) {
 
   // Overview
   // installed = R7[3] Actual Installed
-  const installed = dRows[6][3] || 0;
+  const installed = (dRows[6]&&dRows[6][3]) || 0;
 
   // hold = นับจำนวน rows ที่ Status='Hold' (ไม่ใช่ qty)
   const hold = aRows.filter(r => r['Status'] === 'Hold').length;
