@@ -2168,6 +2168,9 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
 }
 
 function buildProgressCharts(){
+  // todayLbl ใช้ร่วมกันทุก chart ใน function นี้
+  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+
   // ── Overall: กราฟรายวัน แผน vs จริง ──
   (()=>{
     const cv=document.getElementById('prog-all-c');
