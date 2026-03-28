@@ -355,41 +355,106 @@ function calcDashboard(wb) {
   const PROJ_START_D = new Date('2026-02-09'); PROJ_START_D.setHours(0,0,0,0);
   const PROJ_END_D   = new Date('2026-06-23'); PROJ_END_D.setHours(0,0,0,0);
 
-  // สร้าง daily actual/plan map จาก aRows
-  const dayActMap = {}, dayPlanMap = {};
+  // daily maps: all / sw / ap / per-fabric
+  const dayActMap={}, dayPlanMap={};
+  const daySwAct={}, daySwPlan={}, dayApAct={}, dayApPlan={};
+  const dayFabAct={}, dayFabPlan={};
+  FABRICS.forEach(f=>{ dayFabAct[f]={}; dayFabPlan[f]={}; });
+
   aRows.forEach(r => {
+    const fab   = r['Fabric'];
+    const cat   = r['Category'];
     const qty   = r['Qty'] || 0;
     const ok    = r['Qty. Success'] || 0;
     let instDt  = r['Install Date'];
     let schedDt = r['Scheduled Date'];
     if (typeof instDt  === 'number') instDt  = new Date((instDt  - 25569) * 86400000);
     if (typeof schedDt === 'number') schedDt = new Date((schedDt - 25569) * 86400000);
+
     if (instDt instanceof Date && !isNaN(instDt) && ok > 0) {
       const k = instDt.toISOString().slice(0,10);
       dayActMap[k] = (dayActMap[k]||0) + ok;
+      if (cat==='Switch') daySwAct[k] = (daySwAct[k]||0) + ok;
+      else if (cat==='AP') dayApAct[k] = (dayApAct[k]||0) + ok;
+      if (FABRICS.includes(fab)) dayFabAct[fab][k] = (dayFabAct[fab][k]||0) + ok;
     }
     if (schedDt instanceof Date && !isNaN(schedDt) && qty > 0) {
       const k = schedDt.toISOString().slice(0,10);
       dayPlanMap[k] = (dayPlanMap[k]||0) + qty;
+      if (cat==='Switch') daySwPlan[k] = (daySwPlan[k]||0) + qty;
+      else if (cat==='AP') dayApPlan[k] = (dayApPlan[k]||0) + qty;
+      if (FABRICS.includes(fab)) dayFabPlan[fab][k] = (dayFabPlan[fab][k]||0) + qty;
     }
   });
 
-  // สร้าง array วัน proj_start ถึง proj_end
-  const dailyProgress = { labels:[], plan_cum:[], act_cum:[], last_act_date: lastInstallDate };
-  let cumPlanD = 0, cumActD = 0;
-  const cur = new Date(PROJ_START_D);
+  // หา last install date per fabric
+  const fabLastInstall = {};
+  FABRICS.forEach(f => {
+    const dates = Object.keys(dayFabAct[f]).sort();
+    fabLastInstall[f] = dates.length ? dates[dates.length-1] : null;
+  });
+
+  // build daily cumulative arrays
   const lastActDt = lastInstallDate ? new Date(lastInstallDate+'T00:00:00') : null;
+
+  const dailyProgress = { labels:[], plan_cum:[], act_cum:[],
+    sw_plan:[], sw_act:[], ap_plan:[], ap_act:[],
+    bd_plan:[], bd_act:[], fab:{} };
+  FABRICS.forEach(f => { dailyProgress.fab[f] = { plan:[], act:[] }; });
+
+  let cAll=0, cPlan=0, cSW=0, cSWp=0, cAP=0, cAPp=0;
+  const cFab={}, cFabP={};
+  FABRICS.forEach(f=>{ cFab[f]=0; cFabP[f]=0; });
+
+  // Burndown plan: ต้องนับ planned qty ทั้งหมดก่อนแล้วลด
+  // pre-calc total plan by day
+  const prePlanCum = {};
+  let _pp=0;
+  const _c2 = new Date(PROJ_START_D);
+  while (_c2 <= PROJ_END_D) {
+    const k = _c2.toISOString().slice(0,10);
+    _pp += dayPlanMap[k]||0;
+    prePlanCum[k] = _pp;
+    _c2.setDate(_c2.getDate()+1);
+  }
+
+  const cur = new Date(PROJ_START_D);
   while (cur <= PROJ_END_D) {
-    const k = cur.toISOString().slice(0,10);
+    const k  = cur.toISOString().slice(0,10);
     const dd = cur.getDate(), mm = cur.getMonth()+1;
     const lbl = `${dd}/${String(mm).padStart(2,'0')}`;
-    cumPlanD += dayPlanMap[k]||0;
-    cumActD  += dayActMap[k]||0;
+
+    cAll  += dayActMap[k]||0; cPlan += dayPlanMap[k]||0;
+    cSW   += daySwAct[k]||0;  cSWp  += daySwPlan[k]||0;
+    cAP   += dayApAct[k]||0;  cAPp  += dayApPlan[k]||0;
+    FABRICS.forEach(f=>{ cFab[f]+=(dayFabAct[f][k]||0); cFabP[f]+=(dayFabPlan[f][k]||0); });
+
+    const inAct  = lastActDt && cur <= lastActDt;
+    const pct    = v=>Math.round(v*10000)/100;
+
     dailyProgress.labels.push(lbl);
-    dailyProgress.plan_cum.push(Math.round(cumPlanD/TOTAL*10000)/100);
-    dailyProgress.act_cum.push(
-      lastActDt && cur <= lastActDt ? Math.round(cumActD/TOTAL*10000)/100 : null
-    );
+    dailyProgress.plan_cum.push(pct(cPlan/TOTAL));
+    dailyProgress.act_cum.push(inAct ? pct(cAll/TOTAL) : null);
+
+    const swT = TOTAL_SW||1, apT = TOTAL_AP||1;
+    dailyProgress.sw_plan.push(pct(cSWp/swT));
+    dailyProgress.sw_act.push(inAct ? pct(cSW/swT) : null);
+    dailyProgress.ap_plan.push(pct(cAPp/apT));
+    dailyProgress.ap_act.push(inAct ? pct(cAP/apT) : null);
+
+    // burndown
+    dailyProgress.bd_plan.push(TOTAL - cPlan);
+    dailyProgress.bd_act.push(inAct ? TOTAL - cAll : null);
+
+    FABRICS.forEach(f => {
+      const fLast = fabLastInstall[f];
+      const fLastDt = fLast ? new Date(fLast+'T00:00:00') : null;
+      const fT = (FAB_PLAN_T[f]||1);
+      const inFabAct = fLastDt && cur <= fLastDt;
+      dailyProgress.fab[f].plan.push(pct(cFabP[f]/fT));
+      dailyProgress.fab[f].act.push(inFabAct ? pct(cFab[f]/fT) : null);
+    });
+
     cur.setDate(cur.getDate()+1);
   }
 

@@ -1251,6 +1251,13 @@ let PLAN_ALL = []; // populated from API
 let DAILY_PROG_LABELS = []; // populated from API — daily labels
 let DAILY_PROG_PLAN   = []; // populated from API — daily plan cum %
 let DAILY_PROG_ACT    = []; // populated from API — daily actual cum %
+let DAILY_SW_PLAN     = []; // daily SW plan cum %
+let DAILY_SW_ACT      = []; // daily SW actual cum %
+let DAILY_AP_PLAN     = []; // daily AP plan cum %
+let DAILY_AP_ACT      = []; // daily AP actual cum %
+let DAILY_BD_PLAN     = []; // daily burndown plan
+let DAILY_BD_ACT      = []; // daily burndown actual
+let DAILY_FAB_PROG    = {}; // daily per-fabric {fab: {plan:[], act:[]}}
 let ACT_ALL_RAW = []; // populated from API
 // carry-forward ACT_ALL ถึง TODAY_WK
 function getActAll(){let _l=null;return WK.map((_,i)=>{if(i<ACT_ALL_RAW.length&&ACT_ALL_RAW[i]!==null)_l=ACT_ALL_RAW[i];return i<=TODAY_WK?_l:null;});}
@@ -1905,70 +1912,67 @@ function buildGauge(){
 }
 
 function buildBurndown(){
-  const tdPl={id:'td',afterDraw(chart){
-  const m=chart.getDatasetMeta(0);
-  if(!m.data[TODAY_WK]) return;
-  const {top,bottom}=chart.chartArea;
-  const x0=m.data[TODAY_WK].x;
-  const x1=m.data[TODAY_WK+1]?m.data[TODAY_WK+1].x:x0;
-  const cv=chart.ctx;
+  const cv=document.getElementById('burndown-c');
+  if(!cv) return;
+  const ex=Chart.getChart(cv); if(ex) ex.destroy();
+  if(!DAILY_BD_PLAN.length) return;
 
-  // วาดเส้น + จุด last install date บน burndown
-  const liF=getLastInstallFrac();
-  const liLbl=getLastInstallLabel();
-  if(liF!==null && m.data[TODAY_WK+1]){
-    const xLi=x0+(x1-x0)*liF;
-    const m1=chart.getDatasetMeta(1);
-    const actDs=chart.data.datasets[1].data;
-    const lastIdx=actDs.reduce((a,v,j)=>v!=null?j:a,-1);
-    const lastPt=lastIdx>=0?m1.data[lastIdx]:null;
-    if(lastPt && isFinite(lastPt.y)){
-      cv.save();
-      cv.beginPath(); cv.moveTo(lastPt.x,lastPt.y); cv.lineTo(xLi,lastPt.y);
-      cv.strokeStyle='#2bc48a'; cv.lineWidth=2.5; cv.setLineDash([]); cv.stroke();
-      cv.beginPath(); cv.arc(xLi,lastPt.y,4,0,Math.PI*2);
-      cv.fillStyle='#2bc48a'; cv.fill();
-      if(liLbl){
-        cv.font='bold 9px Segoe UI,sans-serif'; cv.fillStyle='#2bc48a';
-        cv.textAlign='center'; cv.textBaseline='bottom';
-        cv.fillText(liLbl, xLi, lastPt.y-8);
-      }
-      cv.restore();
-    }
-  }
+  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+  const lastActIdx=DAILY_BD_ACT.reduce((a,v,j)=>v!=null?j:a,-1);
+  const _uid='burndown_'+Date.now();
 
-  // today line
-  const x=x0+(x1-x0)*getTodayFrac();
-  cv.save();
-  cv.beginPath(); cv.moveTo(x,top); cv.lineTo(x,bottom);
-  cv.strokeStyle='#ee4b4b'; cv.lineWidth=1.5; cv.setLineDash([5,3]); cv.stroke();
-  const label=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-  cv.setLineDash([]);
-  cv.font='bold 10px Segoe UI, sans-serif';
-  const tw=cv.measureText(label).width;
-  cv.fillStyle='#ee4b4b';
-  cv.beginPath(); cv.roundRect(x-tw/2-4,top-1,tw+8,16,4); cv.fill();
-  cv.fillStyle='#fff'; cv.textAlign='center'; cv.textBaseline='top';
-  cv.fillText(label,x,top+2);
-  cv.restore();
-}};
-  // carry-forward: ต่อเส้นจริงถึง TODAY_WK แม้ว่า weekly ยังไม่บันทึก
-  let _bdLast = null;
-  const actualFull = WK.map((_,i) => {
-    if(i < BD_ACT.length && BD_ACT[i] !== null) _bdLast = BD_ACT[i];
-    return (i <= TODAY_WK) ? _bdLast : null;
-  });
-  const _ch_burndownc = Chart.getChart(document.getElementById('burndown-c'));
-  if(_ch_burndownc) _ch_burndownc.destroy();
-  new Chart(document.getElementById('burndown-c'),{
+  const tdPl={id:'td_'+_uid,afterDraw(chart){
+    const {top,bottom}=chart.chartArea; const ctx=chart.ctx;
+    const tIdx=chart.data.labels.indexOf(todayLbl);
+    if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
+    const x=chart.getDatasetMeta(0).data[tIdx].x;
+    ctx.save();
+    ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);
+    ctx.strokeStyle='#ee4b4b';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font='bold 10px Segoe UI,sans-serif';
+    const tw=ctx.measureText(todayLbl).width;
+    ctx.fillStyle='#ee4b4b';
+    ctx.beginPath();ctx.roundRect(x-tw/2-4,top-1,tw+8,16,4);ctx.fill();
+    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText(todayLbl,x,top+2);ctx.restore();
+  }};
+
+  new Chart(cv,{
     type:'line',plugins:[tdPl],
-    data:{labels:WK,datasets:[
-      {label:'แผน',data:BD_PLAN,borderColor:'#94a3c4',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.3,fill:false},
-      {label:'จริง',data:actualFull,borderColor:'#2bc48a',borderWidth:2.5,pointRadius:(c)=>c.dataIndex<BD_ACT.length?3:0,pointBackgroundColor:'#2bc48a',tension:0.4,fill:false,spanGaps:false}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} เหลือ`}}},scales:{x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4'},grid:{display:false}},y:{min:0,max:1700,ticks:{font:{size:10},color:'#94a3c4',stepSize:400},grid:{color:'#f0f4ff'}}}}
+    data:{
+      labels:DAILY_PROG_LABELS,
+      datasets:[
+        {label:'แผน',data:DAILY_BD_PLAN,borderColor:'#94a3c4',borderWidth:1.5,
+         borderDash:[6,4],pointRadius:0,tension:0.3,fill:false,spanGaps:true},
+        {label:'จริง',data:DAILY_BD_ACT,borderColor:'#2bc48a',borderWidth:2.5,
+         pointRadius:(c)=>c.dataIndex===lastActIdx?4:0,
+         pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
+          bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
+          callbacks:{
+            title:items=>DAILY_PROG_LABELS[items[0].dataIndex]||'',
+            label:c=>` ${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString()+' เหลือ':'–'}`
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+             callback:(v,i)=>i%14===0?DAILY_PROG_LABELS[i]:null},grid:{display:false}},
+        y:{min:0,ticks:{font:{size:10},color:'#94a3c4',
+             callback:v=>v.toLocaleString()},grid:{color:'#f0f4ff'}}
+      }
+    }
   });
 }
+
 
 function buildDonut(){
   const _ch_donutc = Chart.getChart(document.getElementById('donut-c'));
@@ -2049,6 +2053,91 @@ w.innerHTML=FABRICS.map((f,_fi)=>{const p=Math.round(f.p),cls=p===100?'hmfu':p>=
 }
 
 // ── PROGRESS LINE CHARTS ──────────────────────────────────────────────────────
+// ── Daily chart builder helper ───────────────────────────────────────────────
+function buildDailyChart(canvasId, labels, planData, actData, planColor, actColor, yMax, yUnit){
+  const ctx=document.getElementById(canvasId);
+  if(!ctx) return;
+  const ex=Chart.getChart(ctx); if(ex) ex.destroy();
+  if(!labels||!labels.length) return;
+
+  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+  const lastActIdx=actData.reduce((a,v,j)=>v!=null?j:a,-1);
+  const _uid=canvasId+'_'+Date.now();
+
+  const tdPlugin={id:'td_'+_uid,afterDraw(chart){
+    const {top,bottom}=chart.chartArea; const cv=chart.ctx;
+    const tIdx=chart.data.labels.indexOf(todayLbl);
+    if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
+    const x=chart.getDatasetMeta(0).data[tIdx].x;
+    cv.save();
+    cv.beginPath();cv.moveTo(x,top);cv.lineTo(x,bottom);
+    cv.strokeStyle='#ee4b4b';cv.lineWidth=1.2;cv.setLineDash([4,3]);cv.stroke();
+    cv.setLineDash([]);cv.restore();
+  }};
+
+  const lblPlugin={id:'lbl_'+_uid,afterDatasetsDraw(chart){
+    const ctx2=chart.ctx;
+    chart.data.datasets.forEach((ds,di)=>{
+      const meta=chart.getDatasetMeta(di);
+      const lastIdx=ds.data.reduce((a,v,j)=>v!=null?j:a,-1);
+      const isPlan=di===0;
+      meta.data.forEach((pt,i)=>{
+        const v=ds.data[i]; if(v==null) return;
+        if(i!==lastIdx && i%21!==0) return;
+        ctx2.save();
+        ctx2.font=isPlan?'8px Segoe UI':'bold 8px Segoe UI';
+        ctx2.fillStyle=isPlan?'#94a3c4':(actColor||'#4361ee');
+        ctx2.textAlign='center';
+        ctx2.textBaseline=isPlan?'bottom':'top';
+        const suffix=yUnit==='%'?'%':' เครื่อง';
+        ctx2.fillText(v.toFixed(yUnit==='%'?1:0)+suffix, pt.x, isPlan?pt.y-3:pt.y+4);
+        ctx2.restore();
+      });
+    });
+  }};
+
+  return new Chart(ctx,{
+    type:'line', plugins:[tdPlugin,lblPlugin],
+    data:{
+      labels,
+      datasets:[
+        {label:'แผน',data:planData,borderColor:planColor||'#94a3c4',borderDash:[5,3],
+         borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,spanGaps:true},
+        {label:'จริง',data:actData,borderColor:actColor||'#4361ee',borderWidth:2,
+         pointRadius:(c)=>c.dataIndex===lastActIdx?4:0,
+         pointBackgroundColor:actColor||'#4361ee',tension:0.3,fill:false,spanGaps:false},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:16,bottom:8}},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
+          bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
+          callbacks:{
+            title:items=>labels[items[0].dataIndex]||'',
+            label:c=>{
+              const v=c.parsed.y;
+              if(v==null) return null;
+              return ` ${c.dataset.label}: ${yUnit==='%'?v.toFixed(1)+'%':Math.round(v).toLocaleString()+' เครื่อง'}`;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{font:{size:8},maxRotation:45,color:'#94a3c4',
+             callback:(v,i)=>i%14===0?labels[i]:null},grid:{display:false}},
+        y:{min:0,max:yMax||100,
+           ticks:{font:{size:9},color:'#94a3c4',
+             callback:v=>yUnit==='%'?v+'%':v.toLocaleString()},
+           grid:{color:'#f0f4ff'}}
+      }
+    }
+  });
+}
+
 function buildProgressCharts(){
   // ── Overall: กราฟรายวัน แผน vs จริง ──
   (()=>{
@@ -2149,77 +2238,46 @@ function buildProgressCharts(){
     if(aEl&&actNow!=null)  aEl.textContent='จริง: '+actNow.toFixed(1)+'%';
   })();
 
-  makeLineChart('prog-sw-c',  PLAN_SW,  ACT_SW_RAW,  '#818cf8','#4361ee','แผน Switch (%)','จริง Switch (%)');
-  makeLineChart('prog-ap-c',  PLAN_AP,  ACT_AP_RAW,  '#34d399','#2bc48a','แผน AP (%)','จริง AP (%)');
+  // SW daily chart
+  buildDailyChart('prog-sw-c', DAILY_PROG_LABELS, DAILY_SW_PLAN, DAILY_SW_ACT, '#818cf8','#4361ee', 100, '%');
+  // AP daily chart
+  buildDailyChart('prog-ap-c', DAILY_PROG_LABELS, DAILY_AP_PLAN, DAILY_AP_ACT, '#34d399','#2bc48a', 100, '%');
 
-  // Per fabric cards — destroy เก่า, clear DOM, สร้างใหม่แบบ sync ทั้งหมด
+  // Per fabric cards — daily version
   const wrap = document.getElementById('fab-prog-charts');
   if (!wrap) return;
-
-  // 1. destroy chart instances ทุกตัวที่ Chart.js รู้จักใน wrap
-  wrap.querySelectorAll('canvas').forEach(cv => {
-    const ch = Chart.getChart(cv); if (ch) ch.destroy();
-  });
-  // 2. clear DOM
+  wrap.querySelectorAll('canvas').forEach(cv=>{ const ch=Chart.getChart(cv); if(ch) ch.destroy(); });
   wrap.innerHTML = '';
 
-  // 3. สร้าง div + canvas + chart แบบ sync ทั้งหมด (ไม่ใช้ setTimeout)
   FABRICS.forEach(f => {
-    const fd = FAB_WEEKLY[f.n];
+    const fd = DAILY_FAB_PROG[f.n];
     if (!fd) return;
-
-    // carry-forward sw_act / ap_act
-    let _ls=null, _la=null;
-    const swAct = WK.map((_,i)=>{ if(fd.sw_act[i]!=null)_ls=fd.sw_act[i]; return i<=TODAY_WK?_ls:null; });
-    const apAct = WK.map((_,i)=>{ if(fd.ap_act[i]!=null)_la=fd.ap_act[i]; return i<=TODAY_WK?_la:null; });
-
     const swPct = Math.round(f.sw.d/Math.max(f.sw.t,1)*100);
     const apPct = Math.round(f.ap.d/Math.max(f.ap.t,1)*100);
+    const totPct= Math.round(f.d/Math.max(f.t,1)*100);
     const cid   = 'fab-prog-'+f.n.replace(/-/g,'')+'-c';
 
     const div = document.createElement('div');
     div.className = 'card';
     div.innerHTML =
-      '<div class="ch" style="margin-bottom:10px">'+
+      '<div class="ch" style="margin-bottom:8px">'+
         '<div style="width:10px;height:10px;border-radius:50%;background:'+f.c+';flex-shrink:0"></div>'+
-        f.n+' — Switch &amp; AP vs แผน'+
-        '<span style="font-size:11px;font-weight:400;color:var(--text2);margin-left:4px">SW: '+swPct+'% | AP: '+apPct+'%</span>'+
+        '<span style="font-size:13px;font-weight:700">'+f.n+'</span>'+
+        '<span style="font-size:11px;font-weight:400;color:var(--text2);margin-left:6px">'+
+          totPct+'% | SW: '+swPct+'% | AP: '+apPct+'%</span>'+
       '</div>'+
       '<div style="height:190px"><canvas id="'+cid+'"></canvas></div>'+
       '<div class="cleg" style="margin-top:6px">'+
-        '<div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>Switch แผน</div>'+
-        '<div class="cl"><div class="cll" style="background:#4361ee"></div>Switch จริง</div>'+
-        '<div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>AP แผน</div>'+
-        '<div class="cl"><div class="cll" style="background:#2bc48a"></div>AP จริง</div>'+
+        '<div class="cl"><div class="cld" style="border-color:'+f.c+'88"></div>แผน</div>'+
+        '<div class="cl"><div class="cll" style="background:'+f.c+'"></div>จริง (รวม)</div>'+
       '</div>';
     wrap.appendChild(div);
 
-    // canvas อยู่ใน DOM แล้ว สร้าง chart ได้ทันที
-    const ctx = document.getElementById(cid);
-    if (!ctx) return;
-    new Chart(ctx, {
-      type:'line',
-      data:{ labels:WK, datasets:[
-        {label:'Switch แผน',data:fd.sw_plan,borderColor:'#818cf8',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#818cf8',tension:0.3,fill:false,spanGaps:false},
-        {label:'Switch จริง',data:swAct,borderColor:'#4361ee',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?3:0,pointBackgroundColor:'#4361ee',tension:0.3,fill:false,spanGaps:false},
-        {label:'AP แผน',data:fd.ap_plan,borderColor:'#34d399',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#34d399',tension:0.3,fill:false,spanGaps:false},
-        {label:'AP จริง',data:apAct,borderColor:'#2bc48a',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?3:0,pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
-      ]},
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        interaction:{mode:'index',intersect:false},
-        plugins:{
-          legend:{display:false},
-          tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
-            callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toFixed(1)+'%':'–'}`}}
-        },
-        scales:{
-          x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
-          y:{min:0,max:100,ticks:{font:{size:9},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
-        }
-      }
-    });
+    const ctx2 = document.getElementById(cid);
+    if (!ctx2) return;
+    buildDailyChart(cid, DAILY_PROG_LABELS, fd.plan, fd.act, f.c+'88', f.c, 100, '%');
   });
+}
 }
 
 // ── GRAPHS (lazy) ─────────────────────────────────────────────────────────────
@@ -2718,9 +2776,19 @@ async function loadData(){
     ACT_ALL_RAW.length=0;  weekly.act_all.forEach(v=>ACT_ALL_RAW.push(v));
     // daily progress
     if(d.daily_progress){
-      DAILY_PROG_LABELS.length=0; d.daily_progress.labels.forEach(v=>DAILY_PROG_LABELS.push(v));
-      DAILY_PROG_PLAN.length=0;   d.daily_progress.plan_cum.forEach(v=>DAILY_PROG_PLAN.push(v));
-      DAILY_PROG_ACT.length=0;    d.daily_progress.act_cum.forEach(v=>DAILY_PROG_ACT.push(v));
+      const dp=d.daily_progress;
+      DAILY_PROG_LABELS.length=0; dp.labels.forEach(v=>DAILY_PROG_LABELS.push(v));
+      DAILY_PROG_PLAN.length=0;   dp.plan_cum.forEach(v=>DAILY_PROG_PLAN.push(v));
+      DAILY_PROG_ACT.length=0;    dp.act_cum.forEach(v=>DAILY_PROG_ACT.push(v));
+      DAILY_SW_PLAN.length=0;     dp.sw_plan.forEach(v=>DAILY_SW_PLAN.push(v));
+      DAILY_SW_ACT.length=0;      dp.sw_act.forEach(v=>DAILY_SW_ACT.push(v));
+      DAILY_AP_PLAN.length=0;     dp.ap_plan.forEach(v=>DAILY_AP_PLAN.push(v));
+      DAILY_AP_ACT.length=0;      dp.ap_act.forEach(v=>DAILY_AP_ACT.push(v));
+      DAILY_BD_PLAN.length=0;     dp.bd_plan.forEach(v=>DAILY_BD_PLAN.push(v));
+      DAILY_BD_ACT.length=0;      dp.bd_act.forEach(v=>DAILY_BD_ACT.push(v));
+      Object.keys(dp.fab||{}).forEach(f=>{
+        DAILY_FAB_PROG[f]={plan:[...dp.fab[f].plan], act:[...dp.fab[f].act]};
+      });
     }
     console.warn('=== API DATA ===');
     console.warn('act_all W12=', weekly.act_all[5], 'W13=', weekly.act_all[6]);
