@@ -2901,103 +2901,6 @@ async function loadData(){
       Object.keys(dp.fab||{}).forEach(f=>{
         DAILY_FAB_PROG[f]={plan:[...(dp.fab[f].plan||[])], act:[...(dp.fab[f].act||[])]};
       });
-    }
-    // คำนวณ daily SW/AP/BD/Fab จาก DAILY_L+DAILY_SW/AP ถ้า server เก่าไม่ส่ง daily_progress
-    if(DAILY_PROG_LABELS.length && DAILY_L.length){
-      const TOTAL_SW_T=1121, TOTAL_AP_T=445, TOTAL_T=1592;
-
-      // map DAILY_PROG_LABELS → index
-      const lblMap={};
-      DAILY_PROG_LABELS.forEach((l,i)=>lblMap[l]=i);
-
-      // map DAILY_L → index (DAILY_L อาจใช้ format "9/02" เหมือนกัน)
-      const dailyLMap={};
-      DAILY_L.forEach((l,i)=>dailyLMap[l]=i);
-
-      // สะสม SW/AP actual รายวัน (SW=switch only, AP=AP only, ไม่รวม Infra)
-      const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-      const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-      DAILY_PROG_LABELS.forEach((lbl,i)=>{
-        const di=dailyLMap[lbl];
-        if(di===undefined) return;
-        swActDay[i]=(DAILY_SW[di]||0);  // Switch only
-        apActDay[i]=(DAILY_AP[di]||0);  // AP only
-      });
-
-      // หา last install idx
-      const lastInstLbl=getLastInstallLabel();
-      const lastInstIdx=lastInstLbl!==null?(lblMap[lastInstLbl]??-1):-1;
-
-      // คำนวณ SW/AP plan แบบ daily cumulative จาก scheduled dates
-      // ใช้ FAB_DAILY_PLAN ที่มี scheduled qty per day per label
-      const swPlanDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-      const apPlanDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-      // FAB_DAILY_PLAN = {fab: [qty per DAILY_L index]}
-      // แต่ถ้าไม่มี ใช้ ratio จาก DAILY_PROG_PLAN แทน
-      const hasFabPlan = Object.keys(FAB_DAILY_PLAN).length > 0;
-
-      // SW scheduled plan จาก FABRICS (weekly plan * daily distribution)
-      // วิธีง่ายที่สุด: ใช้ weekly plan_sw แปลงเป็น daily linear
-      // แต่เพื่อความแม่นยำ ใช้ PLAN_SW weekly interpolated
-      // SW actual / SW total = DAILY_PROG_ACT approach แต่แยก category
-      // ใช้ ratio ที่ถูกต้อง: SW_plan_total/ALL_plan_total per week
-      // === ใช้ DAILY_PROG_PLAN * (scheduled_sw_cum / scheduled_all_cum) ===
-      // Simple approach: SW plan cumulative = (PLAN_SW[wk] / 100) * TOTAL_SW_T per week → daily interpolated
-      // ใช้ DAILY_PROG_PLAN เป็น base แต่ scale ด้วย actual ratio ของ SW vs Total
-      DAILY_PROG_LABELS.forEach((_,i)=>{
-        // SW plan: linear scale จาก overall plan
-        const overallPlanFrac=(DAILY_PROG_PLAN[i]||0)/100;
-        swPlanDay[i]=overallPlanFrac*TOTAL_SW_T;
-        apPlanDay[i]=overallPlanFrac*TOTAL_AP_T;
-      });
-
-      let cSW=0, cAP=0;
-      DAILY_SW_PLAN.length=0; DAILY_SW_ACT.length=0;
-      DAILY_AP_PLAN.length=0; DAILY_AP_ACT.length=0;
-      DAILY_BD_ACT.length=0;
-
-      DAILY_PROG_LABELS.forEach((_,i)=>{
-        cSW+=swActDay[i]; cAP+=apActDay[i];
-        const inAct=lastInstIdx<0||i<=lastInstIdx;
-        // SW % = installed SW / total SW plan (1121)
-        DAILY_SW_PLAN.push(Math.round(swPlanDay[i]/TOTAL_SW_T*10000)/100);
-        DAILY_SW_ACT.push(inAct?Math.round(cSW/TOTAL_SW_T*10000)/100:null);
-        // AP % = installed AP / total AP plan (445)
-        DAILY_AP_PLAN.push(Math.round(apPlanDay[i]/TOTAL_AP_T*10000)/100);
-        DAILY_AP_ACT.push(inAct?Math.round(cAP/TOTAL_AP_T*10000)/100:null);
-        // BD actual (ALL including infra) จาก DAILY_PROG_ACT
-        const allPct=DAILY_PROG_ACT[i];
-        DAILY_BD_ACT.push(inAct&&allPct!=null?Math.round((1-allPct/100)*TOTAL_T):null);
-      });
-
-      // BD plan
-      DAILY_BD_PLAN.length=0;
-      DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
-
-      // per-fabric: SW+AP only (ไม่รวม Infra เพื่อความสอดคล้อง)
-      Object.keys(FAB_DAILY).forEach(fab=>{
-        const fd=FAB_DAILY[fab]; if(!fd) return;
-        const fabTotal=FAB_PLAN_TOTALS[fab]||1;
-        const fabActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-        DAILY_PROG_LABELS.forEach((lbl,i)=>{
-          const di=dailyLMap[lbl]; if(di===undefined) return;
-          // รวม SW+AP+Infra ทั้งหมดตาม plan total ของ fabric นั้น
-          fabActDay[i]=(fd.sw[di]||0)+(fd.ap[di]||0)+(fd.inf[di]||0);
-        });
-        let cFab=0; const fPlan=[],fAct=[];
-        let fabLastIdx=-1;
-        for(let i=fabActDay.length-1;i>=0;i--){ if(fabActDay[i]>0){fabLastIdx=i;break;} }
-        DAILY_PROG_LABELS.forEach((lbl,i)=>{
-          cFab+=fabActDay[i];
-          const overallFrac=(DAILY_PROG_PLAN[i]||0)/100;
-          fPlan.push(Math.round(overallFrac*fabTotal/fabTotal*10000)/100);
-          fAct.push(fabLastIdx<0||i<=fabLastIdx?Math.round(cFab/fabTotal*10000)/100:null);
-        });
-        DAILY_FAB_PROG[fab]={plan:fPlan,act:fAct};
-      });
-    }
-    if(false){  // dummy close for _safe block replacement
-    }
     console.warn('=== API DATA ===');
     console.warn('act_all W12=', weekly.act_all[5], 'W13=', weekly.act_all[6]);
     console.warn('bd_act  W12=', weekly.bd_act[5],  'W13=', weekly.bd_act[6]);
@@ -3038,6 +2941,78 @@ async function loadData(){
     window.TODAY_WK = d.today_wk;
     TODAY_WK = d.today_wk;
     LAST_INSTALL_DATE = d.last_install_date || null;
+
+    }
+    // ── คำนวณ daily SW/AP/BD/Fab (รันหลัง DAILY_L/SW/AP/FAB_DAILY populate แล้ว) ──
+    if(DAILY_PROG_LABELS.length && DAILY_L.length){
+      const TOTAL_SW_T=1121, TOTAL_AP_T=445, TOTAL_T=1592;
+
+      // map label → index
+      const lblMap={};
+      DAILY_PROG_LABELS.forEach((l,i)=>lblMap[l]=i);
+      const dailyLMap={};
+      DAILY_L.forEach((l,i)=>dailyLMap[l]=i);
+
+      // สะสม SW/AP actual รายวัน (Switch only, AP only)
+      const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+      const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+      DAILY_PROG_LABELS.forEach((lbl,i)=>{
+        const di=dailyLMap[lbl];
+        if(di!==undefined){
+          swActDay[i]=DAILY_SW[di]||0;
+          apActDay[i]=DAILY_AP[di]||0;
+        }
+      });
+
+      // หา last install idx
+      const lastInstLbl=getLastInstallLabel();
+      const lastInstIdx=lastInstLbl!=null?(lblMap[lastInstLbl]??-1):-1;
+
+      // SW plan: ใช้ DAILY_PROG_PLAN * (TOTAL_SW_T/TOTAL_T) — linear scale
+      // AP plan: ใช้ DAILY_PROG_PLAN * (TOTAL_AP_T/TOTAL_T)
+      let cSW=0, cAP=0;
+      DAILY_SW_PLAN.length=0; DAILY_SW_ACT.length=0;
+      DAILY_AP_PLAN.length=0; DAILY_AP_ACT.length=0;
+      DAILY_BD_ACT.length=0;
+
+      DAILY_PROG_LABELS.forEach((_,i)=>{
+        cSW+=swActDay[i]; cAP+=apActDay[i];
+        const inAct=lastInstIdx<0||i<=lastInstIdx;
+        const planFrac=(DAILY_PROG_PLAN[i]||0)/100;
+
+        DAILY_SW_PLAN.push(Math.round(planFrac*10000)/100);  // same % as overall plan
+        DAILY_SW_ACT.push(inAct?Math.round(cSW/TOTAL_SW_T*10000)/100:null);
+        DAILY_AP_PLAN.push(Math.round(planFrac*10000)/100);  // same % as overall plan
+        DAILY_AP_ACT.push(inAct?Math.round(cAP/TOTAL_AP_T*10000)/100:null);
+        // BD actual รวม infra — ใช้จาก DAILY_PROG_ACT ซึ่ง server คำนวณรวมทุก category
+        const allPct=DAILY_PROG_ACT[i];
+        DAILY_BD_ACT.push(inAct&&allPct!=null?Math.round((1-allPct/100)*TOTAL_T):null);
+      });
+
+      // BD plan
+      DAILY_BD_PLAN.length=0;
+      DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
+
+      // per-fabric: SW+AP+Infra ÷ fab plan total
+      Object.keys(FAB_DAILY).forEach(fab=>{
+        const fd=FAB_DAILY[fab]; if(!fd) return;
+        const fabTotal=FAB_PLAN_TOTALS[fab]||1;
+        const fabActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+        DAILY_PROG_LABELS.forEach((lbl,i)=>{
+          const di=dailyLMap[lbl]; if(di===undefined) return;
+          fabActDay[i]=(fd.sw[di]||0)+(fd.ap[di]||0)+(fd.inf[di]||0);
+        });
+        let cFab=0; const fPlan=[],fAct=[];
+        let fabLastIdx=-1;
+        for(let i=fabActDay.length-1;i>=0;i--){ if(fabActDay[i]>0){fabLastIdx=i;break;} }
+        DAILY_PROG_LABELS.forEach((_,i)=>{
+          cFab+=fabActDay[i];
+          fPlan.push(DAILY_PROG_PLAN[i]||0);  // ใช้ overall plan % เป็น target
+          fAct.push(fabLastIdx<0||i<=fabLastIdx?Math.round(cFab/fabTotal*10000)/100:null);
+        });
+        DAILY_FAB_PROG[fab]={plan:fPlan,act:fAct};
+      });
+    }
     // ACT arrays ถูก carry-forward ผ่าน getActAll/SW/AP() แล้ว
 
     // ── อัพเดท UI ─────────────────────────────────────────────────────────
