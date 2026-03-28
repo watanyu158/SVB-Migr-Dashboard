@@ -2322,11 +2322,7 @@ function buildProgressCharts(){
   wrap.innerHTML = '';
 
   FABRICS.forEach(f => {
-    // ใช้ daily ถ้ามี ไม่งั้น weekly fallback
-    const fd = DAILY_FAB_PROG[f.n];
-    const fdWeekly = FAB_WEEKLY[f.n];
-    if (!fd && !fdWeekly) return;
-    const fabUseDaily = fd && fd.plan && fd.plan.length > 0;
+    if(!DAILY_FAB_PROG[f.n]||!DAILY_FAB_PROG[f.n].plan.length) return;
     const swPct = Math.round(f.sw.d/Math.max(f.sw.t,1)*100);
     const apPct = Math.round(f.ap.d/Math.max(f.ap.t,1)*100);
     const totPct= Math.round(f.d/Math.max(f.t,1)*100);
@@ -2373,20 +2369,10 @@ function buildProgressCharts(){
 
     const ctx2 = document.getElementById(cid);
     if (!ctx2) return;
-    if(fabUseDaily){
-      buildDailyChart(cid, DAILY_PROG_LABELS, fd.plan, fd.act, f.c+'88', f.c, 100, '%');
-    } else if(fdWeekly){
-      // weekly fallback: รวม SW+AP
-      const wPlan=fdWeekly.sw_plan.map((v,i)=>{
-        const ap=fdWeekly.ap_plan[i]||0; const sw=v||0;
-        return sw>0||ap>0 ? Math.round((sw+ap)/2*10)/10 : (sw||ap);
-      });
-      let _fl=null; const wAct=WK.map((_,i)=>{
-        const sv=fdWeekly.sw_act[i], av=fdWeekly.ap_act[i];
-        const v=(sv!=null||av!=null)?((sv||0)+(av||0))/2:null;
-        if(v!=null)_fl=v; return i<=TODAY_WK?_fl:null;
-      });
-      buildDailyChart(cid, WK, fdWeekly.sw_plan, wAct, f.c+'88', f.c, 100, '%');
+    // ใช้ DAILY_FAB_PROG เสมอ (คำนวณจาก FAB_DAILY daily data แล้ว)
+    const fabDailyData = DAILY_FAB_PROG[f.n];
+    if(fabDailyData && fabDailyData.plan.length){
+      buildDailyChart(cid, DAILY_PROG_LABELS, fabDailyData.plan, fabDailyData.act, f.c+'88', f.c, 100, '%');
     }
   });
 }
