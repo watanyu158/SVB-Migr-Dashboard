@@ -2835,6 +2835,67 @@ async function loadData(){
         DAILY_FAB_PROG[f]={plan:[...(dp.fab[f].plan||[])], act:[...(dp.fab[f].act||[])]};
       });
     }
+    // คำนวณ daily SW/AP/BD/Fab จาก DAILY_L+DAILY_SW/AP ถ้า server เก่าไม่ส่ง daily_progress
+    if(DAILY_PROG_LABELS.length && !DAILY_SW_PLAN.length && DAILY_L.length){
+      const TOTAL_SW_T=1121, TOTAL_AP_T=445, TOTAL_T=1592;
+      // สร้าง map label→index จาก DAILY_PROG_LABELS
+      const lblMap={};
+      DAILY_PROG_LABELS.forEach((l,i)=>lblMap[l]=i);
+      // daily SW/AP actual arrays ตาม DAILY_PROG_LABELS
+      const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+      const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+      DAILY_L.forEach((lbl,di)=>{
+        // แปลง format: DAILY_L ใช้ "9/02" DAILY_PROG_LABELS ใช้ "9/02" เหมือนกัน
+        const idx=lblMap[lbl]; if(idx===undefined) return;
+        swActDay[idx]+=(DAILY_SW[di]||0);
+        apActDay[idx]+=(DAILY_AP[di]||0);
+      });
+      // cumulative + null หลัง last install
+      const lastInstLbl=getLastInstallLabel();
+      const lastInstIdx=lastInstLbl!==null?lblMap[lastInstLbl]:-1;
+      let cSW=0,cAP=0,cAll=0;
+      DAILY_SW_PLAN.length=0; DAILY_SW_ACT.length=0;
+      DAILY_AP_PLAN.length=0; DAILY_AP_ACT.length=0;
+      DAILY_BD_ACT.length=0;
+      // plan ใช้จาก DAILY_PROG_PLAN ที่มีอยู่แล้ว คำนวณ sw/ap plan จาก ratio
+      const swRatio=TOTAL_SW_T/TOTAL_T, apRatio=TOTAL_AP_T/TOTAL_T;
+      DAILY_PROG_LABELS.forEach((_,i)=>{
+        cSW+=swActDay[i]; cAP+=apActDay[i]; cAll=cSW+cAP;
+        const inAct=lastInstIdx<0||i<=lastInstIdx;
+        DAILY_SW_PLAN.push(Math.round((DAILY_PROG_PLAN[i]||0)*swRatio*100)/100);
+        DAILY_SW_ACT.push(inAct?Math.round(cSW/TOTAL_SW_T*10000)/100:null);
+        DAILY_AP_PLAN.push(Math.round((DAILY_PROG_PLAN[i]||0)*apRatio*100)/100);
+        DAILY_AP_ACT.push(inAct?Math.round(cAP/TOTAL_AP_T*10000)/100:null);
+        DAILY_BD_ACT.push(inAct?TOTAL_T-cAll:null);
+      });
+      // BD plan จาก DAILY_PROG_PLAN
+      DAILY_BD_PLAN.length=0;
+      DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
+      // per-fabric จาก FAB_DAILY
+      Object.keys(FAB_DAILY).forEach(fab=>{
+        const fd=FAB_DAILY[fab]; if(!fd) return;
+        const fabMap={}; DAILY_L.forEach((l,i)=>fabMap[l]=i);
+        const fabActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+        DAILY_PROG_LABELS.forEach((lbl,i)=>{
+          const di=fabMap[lbl]; if(di===undefined) return;
+          fabActDay[i]=(fd.sw[di]||0)+(fd.ap[di]||0)+(fd.inf[di]||0);
+        });
+        const fabTotal=FAB_PLAN_TOTALS[fab]||1;
+        const fabColors=FAB_COLORS[fab];
+        let cFab=0; const fPlan=[],fAct=[];
+        // หา last install ของ fab นี้
+        let fabLastIdx=-1;
+        for(let i=fabActDay.length-1;i>=0;i--){ if(fabActDay[i]>0){fabLastIdx=i;break;} }
+        DAILY_PROG_LABELS.forEach((_,i)=>{
+          cFab+=fabActDay[i];
+          fPlan.push(Math.round((DAILY_PROG_PLAN[i]||0)*100)/100);
+          fAct.push(fabLastIdx<0||i<=fabLastIdx?Math.round(cFab/fabTotal*10000)/100:null);
+        });
+        DAILY_FAB_PROG[fab]={plan:fPlan,act:fAct};
+      });
+    }
+    if(false){  // dummy close for _safe block replacement
+    }
     console.warn('=== API DATA ===');
     console.warn('act_all W12=', weekly.act_all[5], 'W13=', weekly.act_all[6]);
     console.warn('bd_act  W12=', weekly.bd_act[5],  'W13=', weekly.bd_act[6]);
