@@ -1326,36 +1326,49 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
     return (i <= TODAY_WK) ? _last : null;
   });
 
-  // today line plugin
+  // today line + last install label plugin
   const _pid=canvasId+'_'+Date.now();
   const _tdPlg={id:'td_'+_pid,afterDraw(chart){
-    const m=chart.getDatasetMeta(0);
-    if(!m.data[TODAY_WK]) return;
+    const m0=chart.getDatasetMeta(0);
+    if(!m0.data[TODAY_WK]) return;
     const {top,bottom}=chart.chartArea;
     const cv=chart.ctx;
+    const x0=m0.data[TODAY_WK].x;
+    const x1=m0.data[TODAY_WK+1]?m0.data[TODAY_WK+1].x:x0;
 
-    // วาดเส้นยืดจาก W13 → last install date
+    // วาดเส้นยืดจากจุดสุดท้าย → last install x position + label
     const liF=getLastInstallFrac();
-    if(liF!==null && m.data[TODAY_WK+1]){
-      const x0li=m.data[TODAY_WK].x, x1li=m.data[TODAY_WK+1].x;
-      const xLi=x0li+(x1li-x0li)*liF;
+    const liLbl=getLastInstallLabel();
+    if(liF!==null && liLbl){
+      const xLi=x0+(x1-x0)*liF;
       const m1=chart.getDatasetMeta(1);
       const lastPt=m1.data[TODAY_WK];
-      if(lastPt && lastPt.y){
+      if(lastPt){
         cv.save();
+        // เส้นยาว
         cv.beginPath(); cv.moveTo(lastPt.x,lastPt.y); cv.lineTo(xLi,lastPt.y);
         cv.strokeStyle=actColor||'#4361ee'; cv.lineWidth=2.5; cv.setLineDash([]); cv.stroke();
-        cv.beginPath(); cv.arc(xLi,lastPt.y,3,0,Math.PI*2);
+        // จุดปลาย
+        cv.beginPath(); cv.arc(xLi,lastPt.y,4,0,Math.PI*2);
         cv.fillStyle=actColor||'#4361ee'; cv.fill();
+        // label วันที่ + % บนจุด
+        const pct=actFull[TODAY_WK];
+        cv.font='bold 9px Segoe UI,sans-serif';
+        cv.fillStyle=actColor||'#4361ee';
+        cv.textAlign='center'; cv.textBaseline='bottom';
+        cv.fillText(liLbl, xLi, lastPt.y-9);
+        if(pct!=null){
+          cv.font='bold 9px Segoe UI,sans-serif';
+          cv.fillText(pct.toFixed(1)+'%', xLi, lastPt.y+14);
+        }
         cv.restore();
       }
     }
 
     // today line
-    const x0=m.data[TODAY_WK].x,x1=m.data[TODAY_WK+1]?m.data[TODAY_WK+1].x:x0;
-    const x=x0+(x1-x0)*getTodayFrac();
+    const xT=x0+(x1-x0)*getTodayFrac();
     cv.save();
-    cv.beginPath();cv.moveTo(x,top);cv.lineTo(x,bottom);
+    cv.beginPath();cv.moveTo(xT,top);cv.lineTo(xT,bottom);
     cv.strokeStyle='#ee4b4b';cv.lineWidth=1.2;cv.setLineDash([4,3]);cv.stroke();
     cv.setLineDash([]);cv.restore();
   }};
@@ -1924,18 +1937,26 @@ function buildBurndown(){
   const x1=m.data[TODAY_WK+1]?m.data[TODAY_WK+1].x:x0;
   const cv=chart.ctx;
 
-  // วาดเส้นยืดจาก W13 → last install date
+  // วาดเส้น + จุด last install date บน burndown
   const liF=getLastInstallFrac();
+  const liLbl=getLastInstallLabel();
   if(liF!==null && m.data[TODAY_WK+1]){
     const xLi=x0+(x1-x0)*liF;
     const m1=chart.getDatasetMeta(1);
-    const lastPt=m1.data[TODAY_WK];
-    if(lastPt && lastPt.y){
+    const actDs=chart.data.datasets[1].data;
+    const lastIdx=actDs.reduce((a,v,j)=>v!=null?j:a,-1);
+    const lastPt=lastIdx>=0?m1.data[lastIdx]:null;
+    if(lastPt && isFinite(lastPt.y)){
       cv.save();
       cv.beginPath(); cv.moveTo(lastPt.x,lastPt.y); cv.lineTo(xLi,lastPt.y);
       cv.strokeStyle='#2bc48a'; cv.lineWidth=2.5; cv.setLineDash([]); cv.stroke();
-      cv.beginPath(); cv.arc(xLi,lastPt.y,3,0,Math.PI*2);
+      cv.beginPath(); cv.arc(xLi,lastPt.y,4,0,Math.PI*2);
       cv.fillStyle='#2bc48a'; cv.fill();
+      if(liLbl){
+        cv.font='bold 9px Segoe UI,sans-serif'; cv.fillStyle='#2bc48a';
+        cv.textAlign='center'; cv.textBaseline='bottom';
+        cv.fillText(liLbl, xLi, lastPt.y-8);
+      }
       cv.restore();
     }
   }
@@ -2069,27 +2090,29 @@ function buildProgressCharts(){
       const m0=chart.getDatasetMeta(0);
       const cv=chart.ctx;
 
-      // วาดเส้นยืดจาก W13 point → last install date (26/03)
+      // วาดเส้น + จุด + label last install date
       const liF=getLastInstallFrac();
-      if(liF!==null && m0.data[TODAY_WK] && m0.data[TODAY_WK+1]){
-        const x0li=m0.data[TODAY_WK].x, x1li=m0.data[TODAY_WK+1].x;
-        const xLi=x0li+(x1li-x0li)*liF;
-        // ดึงค่า y ของจุดสุดท้ายในเส้นจริง (dataset index 1)
+      const liLbl=getLastInstallLabel();
+      if(liF!==null && m0.data[TODAY_WK+1]){
+        const xLi=m0.data[TODAY_WK].x+(m0.data[TODAY_WK+1].x-m0.data[TODAY_WK].x)*liF;
+        // หาจุดสุดท้ายที่มีค่าจริงใน dataset actual (index 1)
         const m1=chart.getDatasetMeta(1);
-        const lastPt=m1.data[TODAY_WK];
-        if(lastPt){
+        const actDs=chart.data.datasets[1].data;
+        const lastNonNullIdx=actDs.reduce((a,v,j)=>v!=null?j:a,-1);
+        const lastPt=lastNonNullIdx>=0?m1.data[lastNonNullIdx]:null;
+        if(lastPt && isFinite(lastPt.y)){
+          const col='#4361ee';
           cv.save();
-          cv.beginPath(); cv.moveTo(lastPt.x, lastPt.y); cv.lineTo(xLi, lastPt.y);
-          cv.strokeStyle='#4361ee'; cv.lineWidth=2.5; cv.setLineDash([]); cv.stroke();
-          // จุดปลาย
-          cv.beginPath(); cv.arc(xLi, lastPt.y, 4, 0, Math.PI*2);
-          cv.fillStyle='#4361ee'; cv.fill();
-          // label วันที่
-          const liLbl=getLastInstallLabel();
+          cv.beginPath(); cv.moveTo(lastPt.x,lastPt.y); cv.lineTo(xLi,lastPt.y);
+          cv.strokeStyle=col; cv.lineWidth=2.5; cv.setLineDash([]); cv.stroke();
+          cv.beginPath(); cv.arc(xLi,lastPt.y,4,0,Math.PI*2);
+          cv.fillStyle=col; cv.fill();
           if(liLbl){
-            cv.font='bold 9px Segoe UI'; cv.fillStyle='#4361ee';
-            cv.textAlign='center'; cv.textBaseline='bottom';
-            cv.fillText(liLbl, xLi, lastPt.y-7);
+            const pct=actDs[lastNonNullIdx];
+            cv.font='bold 10px Segoe UI,sans-serif';
+            cv.fillStyle=col; cv.textAlign='center';
+            cv.textBaseline='bottom'; cv.fillText(liLbl, xLi, lastPt.y-8);
+            if(pct!=null){ cv.textBaseline='top'; cv.fillText(pct.toFixed(1)+'%', xLi, lastPt.y+8); }
           }
           cv.restore();
         }
