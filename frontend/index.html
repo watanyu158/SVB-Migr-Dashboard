@@ -2131,11 +2131,11 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
     });
   }};
 
-  // actColor with opacity สำหรับ fill
-  const fillColor = (actColor||'#4361ee')
-    .replace('#','').match(/.{2}/g)
-    .map(h=>parseInt(h,16));
-  const fillBg = `rgba(${fillColor[0]},${fillColor[1]},${fillColor[2]},0.06)`;
+  // actColor with opacity สำหรับ fill (robust — handle any color format)
+  const _baseColor = (actColor||'#4361ee').replace(/[^#0-9a-fA-F]/g,'').slice(0,6);
+  const _hex = _baseColor.length===6 ? _baseColor : '4361ee';
+  const _r=parseInt(_hex.slice(0,2),16), _g=parseInt(_hex.slice(2,4),16), _b=parseInt(_hex.slice(4,6),16);
+  const fillBg = `rgba(${_r},${_g},${_b},0.06)`;
 
   return new Chart(ctx,{
     type:'line', plugins:[tdPlugin,lblPlugin],
