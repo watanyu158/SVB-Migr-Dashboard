@@ -2120,8 +2120,8 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
         const v=ds.data[i]; if(v==null) return;
         if(i!==lastIdx && i%tickStep!==0) return;
         ctx2.save();
-        ctx2.font=isPlan?'9px Segoe UI':'bold 9px Segoe UI';
-        ctx2.fillStyle=isPlan?'#94a3c4':(actColor||'#4361ee');
+        ctx2.font=isPlan?'9px Segoe UI':'9px Segoe UI';
+        ctx2.fillStyle=isPlan?'#94a3c4':((actColor||'#4361ee')+'99');
         ctx2.textAlign='center';
         ctx2.textBaseline=isPlan?'bottom':'top';
         const suffix=yUnit==='%'?'%':' เครื่อง';
@@ -2361,8 +2361,10 @@ function buildProgressCharts(){
       '</div>'+
       '<div style="height:190px"><canvas id="'+cid+'"></canvas></div>'+
       '<div class="cleg" style="margin-top:6px">'+
-        '<div class="cl"><div class="cld"></div>แผน (%)</div>'+
-        '<div class="cl"><div class="cll" style="background:'+f.c+'"></div>จริง (%)</div>'+
+        '<div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>SW แผน</div>'+
+        '<div class="cl"><div class="cll" style="background:#4361ee"></div>SW จริง</div>'+
+        '<div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>AP แผน</div>'+
+        '<div class="cl"><div class="cll" style="background:#2bc48a"></div>AP จริง</div>'+
         '<div class="cl" style="color:var(--danger);font-size:11px">| วันนี้</div>'+
       '</div>';
     wrap.appendChild(div);
@@ -2371,8 +2373,66 @@ function buildProgressCharts(){
     if (!ctx2) return;
     // ใช้ DAILY_FAB_PROG เสมอ (คำนวณจาก FAB_DAILY daily data แล้ว)
     const fabDailyData = DAILY_FAB_PROG[f.n];
-    if(fabDailyData && fabDailyData.plan.length){
-      buildDailyChart(cid, DAILY_PROG_LABELS, fabDailyData.plan, fabDailyData.act, f.c+'88', f.c, 100, '%');
+    if(fabDailyData && fabDailyData.sw_plan && fabDailyData.sw_plan.length){
+      const ctx3=document.getElementById(cid);
+      if(!ctx3) return;
+      const ex3=Chart.getChart(ctx3); if(ex3) ex3.destroy();
+      const _uid3=cid+'_'+Date.now();
+      const lastSwIdx=fabDailyData.sw_act.reduce((a,v,j)=>v!=null?j:a,-1);
+      const lastApIdx=fabDailyData.ap_act.reduce((a,v,j)=>v!=null?j:a,-1);
+      const _tod=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+      const tdPl3={id:'td3_'+_uid3,afterDraw(chart){
+        const {top,bottom}=chart.chartArea; const cv3=chart.ctx;
+        const tIdx=chart.data.labels.indexOf(_tod);
+        if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
+        const x=chart.getDatasetMeta(0).data[tIdx].x;
+        cv3.save();
+        cv3.beginPath();cv3.moveTo(x,top);cv3.lineTo(x,bottom);
+        cv3.strokeStyle='#ee4b4b';cv3.lineWidth=1.2;cv3.setLineDash([4,3]);cv3.stroke();
+        cv3.setLineDash([]);
+        cv3.font='bold 9px Segoe UI,sans-serif';
+        const tw=cv3.measureText(_tod).width;
+        cv3.fillStyle='#ee4b4b';
+        cv3.beginPath();cv3.roundRect(x-tw/2-3,top-1,tw+6,13,3);cv3.fill();
+        cv3.fillStyle='#fff';cv3.textAlign='center';cv3.textBaseline='top';
+        cv3.fillText(_tod,x,top+2);cv3.restore();
+      }};
+      new Chart(ctx3,{
+        type:'line', plugins:[tdPl3],
+        data:{
+          labels:DAILY_PROG_LABELS,
+          datasets:[
+            {label:'SW แผน',data:fabDailyData.sw_plan,borderColor:'#818cf8',borderDash:[5,3],
+             borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,spanGaps:true},
+            {label:'SW จริง',data:fabDailyData.sw_act,borderColor:'#4361ee',borderWidth:2,
+             pointRadius:(c)=>c.dataIndex===lastSwIdx?4:0,
+             pointBackgroundColor:'#4361ee',tension:0.3,fill:false,spanGaps:false},
+            {label:'AP แผน',data:fabDailyData.ap_plan,borderColor:'#6ee7b7',borderDash:[5,3],
+             borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,spanGaps:true},
+            {label:'AP จริง',data:fabDailyData.ap_act,borderColor:'#2bc48a',borderWidth:2,
+             pointRadius:(c)=>c.dataIndex===lastApIdx?4:0,
+             pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
+          ]
+        },
+        options:{
+          responsive:true,maintainAspectRatio:false,
+          interaction:{mode:'index',intersect:false},
+          plugins:{legend:{display:false},
+            tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
+              bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
+              callbacks:{
+                title:items=>DAILY_PROG_LABELS[items[0].dataIndex]||'',
+                label:c=>c.parsed.y!=null?` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`:null
+              }
+            }
+          },
+          scales:{
+            x:{ticks:{font:{size:8},maxRotation:45,color:'#94a3c4',
+                 callback:(v,i)=>i%14===0?DAILY_PROG_LABELS[i]:null},grid:{display:false}},
+            y:{min:0,max:100,ticks:{font:{size:9},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
+          }
+        }
+      });
     }
   });
 }
@@ -2978,25 +3038,70 @@ async function loadData(){
       DAILY_BD_PLAN.length=0;
       DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
 
-      // per-fabric: FAB_DAILY[fab] เป็น array of total installs per DAILY_L index
-      Object.keys(FAB_DAILY).forEach(fab=>{
+      // per-fabric SW/AP แยกกัน จาก FAB_DAILY (total) และ FABRICS (sw.t, ap.t)
+      // FAB_DAILY[fab] = array[DAILY_L index] = total installs per day
+      // ใช้ ratio SW/(SW+AP+Inf) และ AP/(SW+AP+Inf) เพื่อแยก SW/AP จาก total daily
+      FABRICS.forEach(fab_obj=>{
+        const fab=fab_obj.n;
         const fd=FAB_DAILY[fab]; if(!fd) return;
-        const fabTotal=FAB_PLAN_TOTALS[fab]||1;
-        const fabActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+        const swT=fab_obj.sw.t||1, apT=fab_obj.sw.t+fab_obj.ap.t+fab_obj.inf.t||1;
+        const fabPlanArr = FAB_DAILY_PLAN[fab] || [];
+
+        // daily: แยก SW/AP จาก total ด้วย ratio จาก FABRICS
+        const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+        const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
+
+        // ใช้ FAB_DAILY SW/AP โดยตรงจาก daily.fab_daily ที่ server ส่งมา
+        // แต่ถ้าไม่มี ใช้ ratio estimate จาก total
+        const fdSW = FAB_DAILY[fab+'_sw'] || null;
+        const fdAP = FAB_DAILY[fab+'_ap'] || null;
+
         DAILY_PROG_LABELS.forEach((lbl,i)=>{
           const di=dailyLMap[lbl]; if(di===undefined) return;
-          // FAB_DAILY[fab] = array[DAILY_L index] = total installs (number)
-          fabActDay[i]=fd[di]||0;
+          const tot=fd[di]||0;
+          if(fdSW && fdAP){
+            swActDay[i]=fdSW[di]||0;
+            apActDay[i]=fdAP[di]||0;
+          } else {
+            // estimate SW/AP ratio จาก installed totals
+            const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+fab_obj.inf.t+0.001);
+            const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+fab_obj.inf.t+0.001);
+            swActDay[i]=Math.round(tot*swR);
+            apActDay[i]=Math.round(tot*apR);
+          }
         });
-        let cFab=0; const fPlan=[],fAct=[];
+
+        // หา last install idx
         let fabLastIdx=-1;
-        for(let i=fabActDay.length-1;i>=0;i--){ if(fabActDay[i]>0){fabLastIdx=i;break;} }
-        DAILY_PROG_LABELS.forEach((_,i)=>{
-          cFab+=fabActDay[i];
-          fPlan.push(DAILY_PROG_PLAN[i]||0);  // ใช้ overall plan % เป็น target
-          fAct.push(fabLastIdx<0||i<=fabLastIdx?Math.round(cFab/fabTotal*10000)/100:null);
+        for(let i=DAILY_PROG_LABELS.length-1;i>=0;i--){
+          if((swActDay[i]||0)+(apActDay[i]||0)>0){fabLastIdx=i;break;}
+        }
+
+        // cumulative SW plan/act และ AP plan/act
+        let cSwPlan=0,cApPlan=0,cSw=0,cAp=0;
+        const swPlan=[],swAct=[],apPlan=[],apAct=[];
+        const swTotal=fab_obj.sw.t||1, apTotal=fab_obj.ap.t||1;
+
+        DAILY_PROG_LABELS.forEach((lbl,i)=>{
+          const di=dailyLMap[lbl];
+          // plan: แยก SW/AP จาก FAB_DAILY_PLAN ด้วย ratio
+          const planTot=di!==undefined?(fabPlanArr[di]||0):0;
+          const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
+          const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
+          cSwPlan+=Math.round(planTot*swR);
+          cApPlan+=Math.round(planTot*apR);
+          cSw+=swActDay[i]; cAp+=apActDay[i];
+          const inAct=fabLastIdx<0||i<=fabLastIdx;
+          swPlan.push(Math.round(cSwPlan/swTotal*10000)/100);
+          swAct.push(inAct?Math.round(cSw/swTotal*10000)/100:null);
+          apPlan.push(Math.round(cApPlan/apTotal*10000)/100);
+          apAct.push(fab_obj.ap.t>0&&inAct?Math.round(cAp/apTotal*10000)/100:null);
         });
-        DAILY_FAB_PROG[fab]={plan:fPlan,act:fAct};
+
+        DAILY_FAB_PROG[fab]={
+          sw_plan:swPlan, sw_act:swAct,
+          ap_plan:apPlan, ap_act:apAct
+        };
       });
     }
     // ACT arrays ถูก carry-forward ผ่าน getActAll/SW/AP() แล้ว
