@@ -3184,6 +3184,7 @@ async function loadData(){
     console.log(`✓ SVB Dynamic: ${meta.installed}/${meta.total} rate=${ins.daily_rate} req=${ins.req_rate} W${d.today_wk+7}`);
   } catch(e){
     console.error('loadData error:', e.message);
+    console.error('Stack:', e.stack);
   } finally {
     hideLoading();
   }
