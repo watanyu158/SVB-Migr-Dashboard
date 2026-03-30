@@ -2353,6 +2353,8 @@ function buildProgressCharts(){
         const apLastIdx=apActDs?apActDs.data.reduce((a,v,j)=>v!=null?j:a,-1):-1;
         // pair: [dataset_index, shared_last_idx]
         const pairs=[[0,swLastIdx],[1,swLastIdx],[2,apLastIdx],[3,apLastIdx]];
+        // สีชัดเจน: actual ใช้สีเต็ม, plan ใช้สีเดียวกันแต่จาง
+        const pairColors=['#4361ee','#4361ee','#2bc48a','#2bc48a']; // actual color per di
         pairs.forEach(([di,sharedIdx])=>{
           if(sharedIdx<0) return;
           const ds=chart.data.datasets[di]; if(!ds) return;
@@ -2361,11 +2363,12 @@ function buildProgressCharts(){
           const pt=meta.data[sharedIdx]; if(!pt) return;
           const isPlan=di===0||di===2;
           ctx3c.save();
-          ctx3c.font='bold 9px Segoe UI';
-          ctx3c.fillStyle=ds.borderColor;
+          ctx3c.font=isPlan?'9px Segoe UI':'bold 9px Segoe UI';
+          ctx3c.fillStyle=isPlan?(pairColors[di]+'88'):pairColors[di];
           ctx3c.textAlign='left';
           ctx3c.textBaseline=isPlan?'bottom':'top';
-          ctx3c.fillText(v.toFixed(1)+'%', pt.x+5, isPlan?pt.y-2:pt.y+2);
+          const suffix=isPlan?' (แผน)':'';
+          ctx3c.fillText(v.toFixed(1)+'%'+suffix, pt.x+5, isPlan?pt.y-2:pt.y+2);
           ctx3c.restore();
         });
       }};
