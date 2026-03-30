@@ -2301,8 +2301,8 @@ function buildProgressCharts(){
         '<div style="width:10px;height:10px;border-radius:50%;background:'+f.c+';flex-shrink:0"></div>'+
         '<span style="font-size:13px;font-weight:700">'+f.n+'</span>'+
         '<div style="display:flex;gap:8px;margin-left:auto;font-size:11px">'+
-          '<span style="color:#4361ee;font-weight:600">SW: '+swPctLbl+'</span>'+
-          (f.ap.t>0?'<span style="color:#2bc48a;font-weight:600">AP: '+apPctLbl+'</span>':'')+
+          '<span style="color:#818cf8">SW: '+swPctLbl+'</span>'+
+          (f.ap.t>0?'<span style="color:#2bc48a">AP: '+apPctLbl+'</span>':'')+
         '</div>'+
       '</div>'+
       '<div style="height:190px"><canvas id="'+cid+'"></canvas></div>'+
@@ -2354,14 +2354,23 @@ function buildProgressCharts(){
         // pair: [dataset_index, shared_last_idx]
         const pairs=[[0,swLastIdx],[1,swLastIdx],[2,apLastIdx],[3,apLastIdx]];
         // สีชัดเจน: actual ใช้สีเต็ม, plan ใช้สีเดียวกันแต่จาง
-        const pairColors=['#4361ee','#4361ee','#2bc48a','#2bc48a']; // actual color per di
+        const pairColors=['#4361ee','#4361ee','#2bc48a','#2bc48a'];
+        // actual values จาก fab_obj (ตรงกับ Dashboard)
+        const actualVals=[
+          null,  // di=0: SW แผน — ใช้จาก data
+          f.sw.t>0?Math.round(f.sw.d/f.sw.t*1000)/10:null,  // di=1: SW จริง
+          null,  // di=2: AP แผน — ใช้จาก data
+          f.ap.t>0?Math.round(f.ap.d/f.ap.t*1000)/10:null,  // di=3: AP จริง
+        ];
         pairs.forEach(([di,sharedIdx])=>{
           if(sharedIdx<0) return;
           const ds=chart.data.datasets[di]; if(!ds) return;
-          const v=ds.data[sharedIdx]; if(v==null) return;
           const meta=chart.getDatasetMeta(di);
           const pt=meta.data[sharedIdx]; if(!pt) return;
           const isPlan=di===0||di===2;
+          // actual ใช้ค่าจาก fab_obj, plan ใช้จาก data array
+          const v=actualVals[di]!==null?actualVals[di]:ds.data[sharedIdx];
+          if(v==null) return;
           ctx3c.save();
           ctx3c.font=isPlan?'9px Segoe UI':'bold 9px Segoe UI';
           ctx3c.fillStyle=isPlan?(pairColors[di]+'88'):pairColors[di];
