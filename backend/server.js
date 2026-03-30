@@ -216,7 +216,10 @@ function calcDashboard(wb) {
       if (cat === 'Switch') dailyMap[dk].sw += ok;
       else if (cat === 'AP') dailyMap[dk].ap += ok;
       else dailyMap[dk].inf += ok;
-      fabDailyAct[fab][dk] = (fabDailyAct[fab][dk]||0) + ok;
+      if (!fabDailyAct[fab][dk]) fabDailyAct[fab][dk]={sw:0,ap:0,inf:0};
+      if (cat==='Switch') fabDailyAct[fab][dk].sw+=ok;
+      else if (cat==='AP') fabDailyAct[fab][dk].ap+=ok;
+      else fabDailyAct[fab][dk].inf+=ok;
     }
   });
 
@@ -270,10 +273,14 @@ function calcDashboard(wb) {
   };
   daily.cum_d = daily.cum_sw.map((v,i) => v + daily.cum_ap[i] + daily.cum_inf[i]);
 
-  // FAB_DAILY
+  // FAB_DAILY — แยก SW/AP/Inf
   const fabDaily = {}, fabDailyPlanOut = {};
   FABRICS.forEach(f => {
-    fabDaily[f] = sortedDates.map(d => fabDailyAct[f][d] || 0);
+    fabDaily[f] = {
+      sw:  sortedDates.map(d => (fabDailyAct[f][d]&&fabDailyAct[f][d].sw)  || 0),
+      ap:  sortedDates.map(d => (fabDailyAct[f][d]&&fabDailyAct[f][d].ap)  || 0),
+      inf: sortedDates.map(d => (fabDailyAct[f][d]&&fabDailyAct[f][d].inf) || 0),
+    };
     fabDailyPlanOut[f] = sortedDates.map(d => fabDailyPlan[f][d] || 0);
   });
 

@@ -3043,69 +3043,50 @@ async function loadData(){
       DAILY_BD_PLAN.length=0;
       DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
 
-      // per-fabric SW/AP แยกกัน จาก FAB_DAILY (total) และ FABRICS (sw.t, ap.t)
-      // FAB_DAILY[fab] = array[DAILY_L index] = total installs per day
-      // ใช้ ratio SW/(SW+AP+Inf) และ AP/(SW+AP+Inf) เพื่อแยก SW/AP จาก total daily
+      // per-fabric SW/AP — ใช้ FAB_DAILY[fab].sw/ap โดยตรง (server แยกให้แล้ว)
       FABRICS.forEach(fab_obj=>{
         const fab=fab_obj.n;
-        const fd=FAB_DAILY[fab]; if(!fd) return;
-        const swT=fab_obj.sw.t||1, apT=fab_obj.sw.t+fab_obj.ap.t+fab_obj.inf.t||1;
+        const fd=FAB_DAILY[fab]; if(!fd||!fd.sw) return;
         const fabPlanArr = FAB_DAILY_PLAN[fab] || [];
+        const swTotal=fab_obj.sw.t||1;
+        const apTotal=fab_obj.ap.t||1;
+        const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
+        const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
 
-        // daily: แยก SW/AP จาก total ด้วย ratio จาก FABRICS
+        // map actual per day ตาม DAILY_PROG_LABELS
         const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
         const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-
-        // ใช้ FAB_DAILY SW/AP โดยตรงจาก daily.fab_daily ที่ server ส่งมา
-        // แต่ถ้าไม่มี ใช้ ratio estimate จาก total
-        const fdSW = FAB_DAILY[fab+'_sw'] || null;
-        const fdAP = FAB_DAILY[fab+'_ap'] || null;
-
         DAILY_PROG_LABELS.forEach((lbl,i)=>{
           const di=dailyLMap[lbl]; if(di===undefined) return;
-          const tot=fd[di]||0;
-          if(fdSW && fdAP){
-            swActDay[i]=fdSW[di]||0;
-            apActDay[i]=fdAP[di]||0;
-          } else {
-            // estimate SW/AP ratio จาก installed totals
-            const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+fab_obj.inf.t+0.001);
-            const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+fab_obj.inf.t+0.001);
-            swActDay[i]=Math.round(tot*swR);
-            apActDay[i]=Math.round(tot*apR);
-          }
+          swActDay[i]=fd.sw[di]||0;
+          apActDay[i]=fd.ap[di]||0;
         });
 
-        // หา last install idx
+        // หา last install idx (SW หรือ AP)
         let fabLastIdx=-1;
         for(let i=DAILY_PROG_LABELS.length-1;i>=0;i--){
-          if((swActDay[i]||0)+(apActDay[i]||0)>0){fabLastIdx=i;break;}
+          if(swActDay[i]+apActDay[i]>0){fabLastIdx=i;break;}
         }
 
-        // cumulative SW plan/act และ AP plan/act
         let cSwPlan=0,cApPlan=0,cSw=0,cAp=0;
-        const swPlan=[],swAct=[],apPlan=[],apAct=[];
-        const swTotal=fab_obj.sw.t||1, apTotal=fab_obj.ap.t||1;
+        const swPlanArr=[],swActArr=[],apPlanArr=[],apActArr=[];
 
         DAILY_PROG_LABELS.forEach((lbl,i)=>{
           const di=dailyLMap[lbl];
-          // plan: แยก SW/AP จาก FAB_DAILY_PLAN ด้วย ratio
           const planTot=di!==undefined?(fabPlanArr[di]||0):0;
-          const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
-          const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
           cSwPlan+=Math.round(planTot*swR);
           cApPlan+=Math.round(planTot*apR);
           cSw+=swActDay[i]; cAp+=apActDay[i];
           const inAct=fabLastIdx<0||i<=fabLastIdx;
-          swPlan.push(Math.round(cSwPlan/swTotal*10000)/100);
-          swAct.push(inAct?Math.round(cSw/swTotal*10000)/100:null);
-          apPlan.push(Math.round(cApPlan/apTotal*10000)/100);
-          apAct.push(fab_obj.ap.t>0&&inAct?Math.round(cAp/apTotal*10000)/100:null);
+          swPlanArr.push(Math.round(cSwPlan/swTotal*10000)/100);
+          swActArr.push(inAct?Math.round(cSw/swTotal*10000)/100:null);
+          apPlanArr.push(Math.round(cApPlan/apTotal*10000)/100);
+          apActArr.push(apTotal>0&&inAct?Math.round(cAp/apTotal*10000)/100:null);
         });
 
         DAILY_FAB_PROG[fab]={
-          sw_plan:swPlan, sw_act:swAct,
-          ap_plan:apPlan, ap_act:apAct
+          sw_plan:swPlanArr, sw_act:swActArr,
+          ap_plan:apPlanArr, ap_act:apActArr
         };
       });
     }
