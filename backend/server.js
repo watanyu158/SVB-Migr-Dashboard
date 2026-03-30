@@ -109,13 +109,11 @@ function calcDashboard(wb) {
   const aRows = XLSX.utils.sheet_to_json(wsA, { defval:null });
 
   // Overview
-  // installed/SW/AP from Dashboard sheet
-  // dRows[5][3] = "Actual Installed" = 485
-  // dRows[18][2] = SW Done = 394, dRows[19][2] = AP Done = 67, dRows[20][2] = Infra Done = 24
-  const installed     = (dRows[5]&&dRows[5][3])   || 0;   // 485
-  const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;   // 394
-  const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;   // 67
-  const INSTALLED_INF = (dRows[20]&&dRows[20][2]) || 0;   // 24
+  // installed/SW/AP from Dashboard sheet (rows 4=total, 18=SW, 19=AP)
+  const installed = (dRows[5]&&dRows[5][3]) || (dRows[6]&&dRows[6][3]) || 0;
+  const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;  // SW Done
+  const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;  // AP Done
+  const INSTALLED_INF = installed - INSTALLED_SW - INSTALLED_AP;
 
   // hold = นับจำนวน rows ที่ Status='Hold' (ไม่ใช่ qty)
   const hold = aRows.filter(r => r['Status'] === 'Hold').length;
@@ -166,6 +164,8 @@ function calcDashboard(wb) {
   const typeMap = {};
   const locMap  = {}; // fab → loc → {t,d}
 
+  // นับ Qty.Success ทั้งหมด (ไม่ require Install Date) — ตรงกับ Dashboard
+  let totalSwOk=0, totalApOk=0, totalInfOk=0;
   aRows.forEach(r => {
     const fab  = r['Fabric'];
     const cat  = r['Category'];
@@ -206,7 +206,7 @@ function calcDashboard(wb) {
       fabDailyPlan[fab][dk] = (fabDailyPlan[fab][dk]||0) + qty;
     }
 
-    // Install date → actual
+    // Install date → actual (daily timeline ต้องมี Install Date)
     let instDt = r['Install Date'];
     if (typeof instDt === 'number') instDt = new Date((instDt - 25569) * 86400000);
     if (instDt && ok > 0) {
@@ -225,6 +225,12 @@ function calcDashboard(wb) {
       if (cat==='Switch') fabDailyAct[fab][dk].sw+=ok;
       else if (cat==='AP') fabDailyAct[fab][dk].ap+=ok;
       else fabDailyAct[fab][dk].inf+=ok;
+    }
+    // นับ ok ทุก row (เหมือน Dashboard) — ไม่ require Install Date
+    if (ok > 0) {
+      if (cat === 'Switch') totalSwOk += ok;
+      else if (cat === 'AP') totalApOk += ok;
+      else totalInfOk += ok;
     }
   });
 
@@ -321,6 +327,7 @@ function calcDashboard(wb) {
 
   // on-time = installed ที่ Install Date <= Scheduled Date
   let onTimeQty = 0, earlyQty = 0, lateQty = 0;
+  // นับ Qty.Success ทั้งหมด (ไม่ require Install Date) — ตรงกับ Dashboard
   aRows.forEach(r => {
     const ok    = r['Qty. Success'] || 0;
     let instDt  = r['Install Date'];
@@ -354,6 +361,7 @@ function calcDashboard(wb) {
 
   // Last install date
   let lastInstallDate = null;
+  // นับ Qty.Success ทั้งหมด (ไม่ require Install Date) — ตรงกับ Dashboard
   aRows.forEach(r => {
     let d = r['Install Date'];
     if (typeof d === 'number') d = new Date((d - 25569) * 86400000);
@@ -373,6 +381,7 @@ function calcDashboard(wb) {
   const dayFabAct={}, dayFabPlan={}, dayFabSwPlan={}, dayFabApPlan={};
   FABRICS.forEach(f=>{ dayFabAct[f]={}; dayFabPlan[f]={}; dayFabSwPlan[f]={}; dayFabApPlan[f]={}; });
 
+  // นับ Qty.Success ทั้งหมด (ไม่ require Install Date) — ตรงกับ Dashboard
   aRows.forEach(r => {
     const fab   = r['Fabric'];
     const cat   = r['Category'];
