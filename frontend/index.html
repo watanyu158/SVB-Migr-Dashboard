@@ -2376,7 +2376,7 @@ function buildProgressCharts(){
           ctx3c.fillStyle=isPlan?(pairColors[di]+'88'):pairColors[di];
           ctx3c.textAlign='left';
           ctx3c.textBaseline=isPlan?'bottom':'top';
-          const suffix=isPlan?' (แผน)':'';
+          const suffix='';
           ctx3c.fillText(v.toFixed(1)+'%'+suffix, pt.x+5, isPlan?pt.y-2:pt.y+2);
           ctx3c.restore();
         });
