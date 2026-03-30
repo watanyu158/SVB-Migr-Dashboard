@@ -2141,7 +2141,10 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
       labels,
       datasets:[
         {label:'แผน',data:planData,borderColor:planColor||'#94a3c4',borderDash:[5,3],
-         borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,spanGaps:true},
+         borderWidth:1.5,
+         pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
+         pointBackgroundColor:planColor||'#94a3c4',
+         tension:0.3,fill:false,spanGaps:true},
         {label:'จริง',data:actData,borderColor:actColor||'#4361ee',borderWidth:2.5,
          pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
          pointBackgroundColor:actColor||'#4361ee',tension:0.3,
@@ -2423,12 +2426,16 @@ function buildProgressCharts(){
           labels:DAILY_PROG_LABELS,
           datasets:[
             {label:'SW แผน',data:fabDailyData.sw_plan,borderColor:'#818cf8',borderDash:[5,3],
-             borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,spanGaps:true},
+             borderWidth:1.5,
+             pointRadius:(c)=>c.dataIndex===lastSwIdx?3:0,
+             pointBackgroundColor:'#818cf8',tension:0.3,fill:false,spanGaps:true},
             {label:'SW จริง',data:fabDailyData.sw_act,borderColor:'#4361ee',borderWidth:2,
              pointRadius:(c)=>c.dataIndex===lastSwIdx?3:0,
              pointBackgroundColor:'#4361ee',tension:0.3,fill:false,spanGaps:false},
             {label:'AP แผน',data:fabDailyData.ap_plan,borderColor:'#6ee7b7',borderDash:[5,3],
-             borderWidth:1.5,pointRadius:0,tension:0.3,fill:false,spanGaps:true},
+             borderWidth:1.5,
+             pointRadius:(c)=>c.dataIndex===lastApIdx?3:0,
+             pointBackgroundColor:'#6ee7b7',tension:0.3,fill:false,spanGaps:true},
             {label:'AP จริง',data:fabDailyData.ap_act,borderColor:'#2bc48a',borderWidth:2,
              pointRadius:(c)=>c.dataIndex===lastApIdx?3:0,
              pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
@@ -2967,8 +2974,8 @@ async function loadData(){
       _safe(dp.bd_act,   DAILY_BD_ACT);
       Object.keys(dp.fab||{}).forEach(f=>{
         DAILY_FAB_PROG[f]={
-          sw_plan:[...(dp.fab[f].sw_plan||dp.fab[f].plan||[])],
-          sw_act: [...(dp.fab[f].sw_act ||dp.fab[f].act ||[])],
+          sw_plan:[...(dp.fab[f].sw_plan||[])],
+          sw_act: [...(dp.fab[f].sw_act ||dp.fab[f].act||[])],
           ap_plan:[...(dp.fab[f].ap_plan||[])],
           ap_act: [...(dp.fab[f].ap_act ||[])],
         };
@@ -3103,26 +3110,22 @@ async function loadData(){
         const swPlanArr=[],swActArr=[],apPlanArr=[],apActArr=[];
 
         // ใช้ sw_plan/ap_plan จาก server โดยตรง ถ้ามี
-        const fdSwPlan = (isNewFmt && fd.sw_plan) ? fd.sw_plan : null;
-        const fdApPlan = (isNewFmt && fd.ap_plan) ? fd.ap_plan : null;
-
+        // plan ใช้จาก DAILY_FAB_PROG ที่ _safe block load มาแล้ว (จาก dailyProgress.fab)
+        // compute เฉพาะ actual
         DAILY_PROG_LABELS.forEach((lbl,i)=>{
-          const di=dailyLMap[lbl];
-          // SW plan: ใช้ fd.sw_plan ถ้ามี ไม่งั้น fallback ratio
-          const swPlanQty = fdSwPlan&&di!==undefined ? (fdSwPlan[di]||0) : (di!==undefined?(fabPlanArr[di]||0)*swR:0);
-          const apPlanQty = fdApPlan&&di!==undefined ? (fdApPlan[di]||0) : (di!==undefined?(fabPlanArr[di]||0)*apR:0);
-          cSwPlan+=swPlanQty; cApPlan+=apPlanQty;
           cSw+=swActDay[i]; cAp+=apActDay[i];
           const inAct=fabLastIdx<0||i<=fabLastIdx;
-          swPlanArr.push(Math.round(cSwPlan/swTotal*10000)/100);
           swActArr.push(inAct?Math.round(cSw/swTotal*10000)/100:null);
-          apPlanArr.push(Math.round(cApPlan/apTotal*10000)/100);
           apActArr.push(apTotal>0&&inAct?Math.round(cAp/apTotal*10000)/100:null);
         });
 
+        // merge actual กับ plan ที่มีอยู่แล้ว
+        const existing = DAILY_FAB_PROG[fab]||{};
         DAILY_FAB_PROG[fab]={
-          sw_plan:swPlanArr, sw_act:swActArr,
-          ap_plan:apPlanArr, ap_act:apActArr
+          sw_plan: existing.sw_plan||swActArr.map(()=>0),
+          sw_act:  swActArr,
+          ap_plan: existing.ap_plan||apActArr.map(()=>0),
+          ap_act:  apActArr
         };
       });
     }

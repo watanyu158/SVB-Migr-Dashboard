@@ -398,11 +398,10 @@ function calcDashboard(wb) {
     }
   });
 
-  // เพิ่ม sw_plan/ap_plan per day ลงใน fabDaily หลัง populate เสร็จแล้ว
-  FABRICS.forEach(f => {
-    fabDaily[f].sw_plan = sortedDates.map(d => dayFabSwPlan[f][d] || 0);
-    fabDaily[f].ap_plan = sortedDates.map(d => dayFabApPlan[f][d] || 0);
-  });
+  // sw_plan/ap_plan ใช้ sortedDates เดิม (actual+plan dates รวมกัน)
+  // NOTE: sortedDates อาจไม่มี future plan dates → ใช้ projDates แทน
+  // projDates ถูก build ใน dailyProgress loop ด้านล่าง — เพิ่มที่นั่นแทน
+
 
   // หา last install date per fabric
   const fabLastInstall = {};
@@ -435,6 +434,13 @@ function calcDashboard(wb) {
     _c2.setDate(_c2.getDate()+1);
   }
 
+  // SW/AP plan total per fabric (จาก fabSwPlan weekly sum)
+  const fabSwPlanTotal={}, fabApPlanTotal={};
+  FABRICS.forEach(f => {
+    fabSwPlanTotal[f] = Object.values(dayFabSwPlan[f]).reduce((a,v)=>a+v,0)||1;
+    fabApPlanTotal[f] = Object.values(dayFabApPlan[f]).reduce((a,v)=>a+v,0)||1;
+  });
+
   const cur = new Date(PROJ_START_D);
   while (cur <= PROJ_END_D) {
     const k  = cur.toISOString().slice(0,10);
@@ -452,6 +458,15 @@ function calcDashboard(wb) {
     dailyProgress.labels.push(lbl);
     dailyProgress.plan_cum.push(pct(cPlan/TOTAL));
     dailyProgress.act_cum.push(inAct ? pct(cAll/TOTAL) : null);
+    // push sw_plan/ap_plan ใน dailyProgress.fab[f] (same index กับ labels)
+    FABRICS.forEach(f => {
+      if (!dailyProgress.fab[f].sw_plan) { dailyProgress.fab[f].sw_plan=[]; dailyProgress.fab[f]._spc=0; dailyProgress.fab[f]._apc=0; }
+      dailyProgress.fab[f]._spc += dayFabSwPlan[f][k]||0;
+      dailyProgress.fab[f]._apc += dayFabApPlan[f][k]||0;
+      dailyProgress.fab[f].sw_plan.push(pct(dailyProgress.fab[f]._spc/(fabSwPlanTotal[f]||1)));
+      if (!dailyProgress.fab[f].ap_plan) dailyProgress.fab[f].ap_plan=[];
+      dailyProgress.fab[f].ap_plan.push(pct(dailyProgress.fab[f]._apc/(fabApPlanTotal[f]||1)));
+    });
 
     const swT = TOTAL_SW||1, apT = TOTAL_AP||1;
     dailyProgress.sw_plan.push(pct(cSWp/swT));
