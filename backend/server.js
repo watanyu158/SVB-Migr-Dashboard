@@ -109,11 +109,13 @@ function calcDashboard(wb) {
   const aRows = XLSX.utils.sheet_to_json(wsA, { defval:null });
 
   // Overview
-  // installed/SW/AP from Dashboard sheet (rows 4=total, 18=SW, 19=AP)
-  const installed = (dRows[5]&&dRows[5][3]) || (dRows[6]&&dRows[6][3]) || 0;
-  const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;  // SW Done
-  const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;  // AP Done
-  const INSTALLED_INF = installed - INSTALLED_SW - INSTALLED_AP;
+  // installed/SW/AP from Dashboard sheet
+  // dRows[5][3] = "Actual Installed" = 485
+  // dRows[18][2] = SW Done = 394, dRows[19][2] = AP Done = 67, dRows[20][2] = Infra Done = 24
+  const installed     = (dRows[5]&&dRows[5][3])   || 0;   // 485
+  const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;   // 394
+  const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;   // 67
+  const INSTALLED_INF = (dRows[20]&&dRows[20][2]) || 0;   // 24
 
   // hold = นับจำนวน rows ที่ Status='Hold' (ไม่ใช่ qty)
   const hold = aRows.filter(r => r['Status'] === 'Hold').length;

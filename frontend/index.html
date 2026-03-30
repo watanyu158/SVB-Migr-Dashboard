@@ -3308,9 +3308,9 @@ async function loadData(){
     }
 
     // overview cards
-    const sw=fabrics.reduce((a,f)=>a+f.sw.d,0);
-    const ap=fabrics.reduce((a,f)=>a+f.ap.d,0);
-    const inf=fabrics.reduce((a,f)=>a+f.inf.d,0);
+    const sw = (meta.installed_sw!=null?meta.installed_sw:fabrics.reduce((a,f)=>a+f.sw.d,0));
+    const ap = (meta.installed_ap!=null?meta.installed_ap:fabrics.reduce((a,f)=>a+f.ap.d,0));
+    const inf= (meta.installed_inf!=null?meta.installed_inf:fabrics.reduce((a,f)=>a+f.inf.d,0));
     const swT=fabrics.reduce((a,f)=>a+f.sw.t,0)||1;
     const apT=fabrics.reduce((a,f)=>a+f.ap.t,0)||1;
     const infT=fabrics.reduce((a,f)=>a+f.inf.t,0)||1;
