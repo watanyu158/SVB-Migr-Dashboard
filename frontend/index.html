@@ -2173,7 +2173,7 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
              callback:(v,i)=>i%tickStep===0?labels[i]:null},
            grid:{display:false}},
         y:{min:0,max:yMax||100,
-           ticks:{font:{size:10},color:'#94a3c4',
+           ticks:{font:{size:10},color:'#94a3c4',stepSize:yUnit==='%'?10:undefined,
              callback:v=>yUnit==='%'?v+'%':v.toLocaleString()},
            grid:{color:'#f0f4ff'}}
       }
@@ -2275,7 +2275,7 @@ function buildProgressCharts(){
           x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
                callback:(v,i)=>useDaily?(i%7===0?_pLabels[i]:null):_pLabels[i]},
              grid:{display:false}},
-          y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+'%'},
+          y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},
              grid:{color:'#f0f4ff'}}
         }
       }
@@ -2331,33 +2331,23 @@ function buildProgressCharts(){
 
     const div = document.createElement('div');
     div.className = 'card';
-    const fabPlanNow = (()=>{
-      const fd2=DAILY_FAB_PROG[f.n];
-      const todL=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-      if(fd2&&fd2.sw_plan&&fd2.sw_plan.length){
-        const tIdx=DAILY_PROG_LABELS.indexOf(todL);
-        return tIdx>=0?fd2.sw_plan[tIdx]:null;
-      }
-      return null;
-    })();
-    const fabActNow = (()=>{
-      const fd2=DAILY_FAB_PROG[f.n];
-      if(fd2&&fd2.sw_act&&fd2.sw_act.length){
-        const li=fd2.sw_act.reduce((a,v,j)=>v!=null?j:a,-1);
-        return li>=0?fd2.sw_act[li]:null;
-      }
-      return null;
-    })();
-    const fabPlanLbl = fabPlanNow!=null ? fabPlanNow.toFixed(1)+'%' : '–';
-    const fabActLbl  = fabActNow!=null  ? fabActNow.toFixed(1)+'%'  : totPct+'%';
+    // ใช้ last actual index เพื่อ header — ตรงกับ label บนกราฟ
+    const fd2=DAILY_FAB_PROG[f.n];
+    const _swLastI=fd2&&fd2.sw_act?fd2.sw_act.reduce((a,v,j)=>v!=null?j:a,-1):-1;
+    const _apLastI=fd2&&fd2.ap_act?fd2.ap_act.reduce((a,v,j)=>v!=null?j:a,-1):-1;
+    const swActVal=_swLastI>=0?fd2.sw_act[_swLastI]:null;
+    const apActVal=_apLastI>=0?fd2.ap_act[_apLastI]:null;
+    // แสดง SW%/AP% จริงจาก f.sw.d/f.sw.t (ตรงและแม่นยำที่สุด)
+    const swPctLbl=(f.sw.t>0?Math.round(f.sw.d/f.sw.t*1000)/10:0).toFixed(1)+'%';
+    const apPctLbl=(f.ap.t>0?Math.round(f.ap.d/f.ap.t*1000)/10:0).toFixed(1)+'%';
 
     div.innerHTML =
       '<div class="ch" style="margin-bottom:8px;flex-wrap:wrap;gap:4px">'+
         '<div style="width:10px;height:10px;border-radius:50%;background:'+f.c+';flex-shrink:0"></div>'+
         '<span style="font-size:13px;font-weight:700">'+f.n+'</span>'+
-        '<div style="display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:400">'+
-          '<span style="color:var(--text3)">แผน: '+fabPlanLbl+'</span>'+
-          '<span style="color:'+f.c+';font-weight:600">จริง: '+fabActLbl+'</span>'+
+        '<div style="display:flex;gap:8px;margin-left:auto;font-size:11px">'+
+          '<span style="color:#818cf8">SW: '+swPctLbl+'</span>'+
+          (f.ap.t>0?'<span style="color:#2bc48a">AP: '+apPctLbl+'</span>':'')+
         '</div>'+
       '</div>'+
       '<div style="height:190px"><canvas id="'+cid+'"></canvas></div>'+
@@ -2461,7 +2451,7 @@ function buildProgressCharts(){
           scales:{
             x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
                  callback:(v,i)=>i%7===0?DAILY_PROG_LABELS[i]:null},grid:{display:false}},
-            y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
+            y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
           }
         }
       });
