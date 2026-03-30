@@ -1365,8 +1365,8 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
         const v=ds.data[i]; if(v==null) return;
         if(i!==lastIdx && i%3!==0) return;
         ctx2.save();
-        ctx2.font=isPlan?'9px Segoe UI':'bold 9px Segoe UI';
-        ctx2.fillStyle=isPlan?'#94a3b8':(actColor||'#4361ee');
+        ctx2.font='9px Segoe UI';
+        ctx2.fillStyle=isPlan?'#94a3c4':((actColor||'#4361ee')+'99');
         ctx2.textAlign='center';
         ctx2.textBaseline=isPlan?'bottom':'top';
         ctx2.fillText(v.toFixed(1)+'%', pt.x, isPlan?pt.y-4:pt.y+4);
@@ -3043,23 +3043,34 @@ async function loadData(){
       DAILY_BD_PLAN.length=0;
       DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
 
-      // per-fabric SW/AP — ใช้ FAB_DAILY[fab].sw/ap โดยตรง (server แยกให้แล้ว)
+      // per-fabric SW/AP — รองรับทั้ง server ใหม่ {sw,ap,inf} และเก่า (number[])
       FABRICS.forEach(fab_obj=>{
         const fab=fab_obj.n;
-        const fd=FAB_DAILY[fab]; if(!fd||!fd.sw) return;
+        const fd=FAB_DAILY[fab]; if(!fd) return;
         const fabPlanArr = FAB_DAILY_PLAN[fab] || [];
         const swTotal=fab_obj.sw.t||1;
         const apTotal=fab_obj.ap.t||1;
         const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
         const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
 
+        // detect format: new={sw:[],ap:[]} หรือ old=number[]
+        const isNewFmt = fd.sw && Array.isArray(fd.sw);
+
         // map actual per day ตาม DAILY_PROG_LABELS
         const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
         const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
         DAILY_PROG_LABELS.forEach((lbl,i)=>{
           const di=dailyLMap[lbl]; if(di===undefined) return;
-          swActDay[i]=fd.sw[di]||0;
-          apActDay[i]=fd.ap[di]||0;
+          if(isNewFmt){
+            swActDay[i]=fd.sw[di]||0;
+            apActDay[i]=fd.ap[di]||0;
+          } else {
+            // old format: fd[di] = total (SW+AP+Inf), ใช้ installed actual จาก FABRICS
+            // ถ้า SW installed = 0 → SW daily = 0 (ไม่ใช้ ratio เพื่อป้องกัน infra leak)
+            const tot=fd[di]||0;
+            swActDay[i]=fab_obj.sw.d>0?Math.round(tot*swR):0;
+            apActDay[i]=fab_obj.ap.d>0?Math.round(tot*apR):0;
+          }
         });
 
         // หา last install idx (SW หรือ AP)
