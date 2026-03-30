@@ -303,10 +303,14 @@ function calcDashboard(wb) {
   });
 
   // Fabrics from Dashboard rows 27-33
-  // fabRows from rows 8-14 (D1-041..PPW) — cols: name,tot,done,%done,hold,rem,startDate,endDate
-  const fabRows = dRows.slice(8, 15);
-  // fabCatRows from rows 23-29 for SW/AP/Inf breakdown
-  const fabCatRows = dRows.slice(23, 30);
+  // หา section rows โดย header — robust กว่า slice
+  const FAB_NAMES = ['D1-041','CFZ','T1-015','D1-091','RFF','AMF','PPW'];
+  // section 1: "Progress by Fabric" — cols: name,total,done,%,hold,rem,start,end
+  const fabHdrIdx = dRows.findIndex(r => r && r[0]==='Fabric' && r[1]==='Total');
+  const fabRows = fabHdrIdx>=0 ? dRows.slice(fabHdrIdx+1, fabHdrIdx+8) : [];
+  // section 2: "Progress by Fabric - Switch vs AP" — cols: name,swT,swD,sw%,apT,apD,ap%,infT,infD,inf%
+  const catHdrIdx = dRows.findIndex(r => r && r[0]==='Fabric' && r[1]==='SW Total');
+  const fabCatRows = catHdrIdx>=0 ? dRows.slice(catHdrIdx+1, catHdrIdx+8) : [];
   const base = new Date(1899,11,30);
   const fmtExcelDate = v => {
     if(!v||typeof v!=='number') return '–';
