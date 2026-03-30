@@ -1679,8 +1679,8 @@ function buildVelocityChart(){
         legend:{display:false},
         tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
           callbacks:{
-            title:ctx=>{const i=ctx[0].dataIndex; return `${sliceLabels[i]}  (${sliceDateLabels[i]})`;},
-            label:ctx=>{const i=ctx.dataIndex; return [` SW: ${sliceSW[i]}`, ` AP: ${sliceAP[i]}`, ` รวม: ${sliceTot[i]} เครื่อง`];}
+            title:ctx=>{try{const i=ctx[0]?.dataIndex??0; return `${sliceLabels[i]||''}  (${sliceDateLabels[i]||''})`;} catch{return '';}},
+            label:ctx=>{try{const i=ctx?.dataIndex??0; return [` SW: ${sliceSW[i]||0}`, ` AP: ${sliceAP[i]||0}`, ` รวม: ${sliceTot[i]||0} เครื่อง`];} catch{return '';}}
           }
         }
       },
