@@ -1365,8 +1365,8 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
         const v=ds.data[i]; if(v==null) return;
         if(i!==lastIdx && i%3!==0) return;
         ctx2.save();
-        ctx2.font=isPlan?'9px Segoe UI':'bold 9px Segoe UI';
-        ctx2.fillStyle=isPlan?'#94a3b8':(actColor||'#4361ee');
+        ctx2.font='9px Segoe UI';
+        ctx2.fillStyle=isPlan?'#94a3c4':((actColor||'#4361ee')+'99');
         ctx2.textAlign='center';
         ctx2.textBaseline=isPlan?'bottom':'top';
         ctx2.fillText(v.toFixed(1)+'%', pt.x, isPlan?pt.y-4:pt.y+4);
@@ -3065,10 +3065,11 @@ async function loadData(){
             swActDay[i]=fd.sw[di]||0;
             apActDay[i]=fd.ap[di]||0;
           } else {
-            // old format: fd[di] = total installs, estimate SW/AP by ratio
+            // old format: fd[di] = total (SW+AP+Inf), ใช้ installed actual จาก FABRICS
+            // ถ้า SW installed = 0 → SW daily = 0 (ไม่ใช้ ratio เพื่อป้องกัน infra leak)
             const tot=fd[di]||0;
-            swActDay[i]=Math.round(tot*swR);
-            apActDay[i]=Math.round(tot*apR);
+            swActDay[i]=fab_obj.sw.d>0?Math.round(tot*swR):0;
+            apActDay[i]=fab_obj.ap.d>0?Math.round(tot*apR):0;
           }
         });
 
