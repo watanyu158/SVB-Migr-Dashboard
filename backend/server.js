@@ -282,8 +282,6 @@ function calcDashboard(wb) {
       inf: sortedDates.map(d => (fabDailyAct[f][d]&&fabDailyAct[f][d].inf) || 0),
     };
     fabDailyPlanOut[f] = sortedDates.map(d => fabDailyPlan[f][d] || 0);
-    fabDaily[f].sw_plan = sortedDates.map(d => dayFabSwPlan[f][d] || 0);
-    fabDaily[f].ap_plan = sortedDates.map(d => dayFabApPlan[f][d] || 0);
   });
 
   // Fabrics from Dashboard rows 27-33
@@ -398,6 +396,12 @@ function calcDashboard(wb) {
         else if (cat==='AP') dayFabApPlan[fab][k] = (dayFabApPlan[fab][k]||0) + qty;
       }
     }
+  });
+
+  // เพิ่ม sw_plan/ap_plan per day ลงใน fabDaily หลัง populate เสร็จแล้ว
+  FABRICS.forEach(f => {
+    fabDaily[f].sw_plan = sortedDates.map(d => dayFabSwPlan[f][d] || 0);
+    fabDaily[f].ap_plan = sortedDates.map(d => dayFabApPlan[f][d] || 0);
   });
 
   // หา last install date per fabric
