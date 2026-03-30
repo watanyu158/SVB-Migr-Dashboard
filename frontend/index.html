@@ -2544,7 +2544,12 @@ function destroyChart(id){
   if(ch) ch.destroy();
 }
 function buildGraphs(){
-  if(gblt)return;gblt=true;
+  gblt=true;
+  // destroy existing charts ก่อน create ใหม่
+  ['type-c','fab-bar-c','daily-c','cum-c','loc-bar-c','fab-total-bar-c'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){const ch=Chart.getChart(el);if(ch)ch.destroy();}
+  });
   new Chart(document.getElementById('type-c'),{type:'doughnut',data:{datasets:[{data:[1121,445,26],backgroundColor:['#4361ee','#2bc48a','#ff9f43'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}}}});
   new Chart(document.getElementById('fab-bar-c'),{
   type:'bar',
@@ -3283,7 +3288,7 @@ async function loadData(){
     if(_e('donut-late-cnt'))    _e('donut-late-cnt').textContent    = lateQ.toLocaleString();
     if(_e('donut-pending-cnt')) _e('donut-pending-cnt').textContent = pendQ.toLocaleString();
     buildGauge(); buildBurndown();
-    buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
+    gblt=false; buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
     buildVelocityChart(); buildWeekdayChart(); buildFabGap();
     buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards();
     gblt=false;
