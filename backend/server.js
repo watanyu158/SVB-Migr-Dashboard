@@ -296,14 +296,25 @@ function calcDashboard(wb) {
   });
 
   // Fabrics from Dashboard rows 27-33
-  const fabRows = dRows.slice(27, 34);
+  // fabRows from rows 8-14 (D1-041..PPW) — cols: name,tot,done,%done,hold,rem,startDate,endDate
+  const fabRows = dRows.slice(8, 15);
+  // fabCatRows from rows 23-29 for SW/AP/Inf breakdown
+  const fabCatRows = dRows.slice(23, 30);
+  const base = new Date(1899,11,30);
+  const fmtExcelDate = v => {
+    if(!v||typeof v!=='number') return '–';
+    const d=new Date(base.getTime()+v*86400000);
+    return `${d.getDate()}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  };
   const fabrics = FABRICS.map(fn => {
-    const fr = fabRows.find(r => r[0] === fn) || [];
-    const swT=fr[1]||0, swD=fr[2]||0, apT=fr[4]||0, apD=fr[5]||0, infT=fr[7]||0, infD=fr[8]||0;
+    const fr  = fabRows.find(r => r[0] === fn) || [];
+    const frc = fabCatRows.find(r => r[0] === fn) || [];
+    const swT=frc[1]||0, swD=frc[2]||0, apT=frc[4]||0, apD=frc[5]||0, infT=frc[7]||0, infD=frc[8]||0;
     const tot=swT+apT+infT, done=swD+apD+infD;
     return {
       n:fn, t:tot, d:done, p:tot>0?Math.round(done/tot*10000)/100:0,
-      h:fr[3]||0, r:tot-done, c:FAB_COLORS[fn],
+      h:fr[4]||0, r:tot-done, c:FAB_COLORS[fn],
+      s:fmtExcelDate(fr[6]), e:fmtExcelDate(fr[7]),
       sw:{t:swT,d:swD}, ap:{t:apT,d:apD}, inf:{t:infT,d:infD},
       weekly: fabWeekly[fn],
     };

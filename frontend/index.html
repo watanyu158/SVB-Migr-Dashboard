@@ -3302,7 +3302,14 @@ async function loadData(){
     const effPct = ins.req_rate>0 ? Math.round(ins.daily_rate/ins.req_rate*100) : 0;
     if(_e('plan-req-rate'))  _e('plan-req-rate').textContent  = ins.req_rate+' อุปกรณ์/วัน';
     if(_e('plan-remaining')) _e('plan-remaining').textContent = meta.remaining.toLocaleString()+' อุปกรณ์';
-    if(_e('plan-plan-pct'))  _e('plan-plan-pct').textContent  = (PLAN_ALL[Math.min(TODAY_WK,PLAN_ALL.length-1)]||0).toFixed(1)+'%';
+    // plan-plan-pct: ใช้ DAILY_PROG_PLAN ณ วันนี้ (daily) แทน weekly
+    const _todayPlanIdx=(()=>{
+      const tl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+      const ti=DAILY_PROG_LABELS.indexOf(tl);
+      return ti>=0?ti:DAILY_PROG_LABELS.length-1;
+    })();
+    const _planPctNow=(DAILY_PROG_PLAN[_todayPlanIdx]||PLAN_ALL[Math.min(TODAY_WK,PLAN_ALL.length-1)]||0);
+    if(_e('plan-plan-pct'))  _e('plan-plan-pct').textContent  = _planPctNow.toFixed(1)+'%';
     if(_e('plan-act-pct'))   _e('plan-act-pct').textContent   = allPct+'%';
     if(_e('plan-act-bar'))   _e('plan-act-bar').style.width   = allPct+'%';
     if(_e('plan-installed')) _e('plan-installed').textContent = meta.installed.toLocaleString()+' อุปกรณ์';
