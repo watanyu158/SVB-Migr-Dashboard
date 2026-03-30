@@ -3043,23 +3043,33 @@ async function loadData(){
       DAILY_BD_PLAN.length=0;
       DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
 
-      // per-fabric SW/AP — ใช้ FAB_DAILY[fab].sw/ap โดยตรง (server แยกให้แล้ว)
+      // per-fabric SW/AP — รองรับทั้ง server ใหม่ {sw,ap,inf} และเก่า (number[])
       FABRICS.forEach(fab_obj=>{
         const fab=fab_obj.n;
-        const fd=FAB_DAILY[fab]; if(!fd||!fd.sw) return;
+        const fd=FAB_DAILY[fab]; if(!fd) return;
         const fabPlanArr = FAB_DAILY_PLAN[fab] || [];
         const swTotal=fab_obj.sw.t||1;
         const apTotal=fab_obj.ap.t||1;
         const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
         const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
 
+        // detect format: new={sw:[],ap:[]} หรือ old=number[]
+        const isNewFmt = fd.sw && Array.isArray(fd.sw);
+
         // map actual per day ตาม DAILY_PROG_LABELS
         const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
         const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
         DAILY_PROG_LABELS.forEach((lbl,i)=>{
           const di=dailyLMap[lbl]; if(di===undefined) return;
-          swActDay[i]=fd.sw[di]||0;
-          apActDay[i]=fd.ap[di]||0;
+          if(isNewFmt){
+            swActDay[i]=fd.sw[di]||0;
+            apActDay[i]=fd.ap[di]||0;
+          } else {
+            // old format: fd[di] = total installs, estimate SW/AP by ratio
+            const tot=fd[di]||0;
+            swActDay[i]=Math.round(tot*swR);
+            apActDay[i]=Math.round(tot*apR);
+          }
         });
 
         // หา last install idx (SW หรือ AP)
