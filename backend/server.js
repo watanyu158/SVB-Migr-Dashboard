@@ -282,6 +282,8 @@ function calcDashboard(wb) {
       inf: sortedDates.map(d => (fabDailyAct[f][d]&&fabDailyAct[f][d].inf) || 0),
     };
     fabDailyPlanOut[f] = sortedDates.map(d => fabDailyPlan[f][d] || 0);
+    fabDaily[f].sw_plan = sortedDates.map(d => dayFabSwPlan[f][d] || 0);
+    fabDaily[f].ap_plan = sortedDates.map(d => dayFabApPlan[f][d] || 0);
   });
 
   // Fabrics from Dashboard rows 27-33
@@ -365,8 +367,8 @@ function calcDashboard(wb) {
   // daily maps: all / sw / ap / per-fabric
   const dayActMap={}, dayPlanMap={};
   const daySwAct={}, daySwPlan={}, dayApAct={}, dayApPlan={};
-  const dayFabAct={}, dayFabPlan={};
-  FABRICS.forEach(f=>{ dayFabAct[f]={}; dayFabPlan[f]={}; });
+  const dayFabAct={}, dayFabPlan={}, dayFabSwPlan={}, dayFabApPlan={};
+  FABRICS.forEach(f=>{ dayFabAct[f]={}; dayFabPlan[f]={}; dayFabSwPlan[f]={}; dayFabApPlan[f]={}; });
 
   aRows.forEach(r => {
     const fab   = r['Fabric'];
@@ -390,7 +392,11 @@ function calcDashboard(wb) {
       dayPlanMap[k] = (dayPlanMap[k]||0) + qty;
       if (cat==='Switch') daySwPlan[k] = (daySwPlan[k]||0) + qty;
       else if (cat==='AP') dayApPlan[k] = (dayApPlan[k]||0) + qty;
-      if (FABRICS.includes(fab)) dayFabPlan[fab][k] = (dayFabPlan[fab][k]||0) + qty;
+      if (FABRICS.includes(fab)){
+        dayFabPlan[fab][k] = (dayFabPlan[fab][k]||0) + qty;
+        if (cat==='Switch') dayFabSwPlan[fab][k] = (dayFabSwPlan[fab][k]||0) + qty;
+        else if (cat==='AP') dayFabApPlan[fab][k] = (dayFabApPlan[fab][k]||0) + qty;
+      }
     }
   });
 
