@@ -13,7 +13,7 @@ jobs:
       - name: Download from OneDrive
         run: |
           # วางลิงก์ที่คุณก๊อปปี้มาในเครื่องหมายคำพูดด้านล่างนี้
-          curl -L "https://api.onedrive.com/v1.0/shares/u!aHR0cHM6Ly8xZHJ2Lm1zL3gvYy81NmMwZDgwZmU0OWYyMTQwL0lRQnoxeVlOYk1kV1Q2QTZNN3dGaHlvUkFSckJEQk9OVm1nLW5DTklmbzVRMUQ4P2U9eVlTc0w0/root/content" -o SDA_Installation_Plan_V2.xlsx
+          curl -L "https://drive.google.com/uc?export=download&id=16HWCNOgpGtCSehBTh_VrDTsnEFyoZ3po" -o backend/SDA_Installation_Plan_V2.xlsx
           
       - name: Commit and Push
         run: |
