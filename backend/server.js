@@ -109,12 +109,15 @@ function calcDashboard(wb) {
   const dRows = XLSX.utils.sheet_to_json(wsD, { header:1, defval:null });
   const aRows = XLSX.utils.sheet_to_json(wsA, { defval:null });
 
-  // Overview — หา "Actual Installed" โดย scan row แทน hardcode index
+  // Overview — หา "Actual Installed" โดย loop (รองรับ sparse array ของ XLSX JS)
   let installed = 0;
-  const _overviewRow = dRows.find(r => Array.isArray(r) && r.includes('Actual Installed'));
-  if (_overviewRow) {
-    const _ai = _overviewRow.indexOf('Actual Installed');
-    installed = typeof _overviewRow[_ai+1]==='number' ? _overviewRow[_ai+1] : 0;
+  outer: for (let ri = 0; ri < Math.min(dRows.length, 15); ri++) {
+    const row = dRows[ri]; if (!row) continue;
+    for (let ci = 0; ci < row.length - 1; ci++) {
+      if (row[ci] === 'Actual Installed' && typeof row[ci+1] === 'number') {
+        installed = row[ci+1]; break outer;
+      }
+    }
   }
   console.log('[EXCEL] installed='+installed);
   const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;  // SW Done
