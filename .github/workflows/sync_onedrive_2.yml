@@ -1,0 +1,33 @@
+name: Sync OneDrive to GitHub
+on:
+  workflow_dispatch: # ปุ่มกดรันเอง
+  schedule:
+    - cron: '*/30 * * * *' # ให้ระบบแวะไปเช็คไฟล์ทุก 30 นาทีอัตโนมัติ
+
+jobs:
+  update_file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download File using PowerShell
+                   shell: pwsh  # ระบุให้ใช้ PowerShell Core (รันได้ทั้ง Windows/Linux)
+               run: |
+                 $url = "https://aitcoth-my.sharepoint.com/:x:/g/personal/suttipong_s_ait_co_th/IQB4depTDLOdRbI2UEHtAB7RAbaE9Ybz60zc_CjOHPUMkmI?e=jtroND&download=1"
+                 $dest = "backend/SDA_Installation_Plan_V2.xlsx"
+    
+    # สร้างโฟลเดอร์ถ้าไม่มี
+                 if (!(Test-Path "backend")) { New-Item -ItemType Directory -Path "backend" }
+
+    # ใช้ Invoke-WebRequest แทน BitsTransfer (เพราะรันบน Linux ได้)
+                 Invoke-WebRequest -Uri $url -OutFile $dest -UserAgent "Mozilla/5.0"
+    
+    Write-Host "Download Complete: $dest"
+          
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'OneDrive Sync Bot'
+          git config --global user.email 'bot@noreply.github.com'
+          git add backend/SDA_Installation_Plan_V2.xlsx
+          git commit -m "Auto-update from OneDrive" || exit 0
+          git push
