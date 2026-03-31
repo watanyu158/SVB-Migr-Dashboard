@@ -659,8 +659,8 @@ main { padding: 12px 10px; }
   .hold-tog, #hold-body { display: none !important; }
   /* insights-box แสดงใน print */
   .insights-box { display: block !important; }
-  /* upcoming ขึ้นหน้าใหม่ */
-  #upcoming-list { page-break-before: always; break-before: page; }
+  /* upcoming header + list ขึ้นหน้าใหม่ */
+  #upcoming-header { page-break-before: always; break-before: page; }
   #upcoming-list .card { break-inside: avoid; }
   #fab-daily-charts-wrap, .prog-fab-grid { display: block !important; }
 
@@ -693,6 +693,10 @@ main { padding: 12px 10px; }
   .insights-box { background: #fffbeb !important; padding: 8px 12px !important; }
   .ins-panels { flex-direction: row !important; }
   .ins-pills { grid-template-columns: repeat(6,1fr) !important; }
+  /* donut: บังคับ square ไม่ให้บิดเป็นวงรี */
+  #donut-c { width: 120px !important; height: 120px !important; max-width: 120px !important; }
+  #donut-c ~ div { width: 120px !important; height: 120px !important; }
+  [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; }
 }
 
 /* ── Loading spinner ─────────────────────────────── */
@@ -1205,7 +1209,7 @@ main { padding: 12px 10px; }
   <div id="fpc-list"></div>
 
   <!-- แผนการติดตั้ง 2 สัปดาห์หน้า -->
-  <div style="display:flex;align-items:center;gap:7px;margin:20px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
+  <div id="upcoming-header" style="display:flex;align-items:center;gap:7px;margin:20px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
     <div class="sic" style="background:#fef3c7;color:#d97706">📅</div>
     แผนการติดตั้ง 2 สัปดาห์หน้า
     <span style="font-size:11px;font-weight:400;color:var(--text2)" id="upcoming-range"></span>
@@ -3529,8 +3533,17 @@ async function exportPDF(){
       try{return Array.from(ss.cssRules).map(r=>r.cssText).join('\n');}catch(e){return '';}
     }).join('\n');
 
+    // clone ทั้ง insights-box + main
     const mn=document.querySelector('main')||document.body;
+    const insBox=document.querySelector('.insights-box');
+    const wrapper=document.createElement('div');
+    if(insBox){
+      const insClone=insBox.cloneNode(true);
+      insClone.querySelectorAll('.tbtn,button').forEach(b=>b.style.display='none');
+      wrapper.appendChild(insClone);
+    }
     const clone=mn.cloneNode(true);
+    wrapper.appendChild(clone);
 
     // แสดงทุก tab
     clone.querySelectorAll('.tab-body').forEach((t,i)=>{
@@ -3540,9 +3553,9 @@ async function exportPDF(){
     });
     // open loc-list และ set page-break แต่ละ fabric
     clone.querySelectorAll('.fgb').forEach(b=>b.classList.add('open'));
-    // upcoming ขึ้นหน้าใหม่
-    const _upList=clone.querySelector('#upcoming-list');
-    if(_upList) _upList.style.pageBreakBefore='always';
+    // upcoming header ขึ้นหน้าใหม่
+    const _upHdr=clone.querySelector('#upcoming-header');
+    if(_upHdr) { _upHdr.style.pageBreakBefore='always'; _upHdr.style.breakBefore='page'; }
     clone.querySelectorAll('#loc-list .fg').forEach((fg,i)=>{
       const rows=parseInt(fg.dataset.rows||'99');
       // แยกหน้าทุก fabric ยกเว้นอันแรก; ถ้า rows<=5 อาจรวมกับ fabric ถัดไปได้
@@ -3605,7 +3618,7 @@ th,td{padding:3px 4px!important}
   <div style="font-size:14px;font-weight:700">📊 SDA Installation Dashboard — <span style="color:#a5b4fc">SVB</span></div>
   <span style="font-size:10px;opacity:.8">${date}</span>
 </div>
-${clone.outerHTML}
+${wrapper.outerHTML}
 <script>window.onload=function(){setTimeout(function(){window.print();},1000);};<\/script>
 </body></html>`;
     pw.document.open();pw.document.write(html);pw.document.close();
