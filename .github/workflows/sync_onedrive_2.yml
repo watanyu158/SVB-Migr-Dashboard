@@ -9,21 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
 - name: Download File using PowerShell
-        shell: pwsh
-        run: |
-          $url = "https://aitcoth-my.sharepoint.com/:x:/g/personal/suttipong_s_ait_co_th/IQB4depTDLOdRbI2UEHtAB7RAbaE9Ybz60zc_CjOHPUMkmI?e=jtroND&download=1"
-          $destDir = "backend"
-          $destFile = "$destDir/SDA_Installation_Plan_V2.xlsx"
-          
-          # สร้างโฟลเดอร์ (ใช้ / เพื่อให้รันได้ทั้ง Windows/Linux)
-          if (!(Test-Path $destDir)) { New-Item -ItemType Directory -Path $destDir }
-          
-          # ใช้ Invoke-WebRequest เพราะรันบน GitHub (Linux) ได้
-          Invoke-WebRequest -Uri $url -OutFile $destFile -UserAgent "Mozilla/5.0"
-          
-          Write-Host "Download Complete: $destFile"
+  shell: pwsh  # ระบุให้ใช้ PowerShell Core (รันได้ทั้ง Windows/Linux)
+  run: |
+    $url = "https://aitcoth-my.sharepoint.com/:x:/g/personal/suttipong_s_ait_co_th/IQB4depTDLOdRbI2UEHtAB7RAbaE9Ybz60zc_CjOHPUMkmI?e=jtroND&download=1"
+    $dest = "backend/SDA_Installation_Plan_V2.xlsx"
+    
+    # สร้างโฟลเดอร์ถ้าไม่มี
+    if (!(Test-Path "backend")) { New-Item -ItemType Directory -Path "backend" }
+
+    # ใช้ Invoke-WebRequest แทน BitsTransfer (เพราะรันบน Linux ได้)
+    Invoke-WebRequest -Uri $url -OutFile $dest -UserAgent "Mozilla/5.0"
+    
+    Write-Host "Download Complete: $dest"
+: $destFile"
           
       - name: Commit and Push
         run: |
