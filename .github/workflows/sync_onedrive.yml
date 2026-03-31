@@ -1,0 +1,24 @@
+name: Sync OneDrive to GitHub
+on:
+  workflow_dispatch: # ปุ่มกดรันเอง
+  schedule:
+    - cron: '*/30 * * * *' # ให้ระบบแวะไปเช็คไฟล์ทุก 30 นาทีอัตโนมัติ
+
+jobs:
+  update_file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download from OneDrive
+        run: |
+          # วางลิงก์ที่คุณก๊อปปี้มาในเครื่องหมายคำพูดด้านล่างนี้
+          curl -L "https://aitcoth-my.sharepoint.com/:x:/g/personal/suttipong_s_ait_co_th/IQB4depTDLOdRbI2UEHtAB7RAbaE9Ybz60zc_CjOHPUMkmI?e=gQ52LF" -o SDA_Installation_Plan_V2.xlsx
+          
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'OneDrive Sync Bot'
+          git config --global user.email 'bot@noreply.github.com'
+          git add SDA_Installation_Plan_V2.xlsx
+          git commit -m "Auto-update from OneDrive" || exit 0
+          git push
