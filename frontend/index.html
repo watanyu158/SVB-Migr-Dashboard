@@ -1198,7 +1198,15 @@ main { padding: 12px 10px; }
     <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:var(--text2);white-space:nowrap" id="plan-eff-label">ทำได้ –/วัน</span><div style="flex:1;height:11px;background:#f0f4ff;border-radius:99px;overflow:hidden"><div id="plan-eff-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:12px;font-weight:700;color:var(--danger)" id="plan-eff-pct">–%</span></div>
     <div style="text-align:right;font-size:11px;color:var(--danger);margin-top:3px">⚠ ต่ำกว่าเป้าหมาย</div>
   </div>
-  <!-- Upcoming 14 วัน -->
+
+  <!-- Fabric Cards -->
+  <div style="display:flex;align-items:center;gap:7px;margin:16px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
+    <div class="sic" style="background:var(--primary-l);color:var(--primary)">🏗</div>
+    ความคืบหน้าแต่ละ Fabric
+  </div>
+  <div id="fpc-list"></div>
+
+  <!-- Upcoming 14 วัน — สุดท้ายของ tab -->
   <div style="display:flex;align-items:center;gap:7px;margin:20px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
     <div class="sic" style="background:#fef3c7;color:#d97706">📅</div>
     แผนการติดตั้ง 2 สัปดาห์หน้า
@@ -1206,29 +1214,6 @@ main { padding: 12px 10px; }
   </div>
   <div id="upcoming-list"></div>
 
-  <div style="display:flex;align-items:center;gap:7px;margin:20px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
-    <div class="sic" style="background:var(--primary-l);color:var(--primary)">🏗</div>
-    ความคืบหน้าแต่ละ Fabric
-  </div>
-  <div id="fpc-list"></div>
-  <div class="card">
-    <div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">✏</div>บันทึกผลการติดตั้ง</div>
-    <div id="form-alert"></div>
-    <div class="fw">
-      <div class="fg2">
-        <div class=
-</div>
-</div>
-</div>
-</div>
-</div>
-  <!-- Upcoming 14 วัน — สุดท้ายของ tab แผนงาน -->
-  <div style="display:flex;align-items:center;gap:7px;margin:20px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
-    <div class="sic" style="background:#fef3c7;color:#d97706">📅</div>
-    แผนการติดตั้ง 2 สัปดาห์หน้า
-    <span style="font-size:11px;font-weight:400;color:var(--text2)" id="upcoming-range"></span>
-  </div>
-  <div id="upcoming-list"></div>
 </div>
 </main>
 
