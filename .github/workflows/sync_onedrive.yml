@@ -13,7 +13,7 @@ jobs:
       - name: Download from OneDrive
         run: |
           # วางลิงก์ที่คุณก๊อปปี้มาในเครื่องหมายคำพูดด้านล่างนี้
-          curl -L "https://aitcoth-my.sharepoint.com/:x:/g/personal/suttipong_s_ait_co_th/IQB4depTDLOdRbI2UEHtAB7RAbaE9Ybz60zc_CjOHPUMkmI?e=jtroND&download=1" -o backend/SDA_Installation_Plan_V2.xlsx
+          curl -L "https://aitcoth-my.sharepoint.com/:x:/g/personal/suttipong_s_ait_co_th/IQB4depTDLOdRbI2UEHtAB7RAbaE9Ybz60zc_CjOHPUMkmI?e=jtroND&download=1" -o SDA_Installation_Plan_V2.xlsx
           
       - name: Commit and Push
         run: |
