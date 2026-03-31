@@ -111,7 +111,11 @@ function calcDashboard(wb) {
 
   // Overview
   // installed/SW/AP from Dashboard sheet (rows 4=total, 18=SW, 19=AP)
-  const installed = (dRows[5]&&dRows[5][3]) || (dRows[6]&&dRows[6][3]) || 0;
+  // installed: ลองทุก source เพื่อหาค่าที่ถูกต้อง
+  const _d4c = dRows[4]&&typeof dRows[4][1]==='number'?dRows[4][1]:0;  // Completed col
+  const _d5a = dRows[5]&&typeof dRows[5][3]==='number'?dRows[5][3]:0;  // Actual Installed
+  const installed = _d5a || _d4c || 0;
+  console.log(`[EXCEL] dRows[4][1]=${_d4c} dRows[5][3]=${_d5a} → installed=${installed}`);
   const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;  // SW Done
   const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;  // AP Done
   const INSTALLED_INF = installed - INSTALLED_SW - INSTALLED_AP;
