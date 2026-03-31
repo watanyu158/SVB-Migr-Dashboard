@@ -109,11 +109,8 @@ function calcDashboard(wb) {
   const dRows = XLSX.utils.sheet_to_json(wsD, { header:1, defval:null });
   const aRows = XLSX.utils.sheet_to_json(wsA, { defval:null });
 
-  // Debug rows 3-7
-  for (let ri = 3; ri <= 7; ri++) {
-    console.log('[ROW'+ri+']', JSON.stringify(dRows[ri]));
-  }
-  let installed = 0;
+  // ROW6 = ["Overall Progress:", x, "Actual Installed:", 506, ...]
+  const installed = (dRows[6] && typeof dRows[6][3] === 'number') ? dRows[6][3] : 0;
   const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;  // SW Done
   const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;  // AP Done
   const INSTALLED_INF = installed - INSTALLED_SW - INSTALLED_AP;
