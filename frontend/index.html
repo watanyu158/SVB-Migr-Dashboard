@@ -242,8 +242,8 @@ tr:hover td{background:#f8faff}
 .fdate .dv{font-size:12px;font-weight:600}
 
 /* PROGRESS LINE CHARTS */
-.prog-chart-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
-.prog-fab-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.prog-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.prog-fab-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
 /* FORM */
 .fw{max-width:560px}
@@ -486,9 +486,9 @@ main { padding: 12px 10px; }
   .g4  { grid-template-columns: 1fr 1fr; }
   .heatmap { grid-template-columns: repeat(4, 1fr); }
 
-  .prog-chart-grid { grid-template-columns: 1fr; }
-  
-  .prog-fab-grid { grid-template-columns: 1fr; }
+  .prog-chart-grid { grid-template-columns: 1fr 1fr; }
+  .prog-chart-grid .card:last-child { grid-column: span 2; }
+  .prog-fab-grid { grid-template-columns: 1fr 1fr; }
 
   .cwrap { height: 200px; }
 
@@ -509,9 +509,9 @@ main { padding: 12px 10px; }
 
   .heatmap { grid-template-columns: repeat(4, 1fr); }
 
-  .prog-chart-grid { grid-template-columns: 1fr; }
-  
-  .prog-fab-grid { grid-template-columns: 1fr; }
+  .prog-chart-grid { grid-template-columns: 1fr 1fr; }
+  .prog-chart-grid .card:last-child { grid-column: span 2; }
+  .prog-fab-grid { grid-template-columns: 1fr 1fr; }
 
   .fg2 { grid-template-columns: 1fr 1fr; }
 }
@@ -524,9 +524,9 @@ main { padding: 12px 10px; }
   .g3 { grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
   .g4 { grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .heatmap { grid-template-columns: repeat(7, 1fr); }
-  .prog-chart-grid { grid-template-columns: 1fr; }
-  
-  .prog-fab-grid { grid-template-columns: 1fr; }
+  .prog-chart-grid { grid-template-columns: 1fr 1fr; }
+  .prog-chart-grid .card:last-child { grid-column: span 2; }
+  .prog-fab-grid { grid-template-columns: 1fr 1fr; }
   .fg2 { grid-template-columns: 1fr 1fr; gap: 11px; }
 }
 
@@ -602,8 +602,8 @@ main { padding: 12px 10px; }
   .tlt { font-size: 14px; }
 
   /* Progress charts */
-  .prog-chart-grid { grid-template-columns: 1fr; gap: 18px; }
-  .prog-fab-grid { grid-template-columns: 1fr; gap: 18px; }
+  .prog-chart-grid { grid-template-columns: 1fr 1fr; gap: 18px; }
+  .prog-fab-grid { grid-template-columns: 1fr 1fr; gap: 18px; }
 
   /* Table: ใหญ่ขึ้น */
   table { font-size: 14px; }
@@ -657,12 +657,6 @@ main { padding: 12px 10px; }
   /* ── Hide controls ── */
   .topbar, .actions, .tabs, .tbtn,
   .hold-tog, #hold-body { display: none !important; }
-  /* insights-box แสดงใน print */
-  .insights-box { display: block !important; }
-  /* upcoming header + list ขึ้นหน้าใหม่ */
-  #upcoming-header { page-break-before: always; break-before: page; }
-  #per-fabric-header { page-break-before: always; break-before: page; }
-  #upcoming-list .card { break-inside: avoid; }
   #fab-daily-charts-wrap, .prog-fab-grid { display: block !important; }
 
   /* ── Show all tab bodies ── */
@@ -679,7 +673,7 @@ main { padding: 12px 10px; }
   .g4 { grid-template-columns: repeat(4,1fr) !important; gap: 8px !important; }
   .fab-bd-grid { grid-template-columns: repeat(4,1fr) !important; }
   .burndown-row { grid-template-columns: 3fr 2fr !important; }
-  .prog-chart-grid { grid-template-columns: 1fr !important; }
+  .prog-chart-grid { grid-template-columns: 1fr 1fr !important; }
 
   /* ── Tables ── */
   .tblw { overflow: visible !important; }
@@ -694,10 +688,6 @@ main { padding: 12px 10px; }
   .insights-box { background: #fffbeb !important; padding: 8px 12px !important; }
   .ins-panels { flex-direction: row !important; }
   .ins-pills { grid-template-columns: repeat(6,1fr) !important; }
-  /* donut: บังคับ square ไม่ให้บิดเป็นวงรี */
-  #donut-c { width: 120px !important; height: 120px !important; max-width: 120px !important; }
-  #donut-c ~ div { width: 120px !important; height: 120px !important; }
-  [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; }
 }
 
 /* ── Loading spinner ─────────────────────────────── */
@@ -752,11 +742,11 @@ main { padding: 12px 10px; }
     </div>
   </div>
   <div class="tb-stats">
-    <div class="tb-stat"><div class="v" id="ts-done">–/1592</div><div class="l">ติดตั้งแล้ว (<span id="tb-pct">–</span>)</div></div>
+    <div class="tb-stat"><div class="v" id="ts-done">–/1592</div><div class="l">ติดตั้งแล้ว (<span id="tb-pct">29.9%</span>)</div></div>
     <div class="tb-div"></div>
-    <div class="tb-stat"><div class="v" id="tb-rate">–</div><div class="l">อุปกรณ์/วัน</div></div>
+    <div class="tb-stat"><div class="v" id="tb-rate">10.3</div><div class="l">อุปกรณ์/วัน</div></div>
     <div class="tb-div"></div>
-    <div class="tb-stat"><div class="v" id="tb-days">–</div><div class="l">วันเหลือ</div></div>
+    <div class="tb-stat"><div class="v" id="tb-days">90</div><div class="l">วันเหลือ</div></div>
     <div class="tb-div"></div>
     <div class="tb-stat"><div class="v" id="tb-over" style="color:#ff9f43">35</div><div class="l">เกินกำหนด</div></div>
   </div>
@@ -796,7 +786,7 @@ main { padding: 12px 10px; }
       </div>
       <div class="ins-rate-row">
         <span class="ins-rate-lbl">ทำได้</span>
-        <span class="ins-rate-val">–</span>
+        <span class="ins-rate-val">10.5</span>
         <span class="ins-rate-arrow">→</span>
         <span class="ins-rate-lbl">ต้องทำ</span>
         <span class="ins-rate-val ins-rate-target">12.6</span>
@@ -855,7 +845,7 @@ main { padding: 12px 10px; }
     <div class="ins-pill p-days">
       <div class="ip-icon">⏱</div>
       <div class="ip-body">
-        <div class="ip-val" style="color:var(--success)" id="pill-days-left">–</div>
+        <div class="ip-val" style="color:var(--success)">90</div>
         <div class="ip-lbl">วันเหลือ</div>
         <div class="ip-sub">วัน</div>
       </div>
@@ -915,10 +905,10 @@ main { padding: 12px 10px; }
 <!-- ════ TAB: ภาพรวม ════ -->
 <div class="tab-body" id="tab-overview">
   <div class="g4" style="margin-bottom:14px">
-    <div class="scard all"><div class="sl" style="color:var(--primary)">🏗 สรุปผลการติดตั้งทั้งหมด</div><div class="sn" id="ov-all">–/1592</div><div class="ss">อุปกรณ์ที่ติดตั้งแล้ว (<span id="ov-all-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-all-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:var(--primary)" id="ov-all-badge">–</div></div>
-    <div class="scard sw"><div class="sl" style="color:#4361ee">🔀 Switch</div><div class="sn" id="ov-sw">–/1121</div><div class="ss">Switch ที่ติดตั้งแล้ว (<span id="ov-sw-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-sw-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:#4361ee" id="ov-sw-badge">–</div></div>
-    <div class="scard ap"><div class="sl" style="color:#065f46">📶 AP</div><div class="sn" id="ov-ap">–/445</div><div class="ss">AP ที่ติดตั้งแล้ว (<span id="ov-ap-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-ap-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--success-l);color:#065f46" id="ov-ap-badge">–</div></div>
-    <div class="scard inf"><div class="sl" style="color:#92400e">⚡ Infra</div><div class="sn" id="ov-inf">–/26</div><div class="ss">Infra ที่ติดตั้งแล้ว (<span id="ov-inf-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-inf-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--warning-l);color:#92400e" id="ov-inf-badge">–</div></div>
+    <div class="scard all"><div class="sl" style="color:var(--primary)">🏗 สรุปผลการติดตั้งทั้งหมด</div><div class="sn" id="ov-all">–/1592</div><div class="ss">อุปกรณ์ที่ติดตั้งแล้ว (29%)</div><div class="sbar"><div class="sf" id="ov-all-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:var(--primary)">29%</div></div>
+    <div class="scard sw"><div class="sl" style="color:#4361ee">🔀 Switch</div><div class="sn" id="ov-sw">–/1121</div><div class="ss">Switch ที่ติดตั้งแล้ว (32.9%)</div><div class="sbar"><div class="sf" id="ov-sw-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:#4361ee">31.2%</div></div>
+    <div class="scard ap"><div class="sl" style="color:#065f46">📶 AP</div><div class="sn" id="ov-ap">–/445</div><div class="ss">AP ที่ติดตั้งแล้ว (15.1%)</div><div class="sbar"><div class="sf" id="ov-ap-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--success-l);color:#065f46">15.1%</div></div>
+    <div class="scard inf"><div class="sl" style="color:#92400e">⚡ Infra</div><div class="sn" id="ov-inf">–/26</div><div class="ss">Infra ที่ติดตั้งแล้ว (92.3%)</div><div class="sbar"><div class="sf" id="ov-inf-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--warning-l);color:#92400e">92.3%</div></div>
   </div>
   <!-- ── Fabric breakdown table ── -->
   <div class="card" style="margin-bottom:14px">
@@ -1045,29 +1035,30 @@ main { padding: 12px 10px; }
     </div>
   </div>
 
-  <!-- SW -->
-  <div class="card" style="margin-bottom:14px">
-    <div class="ch">
-      <div class="chi" style="background:#eef1ff;color:#4361ee">🔀</div>Switch รวม — แผน vs จริง (%)
-      <div style="display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:400">
-        <span id="prog-sw-plan-lbl" style="color:var(--text3)">แผน: –%</span>
-        <span id="prog-sw-act-lbl" style="color:#4361ee;font-weight:600">จริง: –%</span>
+  <!-- SW + AP: เล็กคู่กัน -->
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ch">
+        <div class="chi" style="background:#eef1ff;color:#4361ee">🔀</div>Switch รวม — แผน vs จริง (%)
+        <div style="display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:400">
+          <span id="prog-sw-plan-lbl" style="color:var(--text3)">แผน: –%</span>
+          <span id="prog-sw-act-lbl" style="color:#4361ee;font-weight:600">จริง: –%</span>
+        </div>
       </div>
+      <div style="height:180px"><canvas id="prog-sw-c"></canvas></div>
+      <div class="cleg"><div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#4361ee"></div>จริง (%)</div></div>
     </div>
-    <div style="height:220px"><canvas id="prog-sw-c"></canvas></div>
-    <div class="cleg"><div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#4361ee"></div>จริง (%)</div></div>
-  </div>
-  <!-- AP -->
-  <div class="card" style="margin-bottom:14px">
-    <div class="ch">
-      <div class="chi" style="background:var(--success-l);color:var(--success)">📶</div>AP รวม — แผน vs จริง (%)
-      <div style="display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:400">
-        <span id="prog-ap-plan-lbl" style="color:var(--text3)">แผน: –%</span>
-        <span id="prog-ap-act-lbl" style="color:var(--success);font-weight:600">จริง: –%</span>
+    <div class="card">
+      <div class="ch">
+        <div class="chi" style="background:var(--success-l);color:var(--success)">📶</div>AP รวม — แผน vs จริง (%)
+        <div style="display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:400">
+          <span id="prog-ap-plan-lbl" style="color:var(--text3)">แผน: –%</span>
+          <span id="prog-ap-act-lbl" style="color:var(--success);font-weight:600">จริง: –%</span>
+        </div>
       </div>
+      <div style="height:180px"><canvas id="prog-ap-c"></canvas></div>
+      <div class="cleg"><div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#2bc48a"></div>จริง (%)</div></div>
     </div>
-    <div style="height:220px"><canvas id="prog-ap-c"></canvas></div>
-    <div class="cleg"><div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#2bc48a"></div>จริง (%)</div></div>
   </div>
 
   <!-- Per Fabric charts -->
@@ -1085,7 +1076,7 @@ main { padding: 12px 10px; }
     <div class="card"><div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">🍩</div>สัดส่วนประเภทอุปกรณ์</div>
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
         <div style="position:relative;width:150px;height:150px;flex-shrink:0"><canvas id="type-c"></canvas>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:16px;font-weight:700"><span id="type-donut-pct">–</span></div><div style="font-size:10px;color:var(--text2)">รวม</div></div>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:16px;font-weight:700">29%</div><div style="font-size:10px;color:var(--text2)">รวม</div></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;flex:1;font-size:12px;color:var(--text2)">
           <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--primary);display:inline-block"></span>Switch 70%</span><span style="font-weight:600">1,121</span></div>
@@ -1131,7 +1122,7 @@ main { padding: 12px 10px; }
   </div>
 
   <!-- Per-Fabric daily charts -->
-  <div id="per-fabric-header" style="display:flex;align-items:center;gap:7px;margin:16px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
+  <div style="display:flex;align-items:center;gap:7px;margin:16px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
     <div class="sic" style="background:var(--primary-l);color:var(--primary)">🏭</div>
     อุปกรณ์ที่ติดตั้งตามวันที่ — แยกแต่ละ Fabric
     <span style="font-size:11px;font-weight:400;color:var(--text2)">(Switch / AP / Infra)</span>
@@ -1181,47 +1172,49 @@ main { padding: 12px 10px; }
       <div class="g2" style="gap:7px">
         <div class="pcard"><div class="pc-l">วันเริ่มต้น</div><div class="pc-v">10 ก.พ. 69</div></div>
         <div class="pcard"><div class="pc-l">วันสิ้นสุด</div><div class="pc-v">23 มิ.ย. 69</div></div>
-        <div class="pcard"><div class="pc-l">จำนวนวันทั้งหมด</div><div class="pc-v" id="plan-proj-days">133 วัน</div></div>
-        <div class="pcard"><div class="pc-l">วันที่เหลือ</div><div class="pc-v red" id="plan-days-left">– วัน</div></div>
+        <div class="pcard"><div class="pc-l">จำนวนวันทั้งหมด</div><div class="pc-v">133 วัน</div></div>
+        <div class="pcard"><div class="pc-l">วันที่เหลือ</div><div class="pc-v red">90 วัน</div></div>
       </div>
     </div>
     <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📈 เป้าหมายตามแผน</div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายอุปกรณ์/วัน</div><div class="pc-v" id="plan-target-rate">– อุปกรณ์/วัน</div></div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายปัจจุบัน</div><div class="pc-v red" id="plan-req-rate">– อุปกรณ์/วัน</div></div>
-      <div class="pcard"><div class="pc-l">อุปกรณ์ที่เหลือ</div><div class="pc-v" id="plan-remaining">– อุปกรณ์</div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายอุปกรณ์/วัน</div><div class="pc-v">12.0 อุปกรณ์/วัน</div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายปัจจุบัน</div><div class="pc-v red">12.4 อุปกรณ์/วัน</div></div>
+      <div class="pcard"><div class="pc-l">อุปกรณ์ที่เหลือ</div><div class="pc-v">1,132 อุปกรณ์</div></div>
     </div>
     <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">✅ การประเมินโครงการ</div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าตามแผน</div><div class="pc-v" id="plan-plan-pct">–%</div></div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn" id="plan-act-pct">–%</div><div style="height:5px;background:#f0f4ff;border-radius:99px;margin-top:5px;overflow:hidden"><div id="plan-act-bar" style="height:100%;width:0%;background:var(--success);border-radius:99px"></div></div></div>
-      <div class="pcard"><div class="pc-l">สถานะ</div><div class="pc-v red" id="plan-status">–</div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าตามแผน</div><div class="pc-v">42.9%%</div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn">28.89%%</div><div style="height:5px;background:#f0f4ff;border-radius:99px;margin-top:5px;overflow:hidden"><div style="height:100%;width:28.89%%;background:var(--success);border-radius:99px"></div></div></div>
+      <div class="pcard"><div class="pc-l">สถานะ</div><div class="pc-v red">↘ ช้ากว่าแผน</div></div>
     </div>
   </div>
   <div class="card" style="margin-bottom:14px">
     <div class="ch"><div class="chi" style="background:var(--success-l);color:var(--success)">⚡</div>ข้อมูลการติดตั้งจริง</div>
     <div class="g3" style="margin-bottom:11px">
-      <div class="pcard"><div class="pc-l">อุปกรณ์ที่ติดตั้งแล้วจริง</div><div class="pc-v" style="font-size:20px" id="plan-installed">– อุปกรณ์</div></div>
-      <div class="pcard"><div class="pc-l">เฉลี่ยที่ทำได้/วัน</div><div class="pc-v" style="font-size:20px" id="plan-daily-rate">– อุปกรณ์/วัน</div></div>
-      <div class="pcard"><div class="pc-l">คาดว่าจะเสร็จ</div><div class="pc-v red" style="font-size:20px" id="plan-finish-date">–</div></div>
+      <div class="pcard"><div class="pc-l">อุปกรณ์ที่ติดตั้งแล้วจริง</div><div class="pc-v" style="font-size:20px">460 อุปกรณ์</div></div>
+      <div class="pcard"><div class="pc-l">เฉลี่ยที่ทำได้/วัน</div><div class="pc-v" style="font-size:20px">10.5 อุปกรณ์/วัน</div></div>
+      <div class="pcard"><div class="pc-l">คาดว่าจะเสร็จ</div><div class="pc-v red" style="font-size:20px">11 ก.ค. -431</div></div>
     </div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:5px">ประสิทธิภาพเทียบกับแผน:</div>
-    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:var(--text2);white-space:nowrap" id="plan-eff-label">ทำได้ –/วัน</span><div style="flex:1;height:11px;background:#f0f4ff;border-radius:99px;overflow:hidden"><div id="plan-eff-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:12px;font-weight:700;color:var(--danger)" id="plan-eff-pct">–%</span></div>
+    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:var(--text2);white-space:nowrap">ทำได้ 10.5.6/วัน</span><div style="flex:1;height:11px;background:#f0f4ff;border-radius:99px;overflow:hidden"><div style="height:100%;width:83.3%%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:12px;font-weight:700;color:var(--danger)">83.3%</span>85%</span></div>
     <div style="text-align:right;font-size:11px;color:var(--danger);margin-top:3px">⚠ ต่ำกว่าเป้าหมาย</div>
   </div>
   <div id="fpc-list"></div>
-
-  <!-- แผนการติดตั้ง 2 สัปดาห์หน้า -->
-  <div id="upcoming-header" style="display:flex;align-items:center;gap:7px;margin:20px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
-    <div class="sic" style="background:#fef3c7;color:#d97706">📅</div>
-    แผนการติดตั้ง 2 สัปดาห์หน้า
-    <span style="font-size:11px;font-weight:400;color:var(--text2)" id="upcoming-range"></span>
-  </div>
-  <div id="upcoming-list"></div>
-
+  <div class="card">
+    <div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">✏</div>บันทึกผลการติดตั้ง</div>
+    <div id="form-alert"></div>
+    <div class="fw">
+      <div class="fg2">
+        <div class=
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </main>
 
 <script>
-const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://svb-migr-api.onrender.com';
+const API = window.location.hostname==='localhost'?'http://localhost:3000':'https://sda-migr-api.onrender.com';
 
 // ── WEEKLY DATA ───────────────────────────────────────────────────────────────
 let WK = ['09 Feb', '16 Feb', '23 Feb', '02 Mar', '09 Mar', '16 Mar', '23 Mar', '30 Mar', '06 Apr', '13 Apr', '20 Apr', '27 Apr', '04 May', '11 May', '18 May', '25 May', '01 Jun', '09 Jun', '16 Jun', '23 Jun'];
@@ -1230,83 +1223,58 @@ function _todayGMT7(){ return new Date(new Date().toLocaleString('en-US',{timeZo
 const _wkStart   = new Date(2026, 1, 9);
 function _totalDays(){ return Math.floor((_todayGMT7() - _wkStart) / (24*60*60*1000)); }
 let TODAY_WK = 6; // populated from API
-let LAST_INSTALL_DATE = null; // populated from API e.g. '2026-03-26'
 function getTodayFrac(){ return (_totalDays()%7)/7; }
-// คำนวณ fraction ของ last install date ภายใน week ของมัน
-function getLastInstallFrac(){
-  // คำนวณ fraction ของ last install date ภายใน week TODAY_WK
-  if(!LAST_INSTALL_DATE) return null;
-  const d   = new Date(LAST_INSTALL_DATE+'T00:00:00');
-  // หา week start ของ TODAY_WK จาก WK_BOUNDS_MS
-  const WK_STARTS = [
-    '2026-02-09','2026-02-16','2026-02-23','2026-03-02','2026-03-09',
-    '2026-03-16','2026-03-23','2026-03-30','2026-04-06','2026-04-13',
-    '2026-04-20','2026-04-27','2026-05-04','2026-05-11','2026-05-18',
-    '2026-05-25','2026-06-01','2026-06-09','2026-06-16','2026-06-23',
-  ];
-  const wkStart = new Date(WK_STARTS[TODAY_WK]+'T00:00:00');
-  const days = Math.floor((d - wkStart)/(24*60*60*1000));
-  return Math.max(0, Math.min(1, days / 7));
-}
-// label สำหรับ last install เช่น "26/03"
-function getLastInstallLabel(){
-  if(!LAST_INSTALL_DATE) return null;
-  const d = new Date(LAST_INSTALL_DATE+'T00:00:00');
-  return d.getDate()+'/'+(String(d.getMonth()+1).padStart(2,'0'));
-}
-let PLAN_ALL = []; // populated from API
-let DAILY_PROG_LABELS = []; // populated from API — daily labels
-let DAILY_PROG_PLAN   = []; // populated from API — daily plan cum %
-let DAILY_PROG_ACT    = []; // populated from API — daily actual cum %
-let DAILY_SW_PLAN     = []; // daily SW plan cum %
-let DAILY_SW_ACT      = []; // daily SW actual cum %
-let DAILY_AP_PLAN     = []; // daily AP plan cum %
-let DAILY_AP_ACT      = []; // daily AP actual cum %
-let DAILY_BD_PLAN     = []; // daily burndown plan
-let DAILY_BD_ACT      = []; // daily burndown actual
-let DAILY_FAB_PROG    = {}; // daily per-fabric {fab: {plan:[], act:[]}}
-let ACT_ALL_RAW = []; // populated from API
+let PLAN_ALL = [3.14, 9.61, 15.52, 18.09, 23.99, 27.76, 42.9, 45.98, 49.12, 51.07, 56.47, 62.31, 68.4, 71.55, 75.19, 80.03, 86.49, 92.59, 99.62, 100.0];
+let ACT_ALL_RAW = [5.03, 11.24, 15.64, 18.09, 23.93, 28.83, 28.83, null, null, null, null, null, null, null, null, null, null, null, null, null];
 // carry-forward ACT_ALL ถึง TODAY_WK
-function getActAll(){let _l=null;return WK.map((_,i)=>{if(i<ACT_ALL_RAW.length&&ACT_ALL_RAW[i]!==null)_l=ACT_ALL_RAW[i];return i<=TODAY_WK?_l:null;});}
-let PLAN_SW = []; // populated from API
-let ACT_SW_RAW = []; // populated from API
+const ACT_ALL = (()=>{let _l=null;return WK.map((_,i)=>{if(i<ACT_ALL_RAW.length&&ACT_ALL_RAW[i]!==null)_l=ACT_ALL_RAW[i];return i<=TODAY_WK?_l:null;});})();
+let PLAN_SW = [2.5, 7.85, 14.09, 17.57, 25.96, 31.31, 36.84, 39.52, 42.64, 45.41, 49.78, 54.15, 62.8, 67.26, 72.44, 79.3, 87.51, 93.31, 99.46, 100.0];
+let ACT_SW_RAW = [2.85, 7.85, 14.09, 17.57, 25.87, 32.83, 32.83, null, null, null, null, null, null, null, null, null, null, null, null, null];
 // carry-forward ACT_SW ถึง TODAY_WK
-function getActSW(){let _l=null;return WK.map((_,i)=>{if(i<ACT_SW_RAW.length&&ACT_SW_RAW[i]!==null)_l=ACT_SW_RAW[i];return i<=TODAY_WK?_l:null;});}
-let PLAN_AP = []; // populated from API
-let ACT_AP_RAW = []; // populated from API
+const ACT_SW = (()=>{let _l=null;return WK.map((_,i)=>{if(i<ACT_SW_RAW.length&&ACT_SW_RAW[i]!==null)_l=ACT_SW_RAW[i];return i<=TODAY_WK?_l:null;});})();
+let PLAN_AP = [0.0, 9.66, 15.06, 15.06, 15.06, 15.06, 54.83, 59.1, 62.47, 62.47, 70.79, 80.67, 80.67, 80.67, 80.67, 80.67, 83.15, 90.34, 100.0, 100.0];
+let ACT_AP_RAW = [5.39, 15.06, 15.06, 15.06, 15.06, 15.06, 15.06, null, null, null, null, null, null, null, null, null, null, null, null, null];
 // carry-forward ACT_AP ถึง TODAY_WK
-function getActAP(){let _l=null;return WK.map((_,i)=>{if(i<ACT_AP_RAW.length&&ACT_AP_RAW[i]!==null)_l=ACT_AP_RAW[i];return i<=TODAY_WK?_l:null;});}
-let BD_PLAN = []; // populated from API
-let BD_ACT = []; // populated from API
-let CUM_D = []; // populated from API
-let CUM_SW = []; // populated from API
-let CUM_AP = []; // populated from API
-let CUM_INF = []; // populated from API
-let DAILY_L = []; // populated from API
-let DAILY_SW = []; // populated from API
-let DAILY_AP = []; // populated from API
-let DAILY_INF = []; // populated from API
+const ACT_AP = (()=>{let _l=null;return WK.map((_,i)=>{if(i<ACT_AP_RAW.length&&ACT_AP_RAW[i]!==null)_l=ACT_AP_RAW[i];return i<=TODAY_WK?_l:null;});})();
+let BD_PLAN = [1542, 1439, 1345, 1304, 1210, 1150, 909, 860, 810, 779, 693, 600, 503, 453, 395, 318, 215, 118, 6, 0];
+let BD_ACT = [1512, 1413, 1343, 1304, 1211, 1133, 1133, null, null, null, null, null, null, null, null, null, null, null, null, null];
+let CUM_D = [1, 80, 86, 122, 149, 173, 179, 193, 207, 224, 237, 249, 273, 273, 276, 288, 301, 312, 326, 334, 339, 381, 410, 425, 443, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459, 459];
+let CUM_SW = [1, 32, 38, 59, 70, 82, 88, 102, 116, 133, 146, 158, 182, 182, 185, 197, 210, 221, 235, 243, 248, 290, 319, 334, 352, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368, 368];
+let CUM_AP = [0, 24, 24, 39, 55, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67];
+let CUM_INF = [0, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24];
+let DAILY_L = ['9/02', '10/02', '16/02', '17/02', '18/02', '19/02', '20/02', '25/02', '26/02', '27/02', '28/02', '1/03', '3/03', '4/03', '5/03', '6/03', '9/03', '10/03', '11/03', '12/03', '13/03', '14/03', '16/03', '18/03', '19/03', '20/03', '23/03', '24/03', '25/03', '26/03', '27/03', '30/03', '31/03', '1/04', '2/04', '7/04', '8/04', '9/04', '10/04', '16/04', '17/04', '20/04', '21/04', '22/04', '23/04', '24/04', '27/04', '30/04', '5/05', '6/05', '7/05', '8/05', '11/05', '13/05', '14/05', '15/05', '18/05', '19/05', '20/05', '21/05', '22/05', '25/05', '26/05', '27/05', '28/05', '29/05', '1/06', '2/06', '4/06', '5/06', '8/06', '9/06', '10/06', '11/06', '12/06', '15/06', '16/06', '17/06', '18/06', '19/06', '22/06', '23/06'];
+let DAILY_SW = [1, 31, 6, 21, 11, 12, 6, 14, 14, 17, 13, 12, 24, 0, 3, 12, 13, 11, 14, 8, 5, 42, 29, 15, 18, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+let DAILY_AP = [0, 24, 0, 15, 16, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+let DAILY_INF = [0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 // Per-fabric daily installs
 let FAB_DAILY = {};
 // Fabric colors and totals for charts
 let FAB_COLORS = {'D1-041': '#4361ee', 'CFZ': '#2bc48a', 'T1-015': '#ff9f43', 'D1-091': '#a855f7', 'RFF': '#22b8cf', 'AMF': '#f76707', 'PPW': '#74c0fc'};
-let FAB_TOTALS = {}; // populated from API
+let FAB_TOTALS = {'D1-041': {'sw': 228, 'ap': 43, 'inf': 10}, 'CFZ': {'sw': 141, 'ap': 24, 'inf': 4}, 'T1-015': {'sw': 0, 'ap': 0, 'inf': 2}, 'D1-091': {'sw': 0, 'ap': 0, 'inf': 2}, 'RFF': {'sw': 0, 'ap': 0, 'inf': 2}, 'AMF': {'sw': 0, 'ap': 0, 'inf': 2}, 'PPW': {'sw': 0, 'ap': 0, 'inf': 2}};
 
 // Plan targets (scheduled qty) per date matching DAILY_L
-let DAILY_PLAN = []; // populated from API
+let DAILY_PLAN = [0, 50, 11, 35, 27, 24, 6, 14, 38, 17, 13, 12, 24, 2, 3, 12, 15, 11, 14, 8, 5, 41, 27, 15, 18, 0, 17, 191, 10, 13, 10, 14, 9, 19, 7, 14, 14, 11, 11, 10, 21, 22, 31, 16, 15, 2, 83, 10, 49, 12, 12, 24, 11, 13, 14, 12, 9, 13, 12, 11, 13, 13, 10, 4, 26, 24, 30, 25, 35, 9, 4, 37, 12, 25, 21, 2, 31, 15, 25, 24, 17, 6];
 
 // Per-fabric plan on those same dates
 let FAB_DAILY_PLAN = {};
 // ── Device type breakdown ──────────────────────────────────────────────────────
-let TYPE_DATA = []; // populated from API
+let TYPE_DATA = [{n:'Access Switch Type 2',plan:584,done:188},{n:'Access Point',plan:445,done:67},{n:'Access Switch Type 4',plan:320,done:84},{n:'Aggregation Switch Type 3',plan:62,done:21},{n:'Aggregation Switch Type 2',plan:47,done:14},{n:'Access Switch Type 1',plan:45,done:23},{n:'Access Switch Type 3',plan:37,done:21},{n:'Wireless Controller',plan:14,done:14},{n:'Distribute Switch Type 1',plan:10,done:4},{n:'Core Switch Type 1',plan:4,done:4},{n:'Access Control Type 1',plan:4,done:4},{n:'Router',plan:4,done:2},{n:'Distribute Switch Type 2',plan:4,done:2},{n:'SDN Controller',plan:3,done:3},{n:'Aggregation Switch Type 1',plan:2,done:2},{n:'Extranet Switch Type 1',plan:2,done:2},{n:'Next Gen Firewall Type 2',plan:2,done:2},{n:'Next Gen Firewall Type 1',plan:2,done:2},{n:'SDN Witness',plan:1,done:1}];
 
 // Plan totals per fabric (total scheduled devices)
 let FAB_PLAN_TOTALS = {'D1-041': 710, 'CFZ': 187, 'T1-015': 327, 'D1-091': 147, 'RFF': 99, 'AMF': 114, 'PPW': 8};
 
 let FAB_WEEKLY = {};
 
-let FABRICS = []; // populated from API
+let FABRICS = [
+  {n:'D1-041',t:710,d:281,p:39.58,h:0.5560975609756098,r:429,c:'#4361ee',sw:{t:410,d:228},ap:{t:290,d:43},inf:{t:10,d:10}},
+  {n:'CFZ',t:187,d:169,p:90.37,h:0.9038461538461539,r:18,c:'#2bc48a',sw:{t:156,d:141},ap:{t:25,d:24},inf:{t:6,d:4}},
+  {n:'T1-015',t:327,d:2,p:0.61,h:0,r:325,c:'#ff9f43',sw:{t:281,d:0},ap:{t:44,d:0},inf:{t:2,d:2}},
+  {n:'D1-091',t:147,d:2,p:1.36,h:0,r:145,c:'#a855f7',sw:{t:134,d:0},ap:{t:11,d:0},inf:{t:2,d:2}},
+  {n:'RFF',t:99,d:2,p:2.02,h:0,r:97,c:'#22b8cf',sw:{t:65,d:0},ap:{t:32,d:0},inf:{t:2,d:2}},
+  {n:'AMF',t:114,d:2,p:1.75,h:0,r:112,c:'#f76707',sw:{t:69,d:0},ap:{t:43,d:0},inf:{t:2,d:2}},
+  {n:'PPW',t:8,d:2,p:25.0,h:0,r:6,c:'#74c0fc',sw:{t:6,d:0},ap:{t:0,d:0},inf:{t:2,d:2}}
+];
 let LOC_DATA = {};
 
 // ── CHART OPTIONS FACTORY ─────────────────────────────────────────────────────
@@ -1343,37 +1311,32 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
     return (i <= TODAY_WK) ? _last : null;
   });
 
-
-
-  // plugin: today line
-  const _pid=canvasId+'_'+Date.now();
-  const _tdPlg={id:'td_'+_pid,afterDraw(chart){
-    const m0=chart.getDatasetMeta(0);
-    if(!m0.data[TODAY_WK]) return;
+  // today line plugin
+  const _tdPlg={id:'td_'+canvasId,afterDraw(chart){
+    const m=chart.getDatasetMeta(0);
+    if(!m.data[TODAY_WK]) return;
     const {top,bottom}=chart.chartArea;
-    const cv=chart.ctx;
-    const x0=m0.data[TODAY_WK].x;
-    const x1=m0.data[TODAY_WK+1]?m0.data[TODAY_WK+1].x:x0;
-    const xT=x0+(x1-x0)*getTodayFrac();
-    cv.save();
-    cv.beginPath();cv.moveTo(xT,top);cv.lineTo(xT,bottom);
+    const x0=m.data[TODAY_WK].x,x1=m.data[TODAY_WK+1]?m.data[TODAY_WK+1].x:x0;
+    const x=x0+(x1-x0)*getTodayFrac();
+    const cv=chart.ctx; cv.save();
+    cv.beginPath();cv.moveTo(x,top);cv.lineTo(x,bottom);
     cv.strokeStyle='#ee4b4b';cv.lineWidth=1.2;cv.setLineDash([4,3]);cv.stroke();
     cv.setLineDash([]);cv.restore();
   }};
 
   // datalabels plugin
-  const _lblPlg={id:'lbl_'+_pid,afterDatasetsDraw(chart){
+  const _lblPlg={id:'lbl_'+canvasId,afterDatasetsDraw(chart){
     const ctx2=chart.ctx;
     chart.data.datasets.forEach((ds,di)=>{
       const meta=chart.getDatasetMeta(di); if(meta.hidden) return;
       const lastIdx=ds.data.reduce((a,v,j)=>v!=null?j:a,-1);
-      const isPlan=di===0;
       meta.data.forEach((pt,i)=>{
         const v=ds.data[i]; if(v==null) return;
-        if(i!==lastIdx && i%3!==0) return;
+        if(i!==lastIdx && i%3!==0) return;  // แสดงทุก 3 จุด + จุดสุดท้าย
+        const isPlan=di===0;
         ctx2.save();
-        ctx2.font='9px Segoe UI';
-        ctx2.fillStyle=isPlan?'#94a3c4':((actColor||'#4361ee')+'99');
+        ctx2.font=isPlan?'9px Segoe UI':'bold 9px Segoe UI';
+        ctx2.fillStyle=isPlan?'#94a3b8':(actColor||'#4361ee');
         ctx2.textAlign='center';
         ctx2.textBaseline=isPlan?'bottom':'top';
         ctx2.fillText(v.toFixed(1)+'%', pt.x, isPlan?pt.y-4:pt.y+4);
@@ -1389,9 +1352,7 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
       labels: WK,
       datasets:[
         {label:planLabel||'แผน',data:planData,borderColor:planColor||'#64748b',borderWidth:2,borderDash:[5,3],pointRadius:3,pointBackgroundColor:planColor||'#64748b',tension:0.3,fill:false,spanGaps:false},
-        {label:actLabel||'จริง',data:actFull,borderColor:actColor||'#4361ee',borderWidth:2.5,
-         pointRadius:(c)=>c.parsed.y!=null?4:0,
-         pointBackgroundColor:actColor||'#4361ee',tension:0.3,fill:false,spanGaps:false}
+        {label:actLabel||'จริง',data:actFull,borderColor:actColor||'#4361ee',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?4:0,pointBackgroundColor:actColor||'#4361ee',tension:0.3,fill:false,spanGaps:false}
       ]
     },
     options:{...lineOpts(actColor),layout:{padding:{top:18,bottom:12}}}
@@ -1410,7 +1371,60 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
+function buildFabBreakdown() {
+  const wrap = document.getElementById('fab-bd-grid');
+  if (!wrap) return;
 
+  const data = [
+    {n:'D1-041',c:'#4361ee',tot:{d:281,t:710}, sw:{d:228,t:410}, ap:{d:43,t:290},  inf:{d:10,t:10}},
+    {n:'CFZ',   c:'#2bc48a',tot:{d:169,t:187}, sw:{d:141,t:156}, ap:{d:24,t:25},   inf:{d:4,t:6}},
+    {n:'T1-015',c:'#ff9f43',tot:{d:2,  t:327}, sw:{d:0,  t:281}, ap:{d:0,  t:44},  inf:{d:2,t:2}},
+    {n:'D1-091',c:'#9b59b6',tot:{d:2,  t:147}, sw:{d:0,  t:134}, ap:{d:0,  t:11},  inf:{d:2,t:2}},
+    {n:'RFF',   c:'#1abc9c',tot:{d:2,  t:99},  sw:{d:0,  t:65},  ap:{d:0,  t:32},  inf:{d:2,t:2}},
+    {n:'AMF',   c:'#e74c3c',tot:{d:2,  t:114}, sw:{d:0,  t:69},  ap:{d:0,  t:43},  inf:{d:2,t:2}},
+    {n:'PPW',   c:'#3498db',tot:{d:2,  t:8},   sw:{d:0,  t:6},   ap:{d:0,  t:0},   inf:{d:2,t:2}},
+  ];
+
+  wrap.innerHTML = data.map(f => {
+    const totPct = Math.round(f.tot.d / Math.max(f.tot.t,1) * 100);
+    const swPct  = Math.round(f.sw.d  / Math.max(f.sw.t,1)  * 100);
+    const apPct  = Math.round(f.ap.d  / Math.max(f.ap.t,1)  * 100);
+    const infPct = Math.round(f.inf.d / Math.max(f.inf.t,1) * 100);
+
+    const pctBg  = totPct >= 80 ? '#ecfdf5' : totPct >= 30 ? '#fff5e6' : '#eef1ff';
+    const pctCol = totPct >= 80 ? '#065f46' : totPct >= 30 ? '#92400e' : '#3451d1';
+
+    const catRow = (icon, label, done, total, pct, color) => `
+      <div class="fab-bd-cat">
+        <div class="fab-bd-dot" style="background:${color}"></div>
+        <span style="min-width:28px;font-size:10px">${label}</span>
+        <div class="fab-bd-cat-bar">
+          <div class="fab-bd-cat-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <span class="fab-bd-cat-val">${done}/${total}</span>
+      </div>`;
+
+    return `<div class="fab-bd-card" style="--fab-c:${f.c}">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${f.c}"></div>
+      <div class="fab-bd-top">
+        <span class="fab-bd-name">${f.n}</span>
+        <span class="fab-bd-pct" style="background:${pctBg};color:${pctCol}">${totPct}%</span>
+      </div>
+      <div class="fab-bd-total">
+        <strong>${f.tot.d}</strong>/${f.tot.t}
+        <span style="font-size:9px;margin-left:3px">เครื่อง</span>
+      </div>
+      <div class="fab-bd-bar">
+        <div class="fab-bd-fill" style="width:${totPct}%;background:${f.c}"></div>
+      </div>
+      <div class="fab-bd-cats">
+        ${catRow('🔀','SW', f.sw.d,  f.sw.t,  swPct,  '#4361ee')}
+        ${f.ap.t > 0 ? catRow('📶','AP',  f.ap.d,  f.ap.t,  apPct,  '#2bc48a') : ''}
+        ${catRow('⚡','Inf',f.inf.d, f.inf.t, infPct, '#ff9f43')}
+      </div>
+    </div>`;
+  }).join('');
+}
 
 
 // ── Device type horizontal bar chart ─────────────────────────────────────────
@@ -1521,12 +1535,6 @@ function buildTypeBarChart(){
 
 
 // ── ความเร็วการติดตั้งรายสัปดาห์ ────────────────────────────────────────────
-// helper: ดึง total installs จาก FAB_DAILY[fab][di] (รองรับทั้ง number[] และ {sw,ap,inf})
-function fabDailyTotal(fab, di){
-  const fd=FAB_DAILY[fab]; if(!fd) return 0;
-  if(Array.isArray(fd)) return fd[di]||0;
-  return (fd.sw&&fd.sw[di]||0)+(fd.ap&&fd.ap[di]||0)+(fd.inf&&fd.inf[di]||0);
-}
 function buildVelocityChart(){
   const cv = document.getElementById('velocity-c');
   if(!cv) return;
@@ -1635,13 +1643,13 @@ function buildVelocityChart(){
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      layout:{padding:{top:24,right:48,bottom:10}},
+      layout:{padding:{top:20}},
       plugins:{
         legend:{display:false},
         tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
           callbacks:{
-            title:ctx=>{try{const i=ctx[0]?.dataIndex??0; return `${sliceLabels[i]||''}  (${sliceDateLabels[i]||''})`;} catch{return '';}},
-            label:ctx=>{try{const i=ctx?.dataIndex??0; return [` SW: ${sliceSW[i]||0}`, ` AP: ${sliceAP[i]||0}`, ` รวม: ${sliceTot[i]||0} เครื่อง`];} catch{return '';}}
+            title:ctx=>{const i=ctx[0].dataIndex; return `${sliceLabels[i]}  (${sliceDateLabels[i]})`;},
+            label:ctx=>{const i=ctx[0].dataIndex; return [` SW: ${sliceSW[i]}`, ` AP: ${sliceAP[i]}`, ` รวม: ${sliceTot[i]} เครื่อง`];}
           }
         }
       },
@@ -1689,7 +1697,7 @@ function buildFabGap(){
     DAILY_L.forEach((lbl,di)=>{
       const [day,mo]=lbl.split('/').map(Number);
       const dt=new Date(2026,mo-1,day);
-      if(dt>=wkStart&&dt<=wkEnd) tot+=fabDailyTotal(f.n,di);
+      if(dt>=wkStart&&dt<=wkEnd) tot+=(FAB_DAILY[f.n]&&FAB_DAILY[f.n][di])||0;
     });
     return {n:f.n, c:f.c, tot, t:f.t, d:f.d};
   });
@@ -1706,11 +1714,11 @@ function buildFabGap(){
         ctx2.textBaseline='middle'; ctx2.fillStyle='#1e2d4d';
         ctx2.fillText(`${f.tot} เครื่อง`, bar.x+5, bar.y-5);
         ctx2.font='9px Segoe UI'; ctx2.fillStyle='#64748b';
-        ctx2.fillText(`(รวม ${f.d}/${f.t})`, bar.x+5, bar.y+5);
+        ctx2.fillText(`รวม ${actPct}%`, bar.x+5, bar.y+5);
       } else {
         ctx2.font='9px Segoe UI'; ctx2.textAlign='left';
         ctx2.textBaseline='middle'; ctx2.fillStyle='#94a3b8';
-        ctx2.fillText(`– (รวม ${f.d}/${f.t})`, bar.x+5, bar.y);
+        ctx2.fillText(`–  (รวม ${actPct}%)`, bar.x+5, bar.y);
       }
       ctx2.restore();
     });
@@ -1736,9 +1744,9 @@ function buildFabGap(){
         tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
           bodyColor:'rgba(255,255,255,.8)',padding:10,
           callbacks:{
-            title:ctx=>`${fabWkData[ctx[0]?.dataIndex??0]?.n||''}`,
+            title:ctx=>`${fabWkData[ctx[0].dataIndex].n}`,
             label:ctx=>{
-              const f=fabWkData[ctx?.dataIndex??0];
+              const f=fabWkData[ctx[0].dataIndex];
               const pct=totalWk>0?Math.round(f.tot/totalWk*100):0;
               const actPct=Math.round(f.d/Math.max(f.t,1)*100);
               return f.tot>0
@@ -1799,7 +1807,7 @@ function buildWeekdayChart(){
   const fabDatasets=FABRICS.map(f=>{
     const data=days7.map(day=>{
       const di=DAILY_L.indexOf(day.dk);
-      return di>=0?fabDailyTotal(f.n,di):0;
+      return di>=0?((FAB_DAILY[f.n]&&FAB_DAILY[f.n][di])||0):0;
     });
     return {label:f.n, data, backgroundColor:f.c+'bb', borderColor:f.c,
             borderWidth:1, borderRadius:3, stack:'s'};
@@ -1808,7 +1816,7 @@ function buildWeekdayChart(){
   const totals=days7.map((_,di)=>
     FABRICS.reduce((s,f)=>{
       const idx2=DAILY_L.indexOf(days7[di].dk);
-      return s+(idx2>=0?fabDailyTotal(f.n,idx2):0);
+      return s+(idx2>=0?((FAB_DAILY[f.n]&&FAB_DAILY[f.n][idx2])||0):0);
     },0)
   );
 
@@ -1872,89 +1880,57 @@ function buildGauge(){
 }
 
 function buildBurndown(){
-  const cv=document.getElementById('burndown-c');
-  if(!cv) return;
-  const ex=Chart.getChart(cv); if(ex) ex.destroy();
-
-  // คำนวณ BD จาก DAILY_PROG_PLAN/ACT ถ้ามี ไม่งั้น weekly fallback
-  const TOTAL_T = 1592;
-  let _labels, _bdPlan, _bdAct, useDaily;
-
-  if(DAILY_PROG_LABELS.length > 0){
-    // daily: BD = TOTAL - cumulative
-    useDaily = true;
-    _labels  = DAILY_PROG_LABELS;
-    _bdPlan  = DAILY_BD_PLAN.length ? DAILY_BD_PLAN
-               : DAILY_PROG_PLAN.map(p=>Math.round((1 - p/100)*TOTAL_T));
-    _bdAct   = DAILY_BD_ACT.length  ? DAILY_BD_ACT
-               : DAILY_PROG_ACT.map(p=>p!=null?Math.round((1-p/100)*TOTAL_T):null);
-  } else {
-    // weekly fallback
-    useDaily = false;
-    _labels  = WK;
-    _bdPlan  = BD_PLAN;
-    let _wbLast=null;
-    _bdAct = WK.map((_,i)=>{ if(BD_ACT[i]!=null)_wbLast=BD_ACT[i]; return i<=TODAY_WK?_wbLast:null; });
-  }
-  if(!_labels.length) return;
-
-  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-  const lastActIdx=_bdAct.reduce((a,v,j)=>v!=null?j:a,-1);
-  const _uid='burndown_'+Date.now();
-  const tickStep=useDaily?14:1;
-
-  const tdPl={id:'td_'+_uid,afterDraw(chart){
-    const {top,bottom}=chart.chartArea; const ctx=chart.ctx;
-    const tIdx=chart.data.labels.indexOf(todayLbl);
-    if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
-    const x=chart.getDatasetMeta(0).data[tIdx].x;
-    ctx.save();
-    ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);
-    ctx.strokeStyle='#ee4b4b';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.font='bold 10px Segoe UI,sans-serif';
-    const tw=ctx.measureText(todayLbl).width;
-    ctx.fillStyle='#ee4b4b';
-    ctx.beginPath();ctx.roundRect(x-tw/2-4,top-1,tw+8,16,4);ctx.fill();
-    ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='top';
-    ctx.fillText(todayLbl,x,top+2);ctx.restore();
-  }};
-
-  new Chart(cv,{
+  const tdPl={id:'td',afterDraw(chart){
+  const m=chart.getDatasetMeta(0);
+  if(!m.data[TODAY_WK]) return;
+  const {top,bottom}=chart.chartArea;
+  const x0=m.data[TODAY_WK].x;
+  const x1=m.data[TODAY_WK+1]?m.data[TODAY_WK+1].x:x0;
+  const x=x0+(x1-x0)*getTodayFrac();
+  const cv=chart.ctx;
+  cv.save();
+  // Dashed red line
+  cv.beginPath();
+  cv.moveTo(x,top);
+  cv.lineTo(x,bottom);
+  cv.strokeStyle='#ee4b4b';
+  cv.lineWidth=1.5;
+  cv.setLineDash([5,3]);
+  cv.stroke();
+  // Date label on top of line
+  const label=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+  cv.setLineDash([]);
+  cv.font='bold 10px Segoe UI, sans-serif';
+  const tw=cv.measureText(label).width;
+  // Background pill
+  cv.fillStyle='#ee4b4b';
+  cv.beginPath();
+  cv.roundRect(x-tw/2-4, top-1, tw+8, 16, 4);
+  cv.fill();
+  // Text
+  cv.fillStyle='#fff';
+  cv.textAlign='center';
+  cv.textBaseline='top';
+  cv.fillText(label, x, top+2);
+  cv.restore();
+}};
+  // carry-forward: ต่อเส้นจริงถึง TODAY_WK แม้ว่า weekly ยังไม่บันทึก
+  let _bdLast = null;
+  const actualFull = WK.map((_,i) => {
+    if(i < BD_ACT.length && BD_ACT[i] !== null) _bdLast = BD_ACT[i];
+    return (i <= TODAY_WK) ? _bdLast : null;
+  });
+  const _ch_burndownc = Chart.getChart(document.getElementById('burndown-c'));
+  if(_ch_burndownc) _ch_burndownc.destroy();
+  new Chart(document.getElementById('burndown-c'),{
     type:'line',plugins:[tdPl],
-    data:{
-      labels:_labels,
-      datasets:[
-        {label:'แผน',data:_bdPlan,borderColor:'#94a3c4',borderWidth:1.5,
-         borderDash:[6,4],pointRadius:0,tension:0.3,fill:false,spanGaps:true},
-        {label:'จริง',data:_bdAct,borderColor:'#2bc48a',borderWidth:2.5,
-         pointRadius:(c)=>c.dataIndex===lastActIdx?4:0,
-         pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{display:false},
-        tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
-          bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
-          callbacks:{
-            title:items=>_labels[items[0].dataIndex]||'',
-            label:c=>` ${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString()+' เหลือ':'–'}`
-          }
-        }
-      },
-      scales:{
-        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
-             callback:(v,i)=>i%tickStep===0?_labels[i]:null},grid:{display:false}},
-        y:{min:0,ticks:{font:{size:10},color:'#94a3c4',
-             callback:v=>v.toLocaleString()},grid:{color:'#f0f4ff'}}
-      }
-    }
+    data:{labels:WK,datasets:[
+      {label:'แผน',data:BD_PLAN,borderColor:'#94a3c4',borderWidth:1.5,borderDash:[6,4],pointRadius:0,tension:0.3,fill:false},
+      {label:'จริง',data:actualFull,borderColor:'#2bc48a',borderWidth:2.5,pointRadius:(c)=>c.dataIndex<BD_ACT.length?3:0,pointBackgroundColor:'#2bc48a',tension:0.4,fill:false,spanGaps:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} เหลือ`}}},scales:{x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4'},grid:{display:false}},y:{min:0,max:1700,ticks:{font:{size:10},color:'#94a3c4',stepSize:400},grid:{color:'#f0f4ff'}}}}
   });
 }
-
 
 function buildDonut(){
   const _ch_donutc = Chart.getChart(document.getElementById('donut-c'));
@@ -2035,402 +2011,156 @@ w.innerHTML=FABRICS.map((f,_fi)=>{const p=Math.round(f.p),cls=p===100?'hmfu':p>=
 }
 
 // ── PROGRESS LINE CHARTS ──────────────────────────────────────────────────────
-// ── Daily chart builder helper ───────────────────────────────────────────────
-function buildDailyChart(canvasId, labels, planData, actData, planColor, actColor, yMax, yUnit){
-  const ctx=document.getElementById(canvasId);
-  if(!ctx) return;
-  const ex=Chart.getChart(ctx); if(ex) ex.destroy();
-  if(!labels||!labels.length) return;
-
-  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-  const lastActIdx=actData.reduce((a,v,j)=>v!=null?j:a,-1);
-  const _uid=canvasId+'_'+Date.now();
-  const isDaily=labels.length>30; // daily ถ้า label เยอะ, weekly ถ้าน้อย
-  const tickStep=isDaily?14:1;
-
-  // today line + pill แดง (เหมือน overall)
-  const tdPlugin={id:'td_'+_uid,afterDraw(chart){
-    const {top,bottom}=chart.chartArea; const cv=chart.ctx;
-    const tIdx=chart.data.labels.indexOf(todayLbl);
-    if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
-    const x=chart.getDatasetMeta(0).data[tIdx].x;
-    cv.save();
-    cv.beginPath();cv.moveTo(x,top);cv.lineTo(x,bottom);
-    cv.strokeStyle='#ee4b4b';cv.lineWidth=1.5;cv.setLineDash([5,3]);cv.stroke();
-    cv.setLineDash([]);
-    // pill วันที่
-    cv.font='bold 9px Segoe UI,sans-serif';
-    const tw=cv.measureText(todayLbl).width;
-    cv.fillStyle='#ee4b4b';
-    cv.beginPath();cv.roundRect(x-tw/2-4,top-1,tw+8,14,3);cv.fill();
-    cv.fillStyle='#fff';cv.textAlign='center';cv.textBaseline='top';
-    cv.fillText(todayLbl,x,top+2);
-    cv.restore();
-  }};
-
-  // datalabels เฉพาะ last actual point — plan ใช้ index เดียวกัน
-  const lblPlugin={id:'lbl_'+_uid,afterDatasetsDraw(chart){
-    const ctx2=chart.ctx;
-    // หา last actual index จาก dataset di=1
-    const actDs=chart.data.datasets[1];
-    const sharedIdx=actDs?actDs.data.reduce((a,v,j)=>v!=null?j:a,-1):-1;
-    if(sharedIdx<0) return;
-    chart.data.datasets.forEach((ds,di)=>{
-      const meta=chart.getDatasetMeta(di);
-      const v=ds.data[sharedIdx]; if(v==null) return;
-      const pt=meta.data[sharedIdx]; if(!pt) return;
-      const isPlan=di===0;
-      ctx2.save();
-      ctx2.font='bold 9px Segoe UI';
-      ctx2.fillStyle=isPlan?(planColor||'#94a3c4'):(actColor||'#4361ee');
-      ctx2.textAlign='left';
-      ctx2.textBaseline=isPlan?'bottom':'top';
-      const suffix=yUnit==='%'?'%':' เครื่อง';
-      ctx2.fillText(v.toFixed(yUnit==='%'?1:0)+suffix, pt.x+5, isPlan?pt.y-2:pt.y+2);
-      ctx2.restore();
-    });
-  }};
-
-  // actColor with opacity สำหรับ fill (robust — handle any color format)
-  const _hex6 = (actColor||'#4361ee').replace('#','').slice(0,6);
-  const _r=parseInt(_hex6.slice(0,2),16)||67, _g=parseInt(_hex6.slice(2,4),16)||97, _b=parseInt(_hex6.slice(4,6),16)||238;
-  const fillBg = `rgba(${_r},${_g},${_b},0.06)`;
-
-  return new Chart(ctx,{
-    type:'line', plugins:[tdPlugin,lblPlugin],
-    data:{
-      labels,
-      datasets:[
-        {label:'แผน',data:planData,borderColor:planColor||'#94a3c4',borderDash:[5,3],
-         borderWidth:1.5,
-         pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-         pointBackgroundColor:planColor||'#94a3c4',
-         tension:0.3,fill:false,spanGaps:true},
-        {label:'จริง',data:actData,borderColor:actColor||'#4361ee',borderWidth:2.5,
-         pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-         pointBackgroundColor:actColor||'#4361ee',tension:0.3,
-         fill:true,backgroundColor:fillBg,spanGaps:false},
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      layout:{padding:{top:24,right:48,bottom:10}},
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{display:false},
-        tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
-          bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
-          callbacks:{
-            title:items=>labels[items[0].dataIndex]||'',
-            label:c=>{
-              const v=c.parsed.y; if(v==null) return null;
-              return ` ${c.dataset.label}: ${yUnit==='%'?v.toFixed(1)+'%':Math.round(v).toLocaleString()+' เครื่อง'}`;
-            }
-          }
-        }
-      },
-      scales:{
-        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
-             callback:(v,i)=>i%tickStep===0?labels[i]:null},
-           grid:{display:false}},
-        y:{min:0,max:yMax||100,
-           ticks:{font:{size:10},color:'#94a3c4',stepSize:yUnit==='%'?10:undefined,
-             callback:v=>yUnit==='%'?v+'%':v.toLocaleString()},
-           grid:{color:'#f0f4ff'}}
-      }
-    }
-  });
-}
-
 function buildProgressCharts(){
-  // todayLbl ใช้ร่วมกันทุก chart ใน function นี้
-  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-
-  // ── Overall: กราฟรายวัน แผน vs จริง ──
+  // ── Overall: ภาพใหญ่ พร้อม today line + datalabels ──
   (()=>{
     const cv=document.getElementById('prog-all-c');
     if(!cv) return;
     const ex=Chart.getChart(cv); if(ex) ex.destroy();
-    // fallback: ถ้ายังไม่มี daily data ใช้ weekly แทน
-    const useDaily=DAILY_PROG_LABELS.length>0;
-    const _pLabels = useDaily ? DAILY_PROG_LABELS : WK;
-    const _pPlan   = useDaily ? DAILY_PROG_PLAN : PLAN_ALL;
-    let _wLast=null;
-    const _wkAct = WK.map((_,i)=>{ if(ACT_ALL_RAW[i]!=null)_wLast=ACT_ALL_RAW[i]; return i<=TODAY_WK?_wLast:null; });
-    const _pAct  = useDaily ? DAILY_PROG_ACT : _wkAct;
-    if(!_pLabels.length) return;
 
-    const _uid=Date.now();
-    const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+    let _l=null;
+    const actFull=WK.map((_,i)=>{
+      if(i<ACT_ALL_RAW.length&&ACT_ALL_RAW[i]!==null) _l=ACT_ALL_RAW[i];
+      return i<=TODAY_WK?_l:null;
+    });
 
     // today line plugin
-    const tdPlugin={id:'tdAll_'+_uid,afterDraw(chart){
+    const tdPlugin={id:'tdAll',afterDraw(chart){
+      const m=chart.getDatasetMeta(0);
+      if(!m.data[TODAY_WK]) return;
       const {top,bottom}=chart.chartArea;
-      const cv=chart.ctx;
-      const tIdx=chart.data.labels.indexOf(todayLbl);
-      if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
-      const x=chart.getDatasetMeta(0).data[tIdx].x;
-      cv.save();
-      cv.beginPath();cv.moveTo(x,top);cv.lineTo(x,bottom);
-      cv.strokeStyle='#ee4b4b';cv.lineWidth=1.5;cv.setLineDash([5,3]);cv.stroke();
+      const x0=m.data[TODAY_WK].x, x1=m.data[TODAY_WK+1]?m.data[TODAY_WK+1].x:x0;
+      const x=x0+(x1-x0)*getTodayFrac();
+      const cv=chart.ctx; cv.save();
+      cv.beginPath(); cv.moveTo(x,top); cv.lineTo(x,bottom);
+      cv.strokeStyle='#ee4b4b'; cv.lineWidth=1.5; cv.setLineDash([5,3]); cv.stroke();
       cv.setLineDash([]);
-      cv.font='bold 10px Segoe UI,sans-serif';
-      const tw=cv.measureText(todayLbl).width;
+      const lbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+      cv.font='bold 10px Segoe UI'; const tw=cv.measureText(lbl).width;
       cv.fillStyle='#ee4b4b';
-      cv.beginPath();cv.roundRect(x-tw/2-4,top-1,tw+8,16,4);cv.fill();
-      cv.fillStyle='#fff';cv.textAlign='center';cv.textBaseline='top';
-      cv.fillText(todayLbl,x,top+2);cv.restore();
+      cv.beginPath(); cv.roundRect(x-tw/2-4,top-1,tw+8,16,4); cv.fill();
+      cv.fillStyle='#fff'; cv.textAlign='center'; cv.textBaseline='top';
+      cv.fillText(lbl,x,top+2); cv.restore();
     }};
 
-    // datalabels — เฉพาะ last actual index (plan+actual คู่กัน)
-    const lblPlugin={id:'allLabels_'+_uid,afterDatasetsDraw(chart){
+    // datalabels: แสดง % ที่จุดข้อมูล plan=บน actual=ล่าง
+    const lblPlugin={id:'allLabels',afterDatasetsDraw(chart){
       const ctx=chart.ctx;
-      const actDs=chart.data.datasets[1];
-      const sharedIdx=actDs?actDs.data.reduce((a,v,j)=>v!=null?j:a,-1):-1;
-      if(sharedIdx<0) return;
       chart.data.datasets.forEach((ds,di)=>{
+        if(ds.data.every(v=>v==null)) return;
         const meta=chart.getDatasetMeta(di);
-        const v=ds.data[sharedIdx]; if(v==null) return;
-        const pt=meta.data[sharedIdx]; if(!pt) return;
-        const isPlan=di===0;
-        ctx.save();
-        ctx.font='bold 9px Segoe UI';
-        ctx.fillStyle=isPlan?'#94a3c4':'#4361ee';
-        ctx.textAlign='left';
-        ctx.textBaseline=isPlan?'bottom':'top';
-        ctx.fillText(v.toFixed(1)+'%', pt.x+5, isPlan?pt.y-2:pt.y+2);
-        ctx.restore();
+        meta.data.forEach((pt,i)=>{
+          const v=ds.data[i];
+          if(v==null||v===undefined) return;
+          const isPlan=di===0;
+          // แสดงเฉพาะทุก 2 จุด หรือจุดสุดท้ายที่มีข้อมูล
+          const lastIdx=ds.data.reduce((a,v,j)=>v!=null?j:a,-1);
+          if(i!==lastIdx && i%3!==0) return;
+          ctx.save();
+          ctx.font=isPlan?'9px Segoe UI':'bold 10px Segoe UI';
+          ctx.fillStyle=isPlan?'#94a3c4':'#4361ee';
+          ctx.textAlign='center';
+          ctx.textBaseline=isPlan?'bottom':'top';
+          const y=isPlan?pt.y-5:pt.y+5;
+          ctx.fillText(v.toFixed(1)+'%', pt.x, y);
+          ctx.restore();
+        });
       });
     }};
 
-    const lastActIdx=_pAct.reduce((a,v,j)=>v!=null?j:a,-1);
-    new Chart(cv,{
-      type:'line',plugins:[tdPlugin,lblPlugin],
-      data:{
-        labels:_pLabels,
-        datasets:[
-          {label:'แผน (%)',data:_pPlan,borderColor:'#94a3c4',borderDash:[5,3],
-           borderWidth:1.5,
-           pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-           pointBackgroundColor:'#94a3c4',
-           tension:0.3,fill:false,spanGaps:true},
-          {label:'จริง (%)',data:_pAct,borderColor:'#4361ee',borderWidth:2.5,
-           pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-           pointBackgroundColor:'#4361ee',tension:0.3,fill:true,
-           backgroundColor:'rgba(67,97,238,0.06)',spanGaps:false},
-        ]
-      },
+    const ch=new Chart(cv,{
+      type:'line', plugins:[tdPlugin,lblPlugin],
+      data:{labels:WK,datasets:[
+        {label:'แผน (%)',data:PLAN_ALL,borderColor:'#94a3c4',borderDash:[5,3],borderWidth:1.5,
+         pointRadius:3,pointBackgroundColor:'#94a3c4',tension:0.3,fill:false,spanGaps:false},
+        {label:'จริง (%)',data:actFull,borderColor:'#4361ee',borderWidth:2.5,
+         pointRadius:(c)=>c.parsed.y!=null?4:0,pointBackgroundColor:'#4361ee',
+         tension:0.3,fill:true,backgroundColor:'rgba(67,97,238,0.06)',spanGaps:false},
+      ]},
       options:{
         responsive:true,maintainAspectRatio:false,
-        layout:{padding:{top:24,right:48,bottom:10}},
+        layout:{padding:{top:20,bottom:10}},
         interaction:{mode:'index',intersect:false},
         plugins:{
           legend:{display:false},
           tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
             bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
-            callbacks:{
-              title:items=>DAILY_PROG_LABELS[items[0].dataIndex]||'',
-              label:c=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toFixed(1)+'%':'–'}`
-            }
-          }
+            callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toFixed(1)+'%':'–'}`}}
         },
         scales:{
-          x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
-               callback:(v,i)=>useDaily?(i%7===0?_pLabels[i]:null):_pLabels[i]},
-             grid:{display:false}},
-          y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},
-             grid:{color:'#f0f4ff'}}
+          x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
+          y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
         }
       }
     });
 
-    // header labels
-    const todayIdx=_pLabels.indexOf(todayLbl);
-    const planNow=todayIdx>=0?_pPlan[todayIdx]:null;
-    const actNow=lastActIdx>=0?_pAct[lastActIdx]:null;
+    // อัพเดท label บน header
+    const planNow=PLAN_ALL[Math.min(TODAY_WK,PLAN_ALL.length-1)];
+    const actNow=actFull[TODAY_WK];
     const pEl=document.getElementById('prog-all-plan-lbl');
     const aEl=document.getElementById('prog-all-act-lbl');
-    if(pEl&&planNow!=null) pEl.textContent='แผน: '+planNow.toFixed(1)+'%';
-    if(aEl&&actNow!=null)  aEl.textContent='จริง: '+actNow.toFixed(1)+'%';
+    if(pEl) pEl.textContent='แผน: '+planNow.toFixed(1)+'%';
+    if(aEl && actNow!=null) aEl.textContent='จริง: '+actNow.toFixed(1)+'%';
   })();
 
-  // SW daily chart
-  // helper: หาค่า plan ณ วันนี้ และค่า actual ล่าสุด
-  const _getHeaderVals=(labels,plan,act)=>{
-    const tIdx=labels.indexOf(todayLbl);
-    const planNow=tIdx>=0?plan[tIdx]:plan[plan.length-1]||null;
-    const actLast=act.reduce((a,v,j)=>v!=null?j:a,-1);
-    return {planNow, actNow:actLast>=0?act[actLast]:null};
-  };
+  makeLineChart('prog-sw-c',  PLAN_SW,  ACT_SW,  '#818cf8','#4361ee','แผน Switch (%)','จริง Switch (%)');
+  makeLineChart('prog-ap-c',  PLAN_AP,  ACT_AP,  '#34d399','#2bc48a','แผน AP (%)','จริง AP (%)');
 
-  // SW chart — daily
-  buildDailyChart('prog-sw-c', DAILY_PROG_LABELS, DAILY_SW_PLAN, DAILY_SW_ACT, '#818cf8','#4361ee', 100, '%');
-  const _swH=_getHeaderVals(DAILY_PROG_LABELS, DAILY_SW_PLAN, DAILY_SW_ACT);
-  const _pSwEl=document.getElementById('prog-sw-plan-lbl');
-  const _aSwEl=document.getElementById('prog-sw-act-lbl');
-  if(_pSwEl&&_swH.planNow!=null) _pSwEl.textContent='แผน: '+_swH.planNow.toFixed(1)+'%';
-  if(_aSwEl&&_swH.actNow!=null)  _aSwEl.textContent='จริง: '+_swH.actNow.toFixed(1)+'%';
-
-  // AP chart — daily
-  buildDailyChart('prog-ap-c', DAILY_PROG_LABELS, DAILY_AP_PLAN, DAILY_AP_ACT, '#34d399','#2bc48a', 100, '%');
-  const _apH=_getHeaderVals(DAILY_PROG_LABELS, DAILY_AP_PLAN, DAILY_AP_ACT);
-  const _pApEl=document.getElementById('prog-ap-plan-lbl');
-  const _aApEl=document.getElementById('prog-ap-act-lbl');
-  if(_pApEl&&_apH.planNow!=null) _pApEl.textContent='แผน: '+_apH.planNow.toFixed(1)+'%';
-  if(_aApEl&&_apH.actNow!=null)  _aApEl.textContent='จริง: '+_apH.actNow.toFixed(1)+'%';
-
-  // Per fabric cards — daily version
+  // Per fabric cards
   const wrap = document.getElementById('fab-prog-charts');
   if (!wrap) return;
-  wrap.querySelectorAll('canvas').forEach(cv=>{ const ch=Chart.getChart(cv); if(ch) ch.destroy(); });
-  wrap.innerHTML = '';
-
   FABRICS.forEach(f => {
-    if(!DAILY_FAB_PROG[f.n]||!DAILY_FAB_PROG[f.n].sw_plan||!DAILY_FAB_PROG[f.n].sw_plan.length) return;
-    const swPct = Math.round(f.sw.d/Math.max(f.sw.t,1)*100);
-    const apPct = Math.round(f.ap.d/Math.max(f.ap.t,1)*100);
-    const totPct= Math.round(f.d/Math.max(f.t,1)*100);
-    const cid   = 'fab-prog-'+f.n.replace(/-/g,'')+'-c';
-
+    const fd = FAB_WEEKLY[f.n];
+    if (!fd) return;
     const div = document.createElement('div');
     div.className = 'card';
-    // ใช้ last actual index เพื่อ header — ตรงกับ label บนกราฟ
-    const fd2=DAILY_FAB_PROG[f.n];
-    const _swLastI=fd2&&fd2.sw_act?fd2.sw_act.reduce((a,v,j)=>v!=null?j:a,-1):-1;
-    const _apLastI=fd2&&fd2.ap_act?fd2.ap_act.reduce((a,v,j)=>v!=null?j:a,-1):-1;
-    const swActVal=_swLastI>=0?fd2.sw_act[_swLastI]:null;
-    const apActVal=_apLastI>=0?fd2.ap_act[_apLastI]:null;
-    // แสดง SW%/AP% จริงจาก f.sw.d/f.sw.t (ตรงและแม่นยำที่สุด)
-    const swPctLbl=(f.sw.t>0?Math.round(f.sw.d/f.sw.t*1000)/10:0).toFixed(1)+'%';
-    const apPctLbl=(f.ap.t>0?Math.round(f.ap.d/f.ap.t*1000)/10:0).toFixed(1)+'%';
-
-    div.innerHTML =
-      '<div class="ch" style="margin-bottom:8px;flex-wrap:wrap;gap:4px">'+
-        '<div style="width:10px;height:10px;border-radius:50%;background:'+f.c+';flex-shrink:0"></div>'+
-        '<span style="font-size:13px;font-weight:700">'+f.n+'</span>'+
-        '<div style="display:flex;gap:8px;margin-left:auto;font-size:11px">'+
-          '<span style="color:#818cf8">SW: '+swPctLbl+'</span>'+
-          (f.ap.t>0?'<span style="color:#2bc48a">AP: '+apPctLbl+'</span>':'')+
-        '</div>'+
-      '</div>'+
-      '<div style="height:190px"><canvas id="'+cid+'"></canvas></div>'+
-      '<div class="cleg" style="margin-top:6px">'+
-        '<div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>SW แผน</div>'+
-        '<div class="cl"><div class="cll" style="background:#4361ee"></div>SW จริง</div>'+
-        '<div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>AP แผน</div>'+
-        '<div class="cl"><div class="cll" style="background:#2bc48a"></div>AP จริง</div>'+
-        '<div class="cl" style="color:var(--danger);font-size:11px">| วันนี้</div>'+
-      '</div>';
+    div.innerHTML = `
+      <div class="ch" style="margin-bottom:10px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${f.c};flex-shrink:0"></div>
+        ${f.n} — Switch &amp; AP vs แผน
+        <span style="font-size:11px;font-weight:400;color:var(--text2);margin-left:4px">SW: ${Math.round(f.sw.d/Math.max(f.sw.t,1)*100)}% | AP: ${Math.round(f.ap.d/Math.max(f.ap.t,1)*100)}%</span>
+      </div>
+      <div style="height:190px"><canvas id="fab-${f.n.replace('-','')}-c"></canvas></div>
+      <div class="cleg" style="margin-top:6px">
+        <div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>Switch แผน</div>
+        <div class="cl"><div class="cll" style="background:#4361ee"></div>Switch จริง</div>
+        <div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>AP แผน</div>
+        <div class="cl"><div class="cll" style="background:#2bc48a"></div>AP จริง</div>
+      </div>`;
     wrap.appendChild(div);
 
-    const ctx2 = document.getElementById(cid);
-    if (!ctx2) return;
-    // ใช้ DAILY_FAB_PROG เสมอ (คำนวณจาก FAB_DAILY daily data แล้ว)
-    const fabDailyData = DAILY_FAB_PROG[f.n];
-    if(fabDailyData && fabDailyData.sw_plan && fabDailyData.sw_plan.length){
-      const ctx3=document.getElementById(cid);
-      if(!ctx3) return;
-      const ex3=Chart.getChart(ctx3); if(ex3) ex3.destroy();
-      const _uid3=cid+'_'+Date.now();
-      const lastSwIdx=fabDailyData.sw_act.reduce((a,v,j)=>v!=null?j:a,-1);
-      const lastApIdx=fabDailyData.ap_act.reduce((a,v,j)=>v!=null?j:a,-1);
-      const _tod=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-      const tdPl3={id:'td3_'+_uid3,afterDraw(chart){
-        const {top,bottom}=chart.chartArea; const cv3=chart.ctx;
-        const tIdx=chart.data.labels.indexOf(_tod);
-        if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
-        const x=chart.getDatasetMeta(0).data[tIdx].x;
-        cv3.save();
-        cv3.beginPath();cv3.moveTo(x,top);cv3.lineTo(x,bottom);
-        cv3.strokeStyle='#ee4b4b';cv3.lineWidth=1.2;cv3.setLineDash([4,3]);cv3.stroke();
-        cv3.setLineDash([]);
-        cv3.font='bold 9px Segoe UI,sans-serif';
-        const tw=cv3.measureText(_tod).width;
-        cv3.fillStyle='#ee4b4b';
-        cv3.beginPath();cv3.roundRect(x-tw/2-3,top-1,tw+6,13,3);cv3.fill();
-        cv3.fillStyle='#fff';cv3.textAlign='center';cv3.textBaseline='top';
-        cv3.fillText(_tod,x,top+2);cv3.restore();
-      }};
-      // datalabel plugin — ทุก 14 วัน + last point
-      // datalabel — plan+actual ที่ last actual index
-      const lblPl3={id:'lbl3_'+_uid3,afterDatasetsDraw(chart){
-        const ctx3c=chart.ctx;
-        // หา last actual index จาก SW จริง (di=1) หรือ AP จริง (di=3)
-        const swActDs=chart.data.datasets[1], apActDs=chart.data.datasets[3];
-        const swLastIdx=swActDs?swActDs.data.reduce((a,v,j)=>v!=null?j:a,-1):-1;
-        const apLastIdx=apActDs?apActDs.data.reduce((a,v,j)=>v!=null?j:a,-1):-1;
-        // pair: [dataset_index, shared_last_idx]
-        const pairs=[[0,swLastIdx],[1,swLastIdx],[2,apLastIdx],[3,apLastIdx]];
-        // สีชัดเจน: actual ใช้สีเต็ม, plan ใช้สีเดียวกันแต่จาง
-        const pairColors=['#4361ee','#4361ee','#2bc48a','#2bc48a'];
-        // actual values จาก fab_obj (ตรงกับ Dashboard)
-        const actualVals=[
-          null,  // di=0: SW แผน — ใช้จาก data
-          f.sw.t>0?Math.round(f.sw.d/f.sw.t*1000)/10:null,  // di=1: SW จริง
-          null,  // di=2: AP แผน — ใช้จาก data
-          f.ap.t>0?Math.round(f.ap.d/f.ap.t*1000)/10:null,  // di=3: AP จริง
-        ];
-        pairs.forEach(([di,sharedIdx])=>{
-          if(sharedIdx<0) return;
-          const ds=chart.data.datasets[di]; if(!ds) return;
-          const meta=chart.getDatasetMeta(di);
-          const pt=meta.data[sharedIdx]; if(!pt) return;
-          const isPlan=di===0||di===2;
-          // actual ใช้ค่าจาก fab_obj, plan ใช้จาก data array
-          const v=actualVals[di]!==null?actualVals[di]:ds.data[sharedIdx];
-          if(v==null) return;
-          ctx3c.save();
-          ctx3c.font=isPlan?'9px Segoe UI':'bold 9px Segoe UI';
-          ctx3c.fillStyle=isPlan?(pairColors[di]+'88'):pairColors[di];
-          ctx3c.textAlign='left';
-          ctx3c.textBaseline=isPlan?'bottom':'top';
-          const suffix='';
-          ctx3c.fillText(v.toFixed(1)+'%'+suffix, pt.x+5, isPlan?pt.y-2:pt.y+2);
-          ctx3c.restore();
-        });
-      }};
-      new Chart(ctx3,{
-        type:'line', plugins:[tdPl3,lblPl3],
+    setTimeout(() => {
+      const cid = `fab-${f.n.replace('-','')}-c`;
+      const ctx = document.getElementById(cid);
+      if (!ctx) return;
+      new Chart(ctx, {
+        type:'line',
         data:{
-          labels:DAILY_PROG_LABELS,
+          labels: WK,
           datasets:[
-            {label:'SW แผน',data:fabDailyData.sw_plan,borderColor:'#818cf8',borderDash:[5,3],
-             borderWidth:1.5,
-             pointRadius:(c)=>c.dataIndex===lastSwIdx?3:0,
-             pointBackgroundColor:'#818cf8',tension:0.3,fill:false,spanGaps:true},
-            {label:'SW จริง',data:fabDailyData.sw_act,borderColor:'#4361ee',borderWidth:2,
-             pointRadius:(c)=>c.dataIndex===lastSwIdx?3:0,
-             pointBackgroundColor:'#4361ee',tension:0.3,fill:false,spanGaps:false},
-            {label:'AP แผน',data:fabDailyData.ap_plan,borderColor:'#6ee7b7',borderDash:[5,3],
-             borderWidth:1.5,
-             pointRadius:(c)=>c.dataIndex===lastApIdx?3:0,
-             pointBackgroundColor:'#6ee7b7',tension:0.3,fill:false,spanGaps:true},
-            {label:'AP จริง',data:fabDailyData.ap_act,borderColor:'#2bc48a',borderWidth:2,
-             pointRadius:(c)=>c.dataIndex===lastApIdx?3:0,
-             pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
+            {label:'Switch แผน',data:fd.sw_plan,borderColor:'#818cf8',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#818cf8',tension:0.3,fill:false,spanGaps:false},
+            {label:'Switch จริง',data:(()=>{let l=null;return WK.map((_,i)=>{if(i<fd.sw_act.length&&fd.sw_act[i]!==null)l=fd.sw_act[i];return i<=TODAY_WK?l:null;});})(),borderColor:'#4361ee',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?3:0,pointBackgroundColor:'#4361ee',tension:0.3,fill:false,spanGaps:false},
+            {label:'AP แผน',data:fd.ap_plan,borderColor:'#34d399',borderWidth:1.5,borderDash:[5,3],pointRadius:2,pointBackgroundColor:'#34d399',tension:0.3,fill:false,spanGaps:false},
+            {label:'AP จริง',data:(()=>{let l=null;return WK.map((_,i)=>{if(i<fd.ap_act.length&&fd.ap_act[i]!==null)l=fd.ap_act[i];return i<=TODAY_WK?l:null;});})(),borderColor:'#2bc48a',borderWidth:2.5,pointRadius:(c)=>c.parsed.y!=null?3:0,pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
           ]
         },
         options:{
-          responsive:true,maintainAspectRatio:false,
-          layout:{padding:{top:24,right:48,bottom:10}},
+          responsive:true, maintainAspectRatio:false,
           interaction:{mode:'index',intersect:false},
-          plugins:{legend:{display:false},
-            tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
-              bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
-              callbacks:{
-                title:items=>DAILY_PROG_LABELS[items[0].dataIndex]||'',
-                label:c=>c.parsed.y!=null?` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`:null
-              }
+          plugins:{
+            legend:{display:false},
+            tooltip:{
+              backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
+              callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toFixed(1)+'%':'–'}`}
             }
           },
           scales:{
-            x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
-                 callback:(v,i)=>i%7===0?DAILY_PROG_LABELS[i]:null},grid:{display:false}},
-            y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
+            x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
+            y:{min:0,max:100,ticks:{font:{size:9},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
           }
         }
       });
-    }
+    }, 80);
   });
 }
 
@@ -2517,12 +2247,7 @@ function destroyChart(id){
   if(ch) ch.destroy();
 }
 function buildGraphs(){
-  gblt=true;
-  // destroy existing charts ก่อน create ใหม่
-  ['type-c','fab-bar-c','daily-c','cum-c','fab-total-bar-c'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){const ch=Chart.getChart(el);if(ch)ch.destroy();}
-  });
+  if(gblt)return;gblt=true;
   new Chart(document.getElementById('type-c'),{type:'doughnut',data:{datasets:[{data:[1121,445,26],backgroundColor:['#4361ee','#2bc48a','#ff9f43'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}}}});
   new Chart(document.getElementById('fab-bar-c'),{
   type:'bar',
@@ -2572,136 +2297,12 @@ function buildGraphs(){
     }
   }
 });
-  {
-    // daily-c: ผลรายวันทั้งหมด + gradient color ตามปริมาณ
-    const _n=DAILY_L.length;
-    const _dl=DAILY_L, _sw=DAILY_SW, _ap=DAILY_AP, _inf=DAILY_INF;
-    const _tot=_dl.map((_,i)=>(_sw[i]||0)+(_ap[i]||0)+(_inf[i]||0));
-    const _mx=Math.max(..._tot,1);
-    // gradient: น้อย=อ่อน, มาก=เข้ม (ใช้ opacity)
-    const _bgSW=_tot.map(v=>`rgba(67,97,238,${0.3+0.7*(v/_mx)})`);
-    const _bgAP=_tot.map(v=>`rgba(43,196,138,${0.3+0.7*(v/_mx)})`);
-    const _bgInf=_tot.map(v=>`rgba(255,159,67,${0.3+0.7*(v/_mx)})`);
-    const _dc=document.getElementById('daily-c');
-    if(_dc) new Chart(_dc,{type:'bar',
-      data:{labels:_dl,datasets:[
-        {label:'Switch',data:_sw,backgroundColor:_bgSW,borderRadius:3,stack:'s'},
-        {label:'AP',    data:_ap,backgroundColor:_bgAP,borderRadius:3,stack:'s'},
-        {label:'Infra', data:_inf,backgroundColor:_bgInf,borderRadius:3,stack:'s'}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-        plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
-          tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
-            callbacks:{footer:items=>`รวม: ${items.reduce((a,c)=>a+c.parsed.y,0)} เครื่อง`}}},
-        scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:10}},grid:{display:false}}}
-      }
-    });
-  }
-  {
-    const _cumEl=document.getElementById('cum-c');
-    if(_cumEl){
-      const _exCum=Chart.getChart(_cumEl); if(_exCum) _exCum.destroy();
-    }
-    if(_cumEl && DAILY_L.length){
-      // คำนวณ cumulative จาก DAILY arrays
-      let _cumSW=[],_cumAP=[],_cumInf=[];
-      let cs=0,ca=0,ci=0;
-      DAILY_L.forEach((_,i)=>{
-        cs+=DAILY_SW[i]||0; ca+=DAILY_AP[i]||0; ci+=DAILY_INF[i]||0;
-        _cumSW.push(cs); _cumAP.push(ca); _cumInf.push(ci);
-      });
-      const _todayL=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-      const _lastIdx=DAILY_L.length-1;
-      const _tdCum={id:'tdCum',afterDraw(chart){
-        const {top,bottom}=chart.chartArea; const cv2=chart.ctx;
-        const tIdx=chart.data.labels.indexOf(_todayL);
-        if(tIdx<0||!chart.getDatasetMeta(0).data[tIdx]) return;
-        const x=chart.getDatasetMeta(0).data[tIdx].x;
-        cv2.save();
-        cv2.beginPath();cv2.moveTo(x,top);cv2.lineTo(x,bottom);
-        cv2.strokeStyle='#ee4b4b';cv2.lineWidth=1.5;cv2.setLineDash([5,3]);cv2.stroke();
-        cv2.setLineDash([]);
-        cv2.font='bold 9px Segoe UI';
-        const tw2=cv2.measureText(_todayL).width;
-        cv2.fillStyle='#ee4b4b';
-        cv2.beginPath();cv2.roundRect(x-tw2/2-3,top-1,tw2+6,13,3);cv2.fill();
-        cv2.fillStyle='#fff';cv2.textAlign='center';cv2.textBaseline='top';
-        cv2.fillText(_todayL,x,top+2);cv2.restore();
-      }};
-      // ใช้ installed totals จาก Dashboard sheet สำหรับ last value label
-      const _swTotal = window.INSTALLED_SW || _cumSW[_cumSW.length-1] || 0;
-      const _apTotal = window.INSTALLED_AP || _cumAP[_cumAP.length-1] || 0;
-      const _infTotal= window.INSTALLED_INF|| _cumInf[_cumInf.length-1]|| 0;
-      const _dsLabels = [_swTotal+' เครื่อง', _apTotal+' เครื่อง', _infTotal+' เครื่อง'];
-      const _lblCum={id:'lblCum',afterDatasetsDraw(chart){
-        const cv2=chart.ctx;
-        chart.data.datasets.forEach((ds,di)=>{
-          const lastI=ds.data.reduce((a,v,j)=>v!=null?j:a,-1);
-          if(lastI<0) return;
-          const pt=chart.getDatasetMeta(di).data[lastI];
-          if(!pt) return;
-          cv2.save();cv2.font='bold 9px Segoe UI';cv2.fillStyle=ds.borderColor;
-          cv2.textAlign='left';cv2.textBaseline='middle';
-          cv2.fillText(_dsLabels[di]||'',pt.x+5,pt.y);cv2.restore();
-        });
-      }};
-      new Chart(_cumEl,{type:'line',plugins:[_tdCum,_lblCum],
-        data:{labels:DAILY_L,datasets:[
-          {label:'Switch',data:_cumSW,fill:true,backgroundColor:'rgba(67,97,238,.12)',borderColor:'#4361ee',borderWidth:2,tension:0.4,
-           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#4361ee',spanGaps:true},
-          {label:'AP',    data:_cumAP,fill:true,backgroundColor:'rgba(43,196,138,.12)',borderColor:'#2bc48a',borderWidth:2,tension:0.4,
-           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#2bc48a',spanGaps:true},
-          {label:'Infra', data:_cumInf,fill:true,backgroundColor:'rgba(255,159,67,.15)',borderColor:'#ff9f43',borderWidth:2,tension:0.4,
-           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#ff9f43',spanGaps:true}
-        ]},
-        options:{responsive:true,maintainAspectRatio:false,
-          layout:{padding:{top:16,right:80,bottom:8}},
-          interaction:{mode:'index',intersect:false},
-          plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
-            tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
-              callbacks:{
-                title:items=>DAILY_L[items[0]?.dataIndex]||'',
-                label:c=>` ${c.dataset.label}: ${c.parsed.y} เครื่อง`,
-                footer:items=>`รวม: ${items.reduce((a,c)=>a+(c.parsed.y||0),0)} เครื่อง`
-              }
-            }
-          },
-          scales:{
-            y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},
-            x:{ticks:{font:{size:8},maxRotation:45,color:'#94a3c4',
-                callback:(v,i)=>i%7===0?DAILY_L[i]:null},grid:{display:false}}
-          }
-        }
-      });
-    }
-  }
+  new Chart(document.getElementById('daily-c'),{type:'bar',data:{labels:DAILY_L,datasets:[{label:'Switch',data:DAILY_SW,backgroundColor:'#4361ee',borderRadius:3,stack:'s'},{label:'AP',data:DAILY_AP,backgroundColor:'#2bc48a',borderRadius:3,stack:'s'},{label:'Infra',data:DAILY_INF,backgroundColor:'#ff9f43',borderRadius:3,stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
+  new Chart(document.getElementById('cum-c'),{type:'line',data:{labels:CUM_D,datasets:[{label:'Switch',data:CUM_SW,fill:true,backgroundColor:'rgba(67,97,238,.12)',borderColor:'#4361ee',borderWidth:1.5,tension:0.4,pointRadius:0},{label:'AP',data:CUM_AP,fill:true,backgroundColor:'rgba(43,196,138,.12)',borderColor:'#2bc48a',borderWidth:1.5,tension:0.4,pointRadius:0},{label:'Infra',data:CUM_INF,fill:true,backgroundColor:'rgba(255,159,67,.15)',borderColor:'#ff9f43',borderWidth:1.5,tension:0.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y} เครื่อง`}}},scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
   const tl=[['อาคารสนง.',38],['Concourse D',33],['Concourse A',85],['AIMS',16],['Concourse C',69],['CFZ BFZ',100],['Concourse G',0],['AMF1',4]];
-  if(document.getElementById('loc-bar-c')) new Chart(document.getElementById('loc-bar-c'),{type:'bar',data:{labels:tl.map(l=>l[0]),datasets:[{data:tl.map(l=>l[1]),backgroundColor:tl.map(l=>l[1]>=80?'#2bc48a':l[1]>=30?'#ff9f43':'#4361ee'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.parsed.y}%`}}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
-  if(document.getElementById('wd-cells') && DAILY_L.length){
-    // ผลรวมแยกตามวันในสัปดาห์ (จ,อ,พ,พฤ,ศ,ส,อา) ตั้งแต่เริ่มต้นจนปัจจุบัน
-    const _dowNames=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
-    const _dowTotals=new Array(7).fill(0);
-    DAILY_L.forEach((lbl,di)=>{
-      const [day,mo]=lbl.split('/').map(Number);
-      const dow=new Date(2026,mo-1,day).getDay(); // 0=อา, 1=จ, ...
-      _dowTotals[dow]+=(DAILY_SW[di]||0)+(DAILY_AP[di]||0)+(DAILY_INF[di]||0);
-    });
-    // เรียง จ-อา (1,2,3,4,5,6,0)
-    const _order=[1,2,3,4,5,6,0];
-    const _vals=_order.map(d=>_dowTotals[d]);
-    const _labels=_order.map(d=>_dowNames[d]);
-    const _mx=Math.max(..._vals,1);
-    document.getElementById('wd-cells').innerHTML=_labels.map((lbl,i)=>{
-      const v=_vals[i], ratio=_mx>0?v/_mx:0;
-      // gradient: 0=อ่อน(#e8eeff) → 1=เข้ม(#1d4ed8) ตามสัดส่วน
-      const r=Math.round(232-(232-29)*ratio);
-      const g=Math.round(238-(238-78)*ratio);
-      const b=Math.round(255-(255-216)*ratio);
-      const bg=`rgb(${r},${g},${b})`;
-      const tc=ratio>=0.5?'#fff':'#1e2d4d';
-      return `<div style="border-radius:7px;padding:9px 3px;text-align:center;background:${bg};color:${tc}"><div style="font-size:10px;opacity:.8">${lbl}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;
-    }).join('');
-  }
+  new Chart(document.getElementById('loc-bar-c'),{type:'bar',data:{labels:tl.map(l=>l[0]),datasets:[{data:tl.map(l=>l[1]),backgroundColor:tl.map(l=>l[1]>=80?'#2bc48a':l[1]>=30?'#ff9f43':'#4361ee'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.parsed.y}%`}}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
+  const wd=['อา','จ','อ','พ','พฤ','ศ','ส'],wv=[0,160,120,55,40,20,56],mx=Math.max(...wv);
+  document.getElementById('wd-cells').innerHTML=wd.map((d,i)=>{const v=wv[i],p=mx>0?Math.round(v/mx*100):0,bg=p>=80?'#2bc48a':p>=50?'#4361ee':p>=20?'#ff9f43':'#e2e8f0',tc=p>=20?'#fff':'var(--text2)';return `<div style="border-radius:7px;padding:9px 3px;text-align:center;background:${bg};color:${tc}"><div style="font-size:10px;opacity:.8">${d}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;}).join('');
 
   // ── Summary bar: total done per fabric ──
   const fabNames = Object.keys(FAB_TOTALS);
@@ -3024,8 +2625,7 @@ async function toggleHold(el){
   a.textContent=open?'▲':'▼';
   if(!open||b.innerHTML)return;
   try{
-    const r=await fetch(`${API}/api/devices?status=Hold&limit=20`);
-    const{data}=await r.json();
+    const data=window._holdItems||[];
     b.innerHTML=`<div class="card" style="margin-top:5px"><div class="tblw"><table><thead><tr><th>No.</th><th>Fabric</th><th>Location</th><th>Device Type</th><th>Qty</th></tr></thead><tbody>${data.map(r=>`<tr><td>${r['No.']}</td><td><b>${r['Fabric']}</b></td><td>${r['Location']||'-'}</td><td>${r['Device Type']}</td><td>${r['Qty']}</td></tr>`).join('')}</tbody></table></div></div>`;
   }catch{b.innerHTML='<div style="padding:11px;color:var(--text2)">ไม่สามารถโหลดได้จาก API</div>';}
 }
@@ -3051,40 +2651,12 @@ async function loadData(){
     const r = await fetch(`${API}/api/dashboard`);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
-    if(!d.weekly || !d.meta) throw new Error('Invalid API response');
     const {meta, insight:ins, weekly, fabrics, types, daily, locations} = d;
 
     // ── อัพเดท arrays ────────────────────────────────────────────────────
-    // installed totals จาก Dashboard sheet (ตรงกับ Excel)
-    window.INSTALLED_SW  = meta.installed_sw  || 0;
-    window.INSTALLED_AP  = meta.installed_ap  || 0;
-    window.INSTALLED_INF = meta.installed_inf || 0;
     WK.length=0;           d.wk.forEach(v=>WK.push(v));
     PLAN_ALL.length=0;     weekly.plan_all.forEach(v=>PLAN_ALL.push(v));
     ACT_ALL_RAW.length=0;  weekly.act_all.forEach(v=>ACT_ALL_RAW.push(v));
-    // daily progress
-    if(d.daily_progress){
-      const dp=d.daily_progress;
-      const _safe=(arr,target)=>{target.length=0;(arr||[]).forEach(v=>target.push(v));};
-      _safe(dp.labels,   DAILY_PROG_LABELS);
-      _safe(dp.plan_cum, DAILY_PROG_PLAN);
-      _safe(dp.act_cum,  DAILY_PROG_ACT);
-      _safe(dp.sw_plan,  DAILY_SW_PLAN);
-      _safe(dp.sw_act,   DAILY_SW_ACT);
-      _safe(dp.ap_plan,  DAILY_AP_PLAN);
-      _safe(dp.ap_act,   DAILY_AP_ACT);
-      _safe(dp.bd_plan,  DAILY_BD_PLAN);
-      _safe(dp.bd_act,   DAILY_BD_ACT);
-      Object.keys(dp.fab||{}).forEach(f=>{
-        DAILY_FAB_PROG[f]={
-          sw_plan:[...(dp.fab[f].sw_plan||[])],
-          sw_act: [...(dp.fab[f].sw_act ||dp.fab[f].act||[])],
-          ap_plan:[...(dp.fab[f].ap_plan||[])],
-          ap_act: [...(dp.fab[f].ap_act ||[])],
-        };
-      });
-    console.warn('today_wk=', d.today_wk, '| last_install=', d.last_install_date,
-      '| act_all W13=', weekly&&weekly.act_all?weekly.act_all[6]:'?');
     PLAN_SW.length=0;      weekly.plan_sw.forEach(v=>PLAN_SW.push(v));
     ACT_SW_RAW.length=0;   weekly.act_sw.forEach(v=>ACT_SW_RAW.push(v));
     PLAN_AP.length=0;      weekly.plan_ap.forEach(v=>PLAN_AP.push(v));
@@ -3101,7 +2673,9 @@ async function loadData(){
     CUM_AP.length=0;       daily.cum_ap.forEach(v=>CUM_AP.push(v));
     CUM_INF.length=0;      daily.cum_inf.forEach(v=>CUM_INF.push(v));
 
-    // carry-forward ACT — ใช้ getActAll/SW/AP() แทน
+    // carry-forward ACT
+    let _lp=null; ACT_AP.length=0;
+    WK.forEach((_,i)=>{ if(ACT_AP_RAW[i]!=null)_lp=ACT_AP_RAW[i]; ACT_AP.push(i<=TODAY_WK?_lp:null); });
 
     // Objects
     Object.assign(FAB_COLORS,      d.fab_colors);
@@ -3114,127 +2688,16 @@ async function loadData(){
     FABRICS.length=0;
     fabrics.forEach(f=>FABRICS.push({
       n:f.n, t:f.t, d:f.d, p:f.p, h:f.h, r:f.r, c:f.c,
-      s:f.s||'–', e:f.e||'–',
       sw:{t:f.sw.t,d:f.sw.d}, ap:{t:f.ap.t,d:f.ap.d}, inf:{t:f.inf.t,d:f.inf.d}
     }));
     TYPE_DATA.length=0;
     (types||[]).forEach(t=>TYPE_DATA.push({n:t.n,plan:t.plan,done:t.done}));
     window.TODAY_WK = d.today_wk;
-    window.UPCOMING = d.upcoming || {};
     TODAY_WK = d.today_wk;
-    LAST_INSTALL_DATE = d.last_install_date || null;
-
-    }
-    // ── คำนวณ daily SW/AP/BD/Fab (รันหลัง DAILY_L/SW/AP/FAB_DAILY populate แล้ว) ──
-    if(DAILY_PROG_LABELS.length && DAILY_L.length){
-      const TOTAL_SW_T=1121, TOTAL_AP_T=445, TOTAL_T=1592;
-
-      // map label → index
-      const lblMap={};
-      DAILY_PROG_LABELS.forEach((l,i)=>lblMap[l]=i);
-      const dailyLMap={};
-      DAILY_L.forEach((l,i)=>dailyLMap[l]=i);
-
-      // สะสม SW/AP actual รายวัน (Switch only, AP only)
-      const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-      const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-      DAILY_PROG_LABELS.forEach((lbl,i)=>{
-        const di=dailyLMap[lbl];
-        if(di!==undefined){
-          swActDay[i]=DAILY_SW[di]||0;
-          apActDay[i]=DAILY_AP[di]||0;
-        }
-      });
-
-      // หา last install idx
-      const lastInstLbl=getLastInstallLabel();
-      const lastInstIdx=lastInstLbl!=null?(lblMap[lastInstLbl]??-1):-1;
-
-      // SW plan: ใช้ DAILY_PROG_PLAN * (TOTAL_SW_T/TOTAL_T) — linear scale
-      // AP plan: ใช้ DAILY_PROG_PLAN * (TOTAL_AP_T/TOTAL_T)
-      let cSW=0, cAP=0;
-      DAILY_SW_PLAN.length=0; DAILY_SW_ACT.length=0;
-      DAILY_AP_PLAN.length=0; DAILY_AP_ACT.length=0;
-      DAILY_BD_ACT.length=0;
-
-      DAILY_PROG_LABELS.forEach((_,i)=>{
-        cSW+=swActDay[i]; cAP+=apActDay[i];
-        const inAct=lastInstIdx<0||i<=lastInstIdx;
-        const planFrac=(DAILY_PROG_PLAN[i]||0)/100;
-
-        DAILY_SW_PLAN.push(Math.round(planFrac*10000)/100);  // same % as overall plan
-        DAILY_SW_ACT.push(inAct?Math.round(cSW/TOTAL_SW_T*10000)/100:null);
-        DAILY_AP_PLAN.push(Math.round(planFrac*10000)/100);  // same % as overall plan
-        DAILY_AP_ACT.push(inAct?Math.round(cAP/TOTAL_AP_T*10000)/100:null);
-        // BD actual รวม infra — ใช้จาก DAILY_PROG_ACT ซึ่ง server คำนวณรวมทุก category
-        const allPct=DAILY_PROG_ACT[i];
-        DAILY_BD_ACT.push(inAct&&allPct!=null?Math.round((1-allPct/100)*TOTAL_T):null);
-      });
-
-      // BD plan
-      DAILY_BD_PLAN.length=0;
-      DAILY_PROG_PLAN.forEach(p=>DAILY_BD_PLAN.push(Math.round((1-p/100)*TOTAL_T)));
-
-      // per-fabric SW/AP — รองรับทั้ง server ใหม่ {sw,ap,inf} และเก่า (number[])
-      FABRICS.forEach(fab_obj=>{
-        const fab=fab_obj.n;
-        const fd=FAB_DAILY[fab]; if(!fd) return;
-        const fabPlanArr = FAB_DAILY_PLAN[fab] || [];
-        const swTotal=fab_obj.sw.t||1;
-        const apTotal=fab_obj.ap.t||1;
-        const swR=fab_obj.sw.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
-        const apR=fab_obj.ap.t/(fab_obj.sw.t+fab_obj.ap.t+0.001);
-
-        // detect format: new={sw:[],ap:[]} หรือ old=number[]
-        const isNewFmt = fd.sw && Array.isArray(fd.sw);
-
-        // map actual per day ตาม DAILY_PROG_LABELS
-        const swActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-        const apActDay=new Array(DAILY_PROG_LABELS.length).fill(0);
-        DAILY_PROG_LABELS.forEach((lbl,i)=>{
-          const di=dailyLMap[lbl]; if(di===undefined) return;
-          if(isNewFmt){
-            swActDay[i]=fd.sw[di]||0;
-            apActDay[i]=fd.ap[di]||0;
-          } else {
-            // old format: fd[di] = total (SW+AP+Inf), ใช้ installed actual จาก FABRICS
-            // ถ้า SW installed = 0 → SW daily = 0 (ไม่ใช้ ratio เพื่อป้องกัน infra leak)
-            const tot=fd[di]||0;
-            swActDay[i]=fab_obj.sw.d>0?Math.round(tot*swR):0;
-            apActDay[i]=fab_obj.ap.d>0?Math.round(tot*apR):0;
-          }
-        });
-
-        // หา last install idx (SW หรือ AP)
-        let fabLastIdx=-1;
-        for(let i=DAILY_PROG_LABELS.length-1;i>=0;i--){
-          if(swActDay[i]+apActDay[i]>0){fabLastIdx=i;break;}
-        }
-
-        let cSwPlan=0,cApPlan=0,cSw=0,cAp=0;
-        const swPlanArr=[],swActArr=[],apPlanArr=[],apActArr=[];
-
-        // ใช้ sw_plan/ap_plan จาก server โดยตรง ถ้ามี
-        // plan ใช้จาก DAILY_FAB_PROG ที่ _safe block load มาแล้ว (จาก dailyProgress.fab)
-        // compute เฉพาะ actual
-        DAILY_PROG_LABELS.forEach((lbl,i)=>{
-          cSw+=swActDay[i]; cAp+=apActDay[i];
-          const inAct=fabLastIdx<0||i<=fabLastIdx;
-          swActArr.push(inAct?Math.round(cSw/swTotal*10000)/100:null);
-          apActArr.push(apTotal>0&&inAct?Math.round(cAp/apTotal*10000)/100:null);
-        });
-
-        // merge actual กับ plan ที่มีอยู่แล้ว
-        const existing = DAILY_FAB_PROG[fab]||{};
-        DAILY_FAB_PROG[fab]={
-          sw_plan: existing.sw_plan||swActArr.map(()=>0),
-          sw_act:  swActArr,
-          ap_plan: existing.ap_plan||apActArr.map(()=>0),
-          ap_act:  apActArr
-        };
-      });
-    }
-    // ACT arrays ถูก carry-forward ผ่าน getActAll/SW/AP() แล้ว
+    let _la=null; ACT_ALL.length=0;
+    WK.forEach((_,i)=>{ if(ACT_ALL_RAW[i]!=null)_la=ACT_ALL_RAW[i]; ACT_ALL.push(i<=TODAY_WK?_la:null); });
+    let _ls=null; ACT_SW.length=0;
+    WK.forEach((_,i)=>{ if(ACT_SW_RAW[i]!=null)_ls=ACT_SW_RAW[i]; ACT_SW.push(i<=TODAY_WK?_ls:null); });
 
     // ── อัพเดท UI ─────────────────────────────────────────────────────────
     const _e = id=>document.getElementById(id);
@@ -3245,8 +2708,6 @@ async function loadData(){
     // topbar
     if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${meta.total}`;
     if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
-    if(_e('pill-days-left')) _e('pill-days-left').textContent = ins.days_left;
-    if(_e('plan-days-left')) _e('plan-days-left').textContent = ins.days_left+' วัน';
     if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
     if(_e('tb-over'))   _e('tb-over').textContent   = meta.overdue;
     if(_e('tb-rate'))   _e('tb-rate').textContent   = Number(ins.daily_rate).toFixed(1);
@@ -3281,62 +2742,17 @@ async function loadData(){
     }
 
     // overview cards
-    const sw  = meta.installed_sw  ?? fabrics.reduce((a,f)=>a+f.sw.d,0);
-    const ap  = meta.installed_ap  ?? fabrics.reduce((a,f)=>a+f.ap.d,0);
-    const inf = meta.installed_inf ?? fabrics.reduce((a,f)=>a+f.inf.d,0);
-    const swT=fabrics.reduce((a,f)=>a+f.sw.t,0)||1;
-    const apT=fabrics.reduce((a,f)=>a+f.ap.t,0)||1;
-    const infT=fabrics.reduce((a,f)=>a+f.inf.t,0)||1;
-    const allPct=(meta.installed/meta.total*100).toFixed(1);
-    const swPct=(sw/swT*100).toFixed(1);
-    const apPct=(ap/apT*100).toFixed(1);
-    const infPct=(inf/infT*100).toFixed(1);
+    const sw=fabrics.reduce((a,f)=>a+f.sw.d,0);
+    const ap=fabrics.reduce((a,f)=>a+f.ap.d,0);
+    const inf=fabrics.reduce((a,f)=>a+f.inf.d,0);
     if(_e('ov-all'))    _e('ov-all').textContent    = `${meta.installed}/${meta.total}`;
-    if(_e('ov-sw'))     _e('ov-sw').textContent     = `${sw}/${swT}`;
-    if(_e('ov-ap'))     _e('ov-ap').textContent     = `${ap}/${apT}`;
-    if(_e('ov-inf'))    _e('ov-inf').textContent    = `${inf}/${infT}`;
-    if(_e('ov-all-b'))  _e('ov-all-b').style.width  = allPct+'%';
-    if(_e('ov-sw-b'))   _e('ov-sw-b').style.width   = swPct+'%';
-    if(_e('ov-ap-b'))   _e('ov-ap-b').style.width   = apPct+'%';
-    if(_e('ov-inf-b'))  _e('ov-inf-b').style.width  = infPct+'%';
-    if(_e('ov-all-pct')) _e('ov-all-pct').textContent = allPct+'%';
-    if(_e('ov-sw-pct'))  _e('ov-sw-pct').textContent  = swPct+'%';
-    if(_e('ov-ap-pct'))  _e('ov-ap-pct').textContent  = apPct+'%';
-    if(_e('ov-inf-pct')) _e('ov-inf-pct').textContent = infPct+'%';
-    if(_e('ov-all-badge')) _e('ov-all-badge').textContent = allPct+'%';
-    if(_e('ov-sw-badge'))  _e('ov-sw-badge').textContent  = swPct+'%';
-    if(_e('ov-ap-badge'))  _e('ov-ap-badge').textContent  = apPct+'%';
-    if(_e('ov-inf-badge')) _e('ov-inf-badge').textContent = infPct+'%';
-    if(_e('type-donut-pct')) _e('type-donut-pct').textContent = allPct+'%';
-    // Tab แผนงาน
-    const effPct = ins.req_rate>0 ? Math.round(ins.daily_rate/ins.req_rate*100) : 0;
-    if(_e('plan-req-rate'))  _e('plan-req-rate').textContent  = ins.req_rate+' อุปกรณ์/วัน';
-    if(_e('plan-remaining')) _e('plan-remaining').textContent = meta.remaining.toLocaleString()+' อุปกรณ์';
-    // plan-plan-pct: plan ณ วันนี้
-    const _todayPlanIdx=(()=>{
-      const tl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
-      const ti=DAILY_PROG_LABELS.indexOf(tl);
-      return ti>=0?ti:DAILY_PROG_LABELS.length-1;
-    })();
-    const _planPctNow=DAILY_PROG_PLAN[_todayPlanIdx]||PLAN_ALL[Math.min(TODAY_WK,PLAN_ALL.length-1)]||0;
-    if(_e('plan-plan-pct'))  _e('plan-plan-pct').textContent  = _planPctNow.toFixed(1)+'%';
-    if(_e('plan-act-pct'))   _e('plan-act-pct').textContent   = allPct+'%';
-    if(_e('plan-act-bar'))   _e('plan-act-bar').style.width   = allPct+'%';
-    if(_e('plan-installed')) _e('plan-installed').textContent = meta.installed.toLocaleString()+' อุปกรณ์';
-    if(_e('plan-daily-rate'))_e('plan-daily-rate').textContent= ins.daily_rate.toFixed(1)+' อุปกรณ์/วัน';
-    if(_e('plan-eff-label')) _e('plan-eff-label').textContent = 'ทำได้ '+ins.daily_rate.toFixed(1)+'/วัน';
-    if(_e('plan-eff-bar'))   _e('plan-eff-bar').style.width   = Math.min(effPct,100)+'%';
-    if(_e('plan-eff-pct'))   _e('plan-eff-pct').textContent   = effPct+'%';
-    // plan target rate = TOTAL / proj_days (133 วัน)
-    const projDays = 133;
-    const targetRate = (meta.total / projDays).toFixed(1);
-    if(_e('plan-target-rate'))  _e('plan-target-rate').textContent  = targetRate+' อุปกรณ์/วัน';
-    if(_e('plan-finish-date'))  _e('plan-finish-date').textContent  = finTH;
-    if(_e('plan-status')){
-      const behind = allPct < (PLAN_ALL[Math.min(TODAY_WK,PLAN_ALL.length-1)]||0);
-      _e('plan-status').textContent = behind ? '↘ ช้ากว่าแผน' : '✓ ตรงแผน';
-      _e('plan-status').style.color = behind ? 'var(--danger)' : 'var(--success)';
-    }
+    if(_e('ov-sw'))     _e('ov-sw').textContent     = `${sw}/1121`;
+    if(_e('ov-ap'))     _e('ov-ap').textContent     = `${ap}/445`;
+    if(_e('ov-inf'))    _e('ov-inf').textContent    = `${inf}/26`;
+    if(_e('ov-all-b'))  _e('ov-all-b').style.width  = (meta.installed/meta.total*100).toFixed(1)+'%';
+    if(_e('ov-sw-b'))   _e('ov-sw-b').style.width   = (sw/1121*100).toFixed(1)+'%';
+    if(_e('ov-ap-b'))   _e('ov-ap-b').style.width   = (ap/445*100).toFixed(1)+'%';
+    if(_e('ov-inf-b'))  _e('ov-inf-b').style.width  = (inf/26*100).toFixed(1)+'%';
 
     // pills
     if(_e('pill-rem'))  _e('pill-rem').textContent  = meta.remaining.toLocaleString();
@@ -3398,28 +2814,11 @@ async function loadData(){
     if(_e('donut-late-cnt'))    _e('donut-late-cnt').textContent    = lateQ.toLocaleString();
     if(_e('donut-pending-cnt')) _e('donut-pending-cnt').textContent = pendQ.toLocaleString();
     buildGauge(); buildBurndown();
-    gblt=false; buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
+    // cache hold items for toggleHold
+    window._holdItems = (d.hold_items||[]).map(h=>h);
+    buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
     buildVelocityChart(); buildWeekdayChart(); buildFabGap();
-    // wd-cells populate ทันทีหลัง data load
-    if(document.getElementById('wd-cells') && DAILY_L.length){
-      const _dn=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
-      const _dt=new Array(7).fill(0);
-      DAILY_L.forEach((lbl,di)=>{
-        const [d,m]=lbl.split('/').map(Number);
-        const dow=new Date(2026,m-1,d).getDay();
-        _dt[dow]+=(DAILY_SW[di]||0)+(DAILY_AP[di]||0)+(DAILY_INF[di]||0);
-      });
-      const _ord=[1,2,3,4,5,6,0];
-      const _vv=_ord.map(d=>_dt[d]), _ll=_ord.map(d=>_dn[d]);
-      const _mx=Math.max(..._vv,1);
-      document.getElementById('wd-cells').innerHTML=_ll.map((lbl,i)=>{
-        const v=_vv[i],p=Math.round(v/_mx*100);
-        const bg=p>=80?'#2bc48a':p>=50?'#4361ee':p>=20?'#ff9f43':'#e2e8f0';
-        const tc=p>=20?'#fff':'var(--text2)';
-        return `<div style="border-radius:7px;padding:9px 3px;text-align:center;background:${bg};color:${tc}"><div style="font-size:10px;opacity:.8">${lbl}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;
-      }).join('');
-    }
-    buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards(); buildUpcoming();
+    buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards();
     gblt=false;
 
     // ── Build hold list ─────────────────────────────────────────────────
@@ -3446,7 +2845,6 @@ async function loadData(){
     console.log(`✓ SVB Dynamic: ${meta.installed}/${meta.total} rate=${ins.daily_rate} req=${ins.req_rate} W${d.today_wk+7}`);
   } catch(e){
     console.error('loadData error:', e.message);
-    console.error('Stack:', e.stack);
   } finally {
     hideLoading();
   }
@@ -3498,253 +2896,63 @@ async function manualRefresh(){
   btns.forEach(b=>{ b.textContent=b._orig||'↺ รีเฟรชข้อมูล'; b.disabled=false; });
 }
 
-// ── EXPORT PDF ────────────────────────────────────────────────────────────────
-async function exportPDF(){
-  const pw=window.open('','_blank','width=1280,height=900');
-  if(!pw){alert('กรุณาอนุญาต popup');return;}
-  pw.document.write('<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#1e2d4d;color:#a5b4fc;font-family:sans-serif"><div style="text-align:center"><div style="font-size:40px">📊</div><div style="margin-top:12px">กำลังเตรียม PDF...</div></div></body></html>');
-  pw.document.close();
-  const active=document.querySelector('.tab.on');
-  const activeName=active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'overview';
-  try{
-    // แสดงทุก tab
-    TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
-    // rebuild charts
-    if(typeof buildProgressCharts==='function') buildProgressCharts();
-    if(typeof buildFabBreakdown==='function') buildFabBreakdown();
-    if(typeof buildGraphs==='function'){gblt=false;buildGraphs();}
-    // expand loc-list ทั้งหมดก่อน capture
-    document.querySelectorAll('#loc-list .fgb').forEach(b=>{
-      b.classList.add('open');
-      const arr=b.previousElementSibling?.querySelector('.fg-arrow');
-      if(arr) arr.textContent='▲';
+// ── API ───────────────────────────────────────────────────────────────────────
+
+// ── Loading helpers ──────────────────────────────────────────────────────────
+
+
+
+
+// อัพเดท progress ทุก card พร้อมกัน
+
+
+    // ── อัพเดท pills by ID ─────────────────────────────────────────────
+    const _set=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};
+    const _html=(id,h)=>{const e=document.getElementById(id);if(e)e.innerHTML=h;};
+
+    // คาดเสร็จ + วันเหลือ
+    _set('pill-finish', finTH);
+    _set('pill-late', ins.days_late>0?'ช้า '+ins.days_late+' วัน':'ก่อนกำหนด');
+    _html('tb-days', ins.days_left);
+    // ip-val loop
+    document.querySelectorAll('.ip-val').forEach(el=>{
+      const lbl=el.nextElementSibling?.textContent||'';
+      if(lbl==='คาดเสร็จ') el.innerHTML=`<span id="pill-finish">${finTH}</span>`;
+      if(lbl==='วันเหลือ') el.innerHTML=`<span style="color:var(--success)">${ins.days_left}</span>`;
     });
-    await new Promise(r=>setTimeout(r,1500));
-
-    // capture charts
-    const imgs={};
-    if(typeof Chart!=='undefined')
-      Object.values(Chart.instances||{}).forEach(ch=>{
-        try{const id=ch.canvas?.id;if(!id)return;
-          imgs[id]={url:ch.toBase64Image('image/png',1),w:ch.canvas.offsetWidth,h:ch.canvas.offsetHeight};
-        }catch(e){}
-      });
-
-    const styles=Array.from(document.styleSheets).map(ss=>{
-      try{return Array.from(ss.cssRules).map(r=>r.cssText).join('\n');}catch(e){return '';}
-    }).join('\n');
-
-    // clone ทั้ง insights-box + main
-    const mn=document.querySelector('main')||document.body;
-    const insBox=document.querySelector('.insights-box');
-    const wrapper=document.createElement('div');
-    if(insBox){
-      const insClone=insBox.cloneNode(true);
-      insClone.querySelectorAll('.tbtn,button').forEach(b=>b.style.display='none');
-      wrapper.appendChild(insClone);
-    }
-    const clone=mn.cloneNode(true);
-    wrapper.appendChild(clone);
-
-    // แสดงทุก tab
-    clone.querySelectorAll('.tab-body').forEach((t,i)=>{
-      t.style.display='block';
-      t.style.pageBreakBefore=i===0?'avoid':'always';
-      t.style.pageBreakAfter='avoid';
+    // ip-sub
+    document.querySelectorAll('.ip-sub').forEach(el=>{
+      const txt=el.textContent;
+      if(txt.includes('ช้า')||txt.includes('–')||el.querySelector('#pill-late'))
+        el.innerHTML=ins.days_late>0?`<span id="pill-late">ช้า ${ins.days_late} วัน</span>`:
+                                     `<span id="pill-late" style="color:var(--success)">ก่อนกำหนด</span>`;
     });
-    // open loc-list และ set page-break แต่ละ fabric
-    clone.querySelectorAll('.fgb').forEach(b=>b.classList.add('open'));
-    // upcoming header ขึ้นหน้าใหม่
-    const _upHdr=clone.querySelector('#upcoming-header');
-    if(_upHdr) { _upHdr.style.pageBreakBefore='always'; _upHdr.style.breakBefore='page'; }
-    // per-fabric header ขึ้นหน้าใหม่
-    const _pfHdr=clone.querySelector('#per-fabric-header');
-    if(_pfHdr) { _pfHdr.style.pageBreakBefore='always'; _pfHdr.style.breakBefore='page'; }
-    clone.querySelectorAll('#loc-list .fg').forEach((fg,i)=>{
-      const rows=parseInt(fg.dataset.rows||'99');
-      // แยกหน้าทุก fabric ยกเว้นอันแรก; ถ้า rows<=5 อาจรวมกับ fabric ถัดไปได้
-      fg.style.pageBreakBefore=i===0?'avoid':'always';
-      fg.style.pageBreakInside='avoid';
+    // ins-warn — อัพเดทเสมอไม่ว่าข้อความจะเป็นอะไร
+    document.querySelectorAll('.ins-warn').forEach(w=>{
+      w.textContent=ins.days_late>0
+        ?`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`
+        :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
     });
-    // รวม 2 fabric ที่มีน้อยกว่า 6 rows
-    const fgs=Array.from(clone.querySelectorAll('#loc-list .fg'));
-    for(let i=0;i<fgs.length-1;i++){
-      const r1=parseInt(fgs[i].dataset.rows||'99');
-      const r2=parseInt(fgs[i+1].dataset.rows||'99');
-      if(r1<=5 && r2<=5){ fgs[i+1].style.pageBreakBefore='avoid'; i++; }
-    }
-    clone.querySelectorAll('.topbar,.tabs,.tab-btn,.tbtn,.print-hide,.hold-tog,#hold-body').forEach(t=>t.style.display='none');
-
-    // แทน canvas ด้วยรูป (ทั้ง insBox และ main)
-    wrapper.querySelectorAll('canvas').forEach(cv=>{
-      const d=imgs[cv.id];
-      if(d){
-        const img=document.createElement('img');
-        img.src=d.url;
-        // บังคับ aspect ratio ให้ตรง (ป้องกันวงรี)
-        const w=Math.min(d.w,1100), h=d.h;
-        img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;aspect-ratio:${w}/${h}`;
-        cv.parentNode.replaceChild(img,cv);
-      }else cv.style.display='none';
+    // ── อัพเดท pills by ID ─────────────────────────────────────────────
+    // คาดเสร็จ + วันเหลือ
+    // ip-sub
+    document.querySelectorAll('.ip-sub').forEach(el=>{
+      const txt=el.textContent;
+      if(txt.includes('ช้า')||txt.includes('–')||el.querySelector('#pill-late'))
+        el.innerHTML=ins.days_late>0?`<span id="pill-late">ช้า ${ins.days_late} วัน</span>`:
+                                     `<span id="pill-late" style="color:var(--success)">ก่อนกำหนด</span>`;
     });
-
-    const date=new Date().toLocaleDateString('th-TH');
-    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
-<title>SDA Installation Dashboard — SVB</title>
-<style>
-@page{size:A4 landscape;margin:8mm 10mm}
-*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,sans-serif;font-size:11px;background:#fff;margin:0;padding:0}
-${styles}
-.topbar,.tabs,.tab-btn,.ins-actions,.tbtn,.print-hide,.hold-tog,#hold-body{display:none!important}
-.tab-body{display:block!important}
-.fgb{display:block!important}
-.card{break-inside:avoid;margin-bottom:8px}
-canvas{display:none!important}
-img[style*="aspect-ratio"]{object-fit:contain!important}
-[style*="position:relative"][style*="150px"]{flex-shrink:0!important}
-[style*="position:relative"][style*="150px"] img{width:150px!important;height:150px!important}
-.g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
-.g3{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
-.g4{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
-.fpc-cats{display:grid!important;grid-template-columns:1fr!important}
-.fab-bd-grid{grid-template-columns:repeat(4,1fr)!important}
-.burndown-row{display:grid!important;grid-template-columns:3fr 2fr!important;gap:8px}
-.prog-chart-grid{grid-template-columns:1fr!important}
-.tblw{overflow:visible!important}
-table{width:100%!important;font-size:9px!important}
-th,td{padding:3px 4px!important}
-/* tab-plan: pcards เป็นคู่ */
-#tab-plan .g3{display:grid!important;grid-template-columns:1fr 1fr 1fr!important}
-/* fpc-list: fabric cards เป็นคู่ ขึ้นหน้าใหม่ก่อน */
-#fpc-list{page-break-before:always;break-before:page}
-#fpc-list .g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;page-break-inside:avoid;break-inside:avoid}
-#fpc-list .fpc{break-inside:avoid}
-</style></head><body>
-<div style="background:linear-gradient(135deg,#1e2d4d,#2d3f6b);color:#fff;padding:8px 14px;
-  margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;
-  -webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:8px">
-  <div style="font-size:14px;font-weight:700">📊 SDA Installation Dashboard — <span style="color:#a5b4fc">SVB</span></div>
-  <span style="font-size:10px;opacity:.8">${date}</span>
-</div>
-${wrapper.outerHTML}
-<script>window.onload=function(){setTimeout(function(){window.print();},1000);};<\/script>
-</body></html>`;
-    pw.document.open();pw.document.write(html);pw.document.close();
-  }catch(err){
-    console.error(err);pw.close();alert('Export ไม่สำเร็จ: '+err.message);
-  }finally{
-    TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===activeName?'block':'none';});
-    // collapse loc-list กลับ
-    document.querySelectorAll('#loc-list .fgb').forEach(b=>b.classList.remove('open'));
-  }
-}
-
-
-// ── UPCOMING 14 วัน ──────────────────────────────────────────────────────────
-function buildUpcoming(){
-  const wrap=document.getElementById('upcoming-list');
-  const rangeEl=document.getElementById('upcoming-range');
-  if(!wrap) return;
-  const up=window.UPCOMING||{};
-  const dates=Object.keys(up).sort();
-  const thDow=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
-  const thMo=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  const fmtD=s=>{const d=new Date(s+'T00:00:00');return `${thDow[d.getDay()]} ${d.getDate()} ${thMo[d.getMonth()]} ${(d.getFullYear()+543)%100}`;};
-  const FAB_C={'D1-041':'#4361ee','CFZ':'#2bc48a','T1-015':'#ff9f43','D1-091':'#a855f7','RFF':'#22b8cf','AMF':'#f76707','PPW':'#74c0fc'};
-  const CAT_S={'Switch':{bg:'#eff6ff',c:'#1d4ed8',icon:'🔀'},'AP':{bg:'#f0fdf4',c:'#15803d',icon:'📶'},'Infra':{bg:'#fff7ed',c:'#c2410c',icon:'⚡'}};
-  if(!dates.length){
-    wrap.innerHTML='<div style="padding:16px;color:var(--text2);font-size:12px;text-align:center">ไม่มีแผนการติดตั้งใน 2 สัปดาห์หน้า</div>';
-    if(rangeEl) rangeEl.textContent='';
-    return;
-  }
-  if(rangeEl) rangeEl.textContent=`${fmtD(dates[0])} – ${fmtD(dates[dates.length-1])}`;
-
-  // summary
-  let sumQty=0,sumRem=0; const fabSet=new Set(),catCnt={Switch:0,AP:0,Infra:0};
-  dates.forEach(d=>Object.entries(up[d]).forEach(([f,v])=>{
-    sumQty+=v.qty; sumRem+=v.rem; fabSet.add(f);
-    v.cats.forEach(c=>{if(catCnt[c]!==undefined) catCnt[c]+=v.rem;});
-  }));
-
-  let html=`<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#f0f4ff,#f8faff)">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
-        <div style="font-size:10px;color:var(--text2)">เหลือต้องติดตั้ง</div>
-        <div style="font-size:26px;font-weight:800;color:var(--primary);line-height:1.1">${sumRem}<span style="font-size:12px;font-weight:400;color:var(--text2)"> /${sumQty}</span></div>
-        <div style="font-size:10px;color:var(--text2)">เครื่อง (รวม ${dates.length} วัน)</div>
-      </div>
-      <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
-        <div style="font-size:10px;color:var(--text2);margin-bottom:5px">ประเภทอุปกรณ์</div>
-        ${Object.entries(catCnt).filter(([,v])=>v>0).map(([c,v])=>{
-          const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};
-          return `<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
-            <span style="font-size:10px;background:${s.bg};color:${s.c};padding:1px 7px;border-radius:99px;font-weight:600">${s.icon} ${c}</span>
-            <span style="font-size:11px;font-weight:700;color:${s.c}">${v}</span></div>`;
-        }).join('')}
-      </div>
-      <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
-        <div style="font-size:10px;color:var(--text2);margin-bottom:6px">Fabric</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px">
-          ${[...fabSet].map(f=>`<span style="font-size:10px;font-weight:700;background:${FAB_C[f]||'#888'}22;color:${FAB_C[f]||'#888'};padding:2px 8px;border-radius:99px">${f}</span>`).join('')}
-        </div>
-      </div>
-    </div>
-  </div>`;
-
-  dates.forEach(d=>{
-    const fabs=up[d]; const dt=new Date(d+'T00:00:00');
-    const dow=dt.getDay(); const isWkend=dow===0||dow===6;
-    const dayRem=Object.values(fabs).reduce((a,v)=>a+v.rem,0);
-    const dayQty=Object.values(fabs).reduce((a,v)=>a+v.qty,0);
-    const ac=isWkend?'#d97706':'#4361ee'; const abg=isWkend?'#fef3c7':'#eff6ff';
-    html+=`<div class="card" style="margin-bottom:8px;border-left:4px solid ${ac};padding:12px 14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:42px;height:42px;border-radius:10px;background:${abg};display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
-            <div style="font-size:9px;color:${ac};font-weight:600">${thDow[dow]}</div>
-            <div style="font-size:20px;font-weight:800;color:${ac};line-height:1.1">${dt.getDate()}</div>
-          </div>
-          <div>
-            <div style="font-size:13px;font-weight:700">${fmtD(d)}</div>
-            <div style="font-size:11px;color:var(--text2)">ต้องติดตั้ง <strong>${dayRem}</strong> จาก ${dayQty} เครื่องตามแผน</div>
-          </div>
-        </div>
-        <div style="text-align:center;background:${abg};border-radius:10px;padding:6px 14px;min-width:60px">
-          <div style="font-size:22px;font-weight:800;color:${ac};line-height:1">${dayRem}</div>
-          <div style="font-size:9px;color:${ac}">เครื่องคงเหลือ</div>
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:7px">`;
-    Object.entries(fabs).forEach(([fab,v])=>{
-      const fc=FAB_C[fab]||'#888';
-      const typeChips=v.types.slice(0,4).map(t=>`<span style="font-size:10px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:6px">${t}</span>`).join('');
-      const moreT=v.types.length>4?`<span style="font-size:10px;color:var(--text2)">+${v.types.length-4} อื่นๆ</span>`:'';
-      const locChips=v.locs.slice(0,3).map(l=>`<span style="font-size:10px;background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;border:1px solid #bbf7d0">📍 ${l}</span>`).join('');
-      const moreL=v.locs.length>3?`<span style="font-size:10px;color:var(--text2)">+${v.locs.length-3}</span>`:'';
-      const catBadges=[...new Set(v.cats)].map(c=>{const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};return `<span style="font-size:10px;background:${s.bg};color:${s.c};padding:2px 8px;border-radius:99px;font-weight:600">${c}</span>`;}).join('');
-      const pct=v.qty>0?Math.round((v.qty-v.rem)/v.qty*100):0;
-      html+=`<div style="background:#f8faff;border-radius:8px;padding:10px 12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <div style="width:9px;height:9px;border-radius:50%;background:${fc};flex-shrink:0"></div>
-            <span style="font-size:13px;font-weight:700;color:${fc}">${fab}</span>
-            ${catBadges}
-            ${pct>0?`<span style="font-size:10px;color:var(--success);font-weight:600">✓ ${pct}%</span>`:''}
-          </div>
-          <div style="text-align:right;flex-shrink:0;margin-left:8px">
-            <div style="font-size:13px;font-weight:800;color:${fc}">${v.rem}<span style="font-size:9px;font-weight:400;color:var(--text2)">/${v.qty}</span></div>
-            <div style="font-size:9px;color:var(--text2)">ยังไม่ติดตั้ง/แผน</div>
-          </div>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">${typeChips}${moreT}</div>
-        ${v.locs.length?`<div style="display:flex;flex-wrap:wrap;gap:4px">${locChips}${moreL}</div>`:''}
-      </div>`;
+    // ins-warn — อัพเดทเสมอไม่ว่าข้อความจะเป็นอะไร
+    document.querySelectorAll('.ins-warn').forEach(w=>{
+      w.textContent=ins.days_late>0
+        ?`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`
+        :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
     });
-    html+='</div></div>';
-  });
-  wrap.innerHTML=html;
-}
+    // ── อัพเดท pills by ID ─────────────────────────────────────────────
+    
+    // คาดเสร็จ + วันเหลือ
+    
+    // คาดเสร็จ + วันเหลือ
 </script>
 </body>
 </html>
