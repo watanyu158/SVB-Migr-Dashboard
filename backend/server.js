@@ -272,10 +272,25 @@ function calcDashboard(wb) {
   const PLAN_AP  = cumPct(apPlan, TOTAL_AP);
   const ACT_AP   = cumActNull(apAct, TOTAL_AP, todayWk);
 
-  // Burndown
-  let s = 0;
-  const BD_PLAN = planWk.map(v => TOTAL - (s += v));
-  s = 0; let last = null;
+  // Burndown — BD_PLAN นับ Scheduled Date ≤ min(w.e, เมื่อวาน GMT+7)
+  // ใช้เมื่อวานเป็น cutoff เพื่อแสดง end-of-day ล่าสุดที่สมบูรณ์
+  const _bdGMT7 = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'}));
+  _bdGMT7.setHours(0,0,0,0);
+  _bdGMT7.setDate(_bdGMT7.getDate() - 1);  // เมื่อวาน
+  const BD_PLAN = WK_BOUNDS.map(w => {
+    const cutoff = w.e < _bdGMT7 ? w.e : _bdGMT7;
+    let cum = 0;
+    aRows.forEach(r => {
+      let sd = r['Scheduled Date'];
+      if (typeof sd === 'number') sd = new Date((sd - 25569) * 86400000);
+      if (sd && r['Qty'] > 0) {
+        const d = new Date(sd); d.setHours(0,0,0,0);
+        if (d <= cutoff) cum += (r['Qty'] || 0);
+      }
+    });
+    return TOTAL - cum;
+  });
+  let s = 0; let last = null;
   const BD_ACT = actWk.map((v,i) => {
     if (v > 0) { s += v; last = TOTAL - s; }
     return i <= todayWk ? last : null;
