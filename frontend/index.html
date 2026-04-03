@@ -812,11 +812,11 @@ main { padding: 12px 10px; }
           <svg id="gauge-svg" width="110" height="68" viewBox="0 0 110 68" style="overflow:visible">
             <!-- track -->
             <path d="M 8,62 A 47,47 0 0,1 102,62" fill="none" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round"/>
-            <!-- fill arc -->
+            <!-- fill arc: dashoffset=148 = ว่าง, 0 = เต็ม -->
             <path id="gauge-arc" d="M 8,62 A 47,47 0 0,1 102,62" fill="none" stroke="#ff9f43" stroke-width="9" stroke-linecap="round"
-              stroke-dasharray="148" stroke-dashoffset="37"/>
-            <!-- needle -->
-            <line id="gauge-needle" x1="55" y1="62" x2="36" y2="22" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
+              stroke-dasharray="148" stroke-dashoffset="148"/>
+            <!-- needle: เริ่มชี้ซ้าย (8,62) -->
+            <line id="gauge-needle" x1="55" y1="62" x2="8" y2="62" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
             <circle cx="55" cy="62" r="4" fill="#334155"/>
             <!-- label -->
             <text id="gauge-pct-lbl" x="55" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#ff9f43">–%</text>
@@ -1883,12 +1883,12 @@ function buildGauge(pct){
   const dashOffset = arcLen * (1 - ratio);
   const color = p >= 100 ? '#2bc48a' : p >= 70 ? '#ff9f43' : '#ee4b4b';
 
-  // คำนวณ needle angle: 0%=180deg, 100%=90deg(ชี้ขึ้น), 150%=0deg
+  // needle: 0%=ชี้ซ้าย(180°), 100%=ชี้ขึ้น(90°), 150%=ชี้ขวา(0°)
   const angleDeg = 180 - (ratio * 180);
   const angleRad = angleDeg * Math.PI / 180;
   const cx=55, cy=62, r=36;
-  const nx = cx + r * Math.cos(Math.PI - angleRad);
-  const ny = cy - r * Math.sin(Math.PI - angleRad);
+  const nx = cx + r * Math.cos(angleRad);
+  const ny = cy - r * Math.sin(angleRad);
 
   const arc = document.getElementById('gauge-arc');
   const needle = document.getElementById('gauge-needle');
