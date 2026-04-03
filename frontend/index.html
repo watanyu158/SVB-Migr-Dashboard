@@ -790,7 +790,7 @@ main { padding: 12px 10px; }
         </div>
         <div>
           <div class="ins-big"><em>–</em>
-            <span class="ins-pct-tag">↑20% จากอัตราปัจจุบัน</span>
+            <span class="ins-pct-tag">–</span>
           </div>
         </div>
       </div>
@@ -3360,7 +3360,15 @@ async function loadData(){
       const txt=nm<=0?'เกินเป้า '+Math.abs(nm).toFixed(1)+' อุปกรณ์/วัน':'ต้องเพิ่ม '+nm.toFixed(1)+' อุปกรณ์/วัน';
       document.querySelectorAll('.ins-big em').forEach(em=>{em.textContent=txt;em.style.color=col;});
     })();
-    document.querySelectorAll('.ins-pct-tag').forEach(t=>t.textContent='↑'+ins.pct_more+'% จากอัตราปัจจุบัน');
+    (()=>{
+      const pm=Number(ins.pct_more);
+      const col=pm<=0?'var(--success)':'#92400e';
+      const bg=pm<=0?'#f0fdf4':'#fff7ed';
+      const txt=pm<=0?'เกินเป้า '+Math.abs(pm)+'%':'ต้องเพิ่ม '+pm+'%';
+      document.querySelectorAll('.ins-pct-tag').forEach(t=>{
+        t.textContent=txt; t.style.color=col; t.style.background=bg;
+      });
+    })();
     const rv=document.querySelectorAll('.ins-rate-val');
     if(rv[0]) rv[0].textContent=Number(ins.daily_rate).toFixed(1);
     if(rv[1]) rv[1].textContent=ins.req_rate;
