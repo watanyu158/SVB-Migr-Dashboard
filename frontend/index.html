@@ -85,8 +85,8 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--t
 .ip-val{font-size:18px;font-weight:700;line-height:1;color:var(--text)}
 .ip-lbl{font-size:11px;color:var(--text2)}
 .ip-sub{font-size:10px;color:var(--text3)}
-.p-date .ip-val{color:var(--danger)}
-.p-date .ip-sub{color:var(--danger);font-size:9px}
+.p-date .ip-val{}
+.p-date .ip-sub{font-size:9px}
 .p-rem  .ip-val{color:var(--warning)}
 .p-days .ip-val{color:var(--success)}
 .p-ot   .ip-val{color:var(--success)}
@@ -3398,7 +3398,18 @@ async function loadData(){
     });
     document.querySelectorAll('.ip-sub').forEach(el=>{
       const lbl=el.previousElementSibling?.textContent||el.parentElement?.querySelector('.ip-lbl')?.textContent||'';
-      if(el.closest('.p-date')) el.textContent=ins.days_late>0?'ช้า '+ins.days_late+' วัน':'ก่อนกำหนด';
+      if(el.closest('.p-date')){
+        if(ins.days_late>0){
+          el.textContent='ช้า '+ins.days_late+' วัน';
+          el.style.color='var(--danger)';
+        } else if(ins.days_early>0){
+          el.textContent='ก่อนกำหนด '+ins.days_early+' วัน';
+          el.style.color='var(--success)';
+        } else {
+          el.textContent='ตรงกำหนด';
+          el.style.color='var(--success)';
+        }
+      }
     });
 
     // ── Rebuild charts พร้อม progress ────────────────────────────────────

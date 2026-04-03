@@ -145,6 +145,7 @@ function calcDashboard(wb) {
   const daysNeeded= dailyRate > 0 ? Math.ceil(remaining / dailyRate) : 9999;
   const finishDt  = new Date(today); finishDt.setDate(today.getDate() + daysNeeded);
   const daysLate  = Math.max(0, Math.floor((finishDt - PROJ_END) / 86400000));
+  const daysEarly = Math.max(0, Math.floor((PROJ_END - finishDt) / 86400000));
   const gaugePct  = reqRate > 0 ? Math.min(150, Math.round(dailyRate / reqRate * 100)) : 100;
   const todayWk   = Math.max(0, Math.min(N_WK - 1, Math.floor((elapsed-1) / 7)));
 
@@ -582,7 +583,7 @@ function calcDashboard(wb) {
     meta:      { total:TOTAL, installed, installed_sw:totalSwOk, installed_ap:totalApOk, installed_inf:totalInfOk, remaining, hold, overdue, on_time_qty:onTimeQty, on_time_pct:onTimePct, on_time_early:earlyQty, on_time_late:lateQty },
     hold_items: holdItems,
     insight:   { daily_rate:dailyRate, req_rate:reqRate, need_more:needMore,
-                 pct_more:pctMore, days_late:daysLate, gauge_pct:gaugePct,
+                 pct_more:pctMore, days_late:daysLate, days_early:daysEarly, gauge_pct:gaugePct,
                  finish_date:finishDt.toISOString().slice(0,10), days_left:daysLeft },
     weekly:    { plan_all:PLAN_ALL, act_all:ACT_ALL, plan_sw:PLAN_SW, act_sw:ACT_SW,
                  plan_ap:PLAN_AP, act_ap:ACT_AP, bd_plan:BD_PLAN, bd_act:BD_ACT },
