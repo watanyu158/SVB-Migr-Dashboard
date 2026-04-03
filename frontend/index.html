@@ -3373,9 +3373,17 @@ async function loadData(){
     if(rv[0]) rv[0].textContent=Number(ins.daily_rate).toFixed(1);
     if(rv[1]) rv[1].textContent=ins.req_rate;
     document.querySelectorAll('.ins-warn').forEach(w=>{
-      w.textContent=ins.days_late>0
-        ?`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`
-        :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
+      if(ins.days_late>0){
+        w.textContent=`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`;
+        w.style.color='var(--danger)';
+        w.style.background='rgba(239,68,68,.08)';
+        w.style.borderColor='rgba(239,68,68,.2)';
+      } else {
+        w.textContent=`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด ${ins.days_early} วัน`;
+        w.style.color='var(--success)';
+        w.style.background='rgba(43,196,138,.08)';
+        w.style.borderColor='rgba(43,196,138,.2)';
+      }
     });
     const kv=document.querySelectorAll('.ins-kpi-val');
     if(kv[0]) kv[0].textContent=Number(ins.daily_rate).toFixed(1);
