@@ -162,7 +162,8 @@ function calcDashboard(wb) {
   });
 
   const dailyMap = {}; // dk → {sw,ap,inf,plan}
-  const fabDailyAct={}, fabDailyPlan={};
+  const fabDailyAct={}, fabDailyPlan={}, dayFabSwAct={}, dayFabApAct={};
+  FABRICS.forEach(f=>{ dayFabSwAct[f]={}; dayFabApAct[f]={}; });
   FABRICS.forEach(f => { fabDailyAct[f]={}; fabDailyPlan[f]={}; });
 
   const typeMap = {};
@@ -253,8 +254,9 @@ function calcDashboard(wb) {
       else if (cat === 'AP') dailyMap[dk].ap += ok;
       else dailyMap[dk].inf += ok;
       if (!fabDailyAct[fab][dk]) fabDailyAct[fab][dk]={sw:0,ap:0,inf:0};
-      if (cat==='Switch') fabDailyAct[fab][dk].sw+=ok;
-      else if (cat==='AP') fabDailyAct[fab][dk].ap+=ok;
+      const _isoK = new Date(instDt).toISOString().slice(0,10);
+      if (cat==='Switch') { fabDailyAct[fab][dk].sw+=ok; dayFabSwAct[fab][_isoK]=(dayFabSwAct[fab][_isoK]||0)+ok; }
+      else if (cat==='AP') { fabDailyAct[fab][dk].ap+=ok; dayFabApAct[fab][_isoK]=(dayFabApAct[fab][_isoK]||0)+ok; }
       else fabDailyAct[fab][dk].inf+=ok;
     }
     // นับ ok ทุก row (เหมือน Dashboard) — ไม่ require Install Date
@@ -497,7 +499,8 @@ function calcDashboard(wb) {
   const dailyProgress = { labels:[], plan_cum:[], act_cum:[],
     sw_plan:[], sw_act:[], ap_plan:[], ap_act:[],
     bd_plan:[], bd_act:[], fab:{} };
-  FABRICS.forEach(f => { dailyProgress.fab[f] = { plan:[], act:[] }; });
+  FABRICS.forEach(f => { dailyProgress.fab[f] = { plan:[], act:[],
+    sw_plan:[], sw_act:[], ap_plan:[], ap_act:[], _spc:0, _apc:0, _swAc:0, _apAc:0 }; });
 
   let cAll=0, cPlan=0, cSWd=0, cSWp=0, cAPd=0, cAPp=0;
   const cFab={}, cFabP={};
@@ -541,12 +544,18 @@ function calcDashboard(wb) {
     dailyProgress.act_cum.push(inAct ? pct(cAll/TOTAL) : null);
     // push sw_plan/ap_plan ใน dailyProgress.fab[f] (same index กับ labels)
     FABRICS.forEach(f => {
-      if (!dailyProgress.fab[f].sw_plan) { dailyProgress.fab[f].sw_plan=[]; dailyProgress.fab[f]._spc=0; dailyProgress.fab[f]._apc=0; }
-      dailyProgress.fab[f]._spc += dayFabSwPlan[f][k]||0;
-      dailyProgress.fab[f]._apc += dayFabApPlan[f][k]||0;
-      dailyProgress.fab[f].sw_plan.push(pct(dailyProgress.fab[f]._spc/(fabSwPlanTotal[f]||1)));
-      if (!dailyProgress.fab[f].ap_plan) dailyProgress.fab[f].ap_plan=[];
-      dailyProgress.fab[f].ap_plan.push(pct(dailyProgress.fab[f]._apc/(fabApPlanTotal[f]||1)));
+      const fd = dailyProgress.fab[f];
+      fd._spc += dayFabSwPlan[f][k]||0;
+      fd._apc += dayFabApPlan[f][k]||0;
+      fd._swAc += (dayFabSwAct[f]&&dayFabSwAct[f][k])||0;
+      fd._apAc += (dayFabApAct[f]&&dayFabApAct[f][k])||0;
+      const fLast2 = fabLastInstall[f];
+      const fLastDt2 = fLast2 ? new Date(fLast2+'T00:00:00') : null;
+      const inFAct = fLastDt2 && cur <= fLastDt2;
+      fd.sw_plan.push(pct(fd._spc/(fabSwPlanTotal[f]||1)));
+      fd.ap_plan.push(pct(fd._apc/(fabApPlanTotal[f]||1)));
+      fd.sw_act.push(inFAct ? pct(fd._swAc/(fabSwPlanTotal[f]||1)) : null);
+      fd.ap_act.push(inFAct ? pct(fd._apAc/(fabApPlanTotal[f]||1)) : null);
     });
 
     const swT = TOTAL_SW||1, apT = TOTAL_AP||1;
