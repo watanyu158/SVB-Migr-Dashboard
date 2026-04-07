@@ -1,4 +1,3 @@
-<!-- build:20260403-183837 -->
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -808,11 +807,10 @@ main { padding: 12px 10px; }
 
     <!-- RIGHT: gauge + KPI table -->
     <div class="ins-gauge-card">
-      <div class="ins-gauge-section" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:100px">
-        <div id="gauge-pct-lbl" style="font-size:32px;font-weight:700;color:var(--warning);line-height:1">–<span style="font-size:18px">%</span></div>
-        <div style="font-size:10px;color:var(--text2);margin-top:2px">ของเป้าหมาย</div>
-        <div style="width:80px;height:6px;background:#f0f4ff;border-radius:99px;overflow:hidden;margin-top:6px">
-          <div id="gauge-bar" style="height:100%;width:0%;border-radius:99px;background:var(--warning);transition:width 0.5s"></div>
+      <div class="ins-gauge-section">
+        <div class="ins-gauge-wrap">
+          <canvas id="gauge-c"></canvas>
+          <div class="ins-gc"><div class="gp" id="gauge-pct-lbl">–%</div></div>
         </div>
       </div>
       <div class="ins-kpi-table">
@@ -830,7 +828,7 @@ main { padding: 12px 10px; }
         <div class="ins-kpi-row ins-kpi-gap">
           <span class="ins-kpi-lbl">ส่วนต่าง</span>
           <span class="ins-kpi-val">–</span>
-          <span class="ins-kpi-unit" id="ins-kpi-gap-unit">/วัน</span>
+          <span class="ins-kpi-unit" style="color:var(--danger)">/วัน</span>
         </div>
       </div>
     </div>
@@ -1867,13 +1865,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (el) el.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 });
 
-function buildGauge(pct){
-  const p = Math.min(Math.max(pct||0, 0), 150);
-  const color = p >= 100 ? 'var(--success)' : p >= 70 ? 'var(--warning)' : 'var(--danger)';
-  const lbl = document.getElementById('gauge-pct-lbl');
-  const bar = document.getElementById('gauge-bar');
-  if(lbl){ lbl.innerHTML = p+'<span style="font-size:18px">%</span>'; lbl.style.color=color; }
-  if(bar){ bar.style.width=Math.min(p,100)+'%'; bar.style.background=color; }
+function buildGauge(){
+  const _ch_gaugec = Chart.getChart(document.getElementById('gauge-c'));
+  if(_ch_gaugec) _ch_gaugec.destroy();
+  new Chart(document.getElementById('gauge-c'),{type:'doughnut',data:{datasets:[{data:[83,17],backgroundColor:['#ff9f43','rgba(253,211,77,.3)'],borderWidth:0}]},options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
 }
 
 function buildBurndown(){
@@ -3057,7 +3052,7 @@ async function loadData(){
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
     if(!d.weekly || !d.meta) throw new Error('Invalid API response');
-    const {meta, insight:ins={}, weekly, fabrics, types, daily, locations} = d;
+    const {meta, insight:ins, weekly, fabrics, types, daily, locations} = d;
 
     // ── อัพเดท arrays ────────────────────────────────────────────────────
     // installed totals จาก Dashboard sheet (ตรงกับ Excel)
@@ -3367,9 +3362,7 @@ async function loadData(){
     if(_e('hold-cnt'))  _e('hold-cnt').textContent  = meta.hold+' รายการ';
 
     // gauge
-    buildGauge((d.insight||ins||{}).gauge_pct||0);
-    const _gapUnit=document.getElementById('ins-kpi-gap-unit');
-    if(_gapUnit) _gapUnit.style.color=(ins.need_more<=0)?'var(--success)':'var(--danger)';
+    if(_e('gauge-pct-lbl')) _e('gauge-pct-lbl').textContent = ins.gauge_pct+'%';
 
     // on-time
     if(_e('pill-ontime'))     _e('pill-ontime').textContent     = meta.on_time_pct+'%';
@@ -3461,7 +3454,7 @@ async function loadData(){
     if(_e('donut-early-cnt'))   _e('donut-early-cnt').textContent   = earlyQ.toLocaleString();
     if(_e('donut-late-cnt'))    _e('donut-late-cnt').textContent    = lateQ.toLocaleString();
     if(_e('donut-pending-cnt')) _e('donut-pending-cnt').textContent = pendQ.toLocaleString();
-    buildGauge(0); buildBurndown();
+    buildGauge(); buildBurndown();
     gblt=false; buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
     buildVelocityChart(); buildWeekdayChart(); buildFabGap();
     // wd-cells populate ทันทีหลัง data load
@@ -3522,9 +3515,8 @@ function showLoading(){
   const _sdot=document.getElementById('tb-sdot');
   if(_stxt) _stxt.textContent='⏳';
   if(_sdot){ _sdot.style.animation='none'; _sdot.style.background='rgba(255,255,255,.4)'; }
-  buildGauge(0);
   // reset numbers เป็น –
-  ['ts-done','pill-rem','pill-hold','pill-over',
+  ['ts-done','pill-rem','pill-hold','pill-over','gauge-pct-lbl',
    'ov-all','ov-sw','ov-ap','ov-inf','tb-days','tb-rate','tb-over','tb-pct',
    'pill-ontime','pill-ontime-sub','donut-ontime-pct','donut-ontime-sub',
    'donut-ontime-cnt','donut-early-cnt','donut-late-cnt','donut-pending-cnt'].forEach(id=>{
@@ -3655,9 +3647,6 @@ async function exportPDF(){
 
     const date=new Date().toLocaleDateString('th-TH');
     const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
 <title>SDA Installation Dashboard — SVB</title>
 <style>
 @page{size:A4 landscape;margin:8mm 10mm}

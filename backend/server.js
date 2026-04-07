@@ -17,7 +17,7 @@ const LOCAL_EXCEL    = path.join(__dirname, 'SDA_Installation_Plan_V2.xlsx');
 const CACHE_PATH     = path.join(__dirname, 'sda_cache.xlsx');
 const CACHE_TTL      = 5 * 60 * 1000; // 5 min
 
-let TOTAL = 1592, TOTAL_SW = 1121, TOTAL_AP = 445, TOTAL_INF = 26; // updated from Excel
+let TOTAL = 1604, TOTAL_SW = 1121, TOTAL_AP = 445, TOTAL_INF = 26;
 const PROJ_START = new Date('2026-02-09');
 const PROJ_END   = new Date('2026-06-23');
 const FABRICS    = ['D1-041','CFZ','T1-015','D1-091','RFF','AMF','PPW'];
@@ -112,9 +112,8 @@ function calcDashboard(wb) {
   const dRows = XLSX.utils.sheet_to_json(wsD, { header:1, defval:null });
   const aRows = XLSX.utils.sheet_to_json(wsA, { defval:null });
 
-  // อ่าน TOTAL จาก dRows[4][1] (Total Devices)
   if(dRows[4] && typeof dRows[4][1]==='number' && dRows[4][1]>0) TOTAL = dRows[4][1];
-  // ROW6 = ["Overall Progress:", x, "Actual Installed:", 506, ...]
+  // ROW6 = ["Overall Progress:", x, "Actual Installed:", installed, ...]
   const installed = (dRows[6] && typeof dRows[6][3] === 'number') ? dRows[6][3] : 0;
   const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;  // SW Done
   const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;  // AP Done
