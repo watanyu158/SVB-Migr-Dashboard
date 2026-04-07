@@ -1872,7 +1872,7 @@ function buildGauge(pct){
   const color=p>=100?'#2bc48a':p>=70?'#ff9f43':'#ee4b4b';
   const trackColor=p>=100?'rgba(43,196,138,.2)':p>=70?'rgba(253,211,77,.25)':'rgba(238,75,75,.15)';
   // arc: filled = p/150 ของครึ่งวงกลม
-  const filled=Math.round(p/150*100);
+  const filled=Math.min(Math.round(p),100);
   const remain=100-filled;
   new Chart(cv,{type:'doughnut',
     data:{datasets:[{data:[filled,remain],backgroundColor:[color,trackColor],borderWidth:0}]},
@@ -3371,7 +3371,11 @@ async function loadData(){
     if(_e('hold-cnt'))  _e('hold-cnt').textContent  = meta.hold+' รายการ';
 
     // gauge
-    if(_e('gauge-pct-lbl')) _e('gauge-pct-lbl').textContent = ins.gauge_pct+'%';
+    if(_e('gauge-pct-lbl')){
+      const _gp=ins.gauge_pct||0;
+      _e('gauge-pct-lbl').textContent=_gp+'%';
+      _e('gauge-pct-lbl').style.color=_gp>=100?'var(--success)':_gp>=70?'var(--warning)':'var(--danger)';
+    }
     buildGauge(ins.gauge_pct);
 
     // on-time
