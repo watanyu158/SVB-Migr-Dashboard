@@ -3138,7 +3138,8 @@ async function loadData(){
     fabrics.forEach(f=>FABRICS.push({
       n:f.n, t:f.t, d:f.d, p:f.p, h:f.h, r:f.r, c:f.c,
       s:f.s||'–', e:f.e||'–',
-      sw:{t:f.sw.t,d:f.sw.d}, ap:{t:f.ap.t,d:f.ap.d}, inf:{t:f.inf.t,d:f.inf.d}
+      sw:{t:f.sw.t,d:f.sw.d}, ap:{t:f.ap.t,d:f.ap.d}, inf:{t:f.inf.t,d:f.inf.d},
+      weekly:f.weekly||null
     }));
     TYPE_DATA.length=0;
     (types||[]).forEach(t=>TYPE_DATA.push({n:t.n,plan:t.plan,done:t.done}));
