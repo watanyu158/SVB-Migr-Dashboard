@@ -123,7 +123,21 @@ function toDate(v) {
   if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
   if (typeof v === 'number') return new Date((v - 25569) * 86400000);
   if (typeof v === 'string') {
-    const d = new Date(v.trim());
+    const s = v.trim();
+    if (!s) return null;
+    // DD/MM/YYYY หรือ D/M/YYYY (Thai/GSheet format)
+    const thMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (thMatch) {
+      const [,d,m,y] = thMatch;
+      return new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+    }
+    // YYYY-MM-DD (ISO)
+    const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+      return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2])-1, parseInt(isoMatch[3]));
+    }
+    // fallback
+    const d = new Date(s);
     return isNaN(d.getTime()) ? null : d;
   }
   return null;
@@ -144,8 +158,9 @@ function wkIdx(dt) {
 }
 
 function fmtDate(dt) {
-  const d = new Date(dt);
-  return `${d.getDate()}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  const d = toDate(dt);
+  if (!d) return '';
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
 function cumPct(arr, total) {
