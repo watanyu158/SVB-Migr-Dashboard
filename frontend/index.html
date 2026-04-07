@@ -809,19 +809,9 @@ main { padding: 12px 10px; }
     <!-- RIGHT: gauge + KPI table -->
     <div class="ins-gauge-card">
       <div class="ins-gauge-section">
-        <div class="ins-gauge-wrap" style="width:110px;height:68px;position:relative">
-          <svg id="gauge-svg" width="110" height="68" viewBox="0 0 110 68" style="overflow:visible">
-            <!-- track -->
-            <path d="M 8,62 A 47,47 0 0,1 102,62" fill="none" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round"/>
-            <!-- fill arc: dashoffset=148 = ว่าง, 0 = เต็ม -->
-            <path id="gauge-arc" d="M 8,62 A 47,47 0 0,1 102,62" fill="none" stroke="#ff9f43" stroke-width="9" stroke-linecap="round"
-              stroke-dasharray="148" stroke-dashoffset="148"/>
-            <!-- needle: เริ่มชี้ซ้าย (8,62) -->
-            <line id="gauge-needle" x1="55" y1="62" x2="8" y2="62" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="55" cy="62" r="4" fill="#334155"/>
-            <!-- label -->
-            <text id="gauge-pct-lbl" x="55" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#ff9f43">–%</text>
-          </svg>
+        <div class="ins-gauge-wrap">
+          <canvas id="gauge-c"></canvas>
+          <div class="ins-gc"><div class="gp" id="gauge-pct-lbl">–%</div></div>
         </div>
       </div>
       <div class="ins-kpi-table">
@@ -1877,26 +1867,54 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 function buildGauge(pct){
-  // SVG arc gauge — ใช้ pct 0-150 (150% = เกินเป้า)
   const p = Math.min(Math.max(pct||0, 0), 150);
-  const ratio = p / 150;
-  const arcLen = 148; // ความยาวเส้นโค้งทั้งหมด
-  const dashOffset = arcLen * (1 - ratio);
   const color = p >= 100 ? '#2bc48a' : p >= 70 ? '#ff9f43' : '#ee4b4b';
-
-  // needle: 0%=ชี้ซ้าย(180°), 100%=ชี้ขึ้น(90°), 150%=ชี้ขวา(0°)
-  const angleDeg = 180 - (ratio * 180);
-  const angleRad = angleDeg * Math.PI / 180;
-  const cx=55, cy=62, r=36;
-  const nx = cx + r * Math.cos(angleRad);
-  const ny = cy - r * Math.sin(angleRad);
-
-  const arc = document.getElementById('gauge-arc');
-  const needle = document.getElementById('gauge-needle');
   const lbl = document.getElementById('gauge-pct-lbl');
-  if(arc){ arc.style.strokeDashoffset=dashOffset; arc.style.stroke=color; }
-  if(needle){ needle.setAttribute('x2', Math.round(nx)); needle.setAttribute('y2', Math.round(ny)); }
-  if(lbl){ lbl.textContent=(pct||0)+'%'; lbl.setAttribute('fill',color); }
+  if(lbl){ lbl.textContent = p+'%'; lbl.style.color = color; }
+
+  const cv = document.getElementById('gauge-c');
+  if(!cv) return;
+  const ex = Chart.getChart(cv); if(ex) ex.destroy();
+
+  // needle angle: 0%=ซ้าย, 100%=บน, 150%=ขวา
+  const ratio = p / 150;
+  const angleDeg = 180 - (ratio * 180); // 180→0
+  const angleRad = angleDeg * Math.PI / 180;
+
+  const needlePlugin = {
+    id:'needle',
+    afterDatasetsDraw(chart){
+      const {ctx,chartArea:{top,bottom,left,right}}=chart;
+      const cx=(left+right)/2, cy=bottom;
+      const r=(right-left)*0.35;
+      const nx=cx+r*Math.cos(Math.PI-angleRad);
+      const ny=cy-r*Math.sin(Math.PI-angleRad);
+      ctx.save();
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(nx,ny);
+      ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,4,0,2*Math.PI);
+      ctx.fillStyle=color;ctx.fill();
+      ctx.restore();
+    }
+  };
+
+  // arc: fill portion + remainder
+  const filled = Math.round(p);
+  const remain = 150 - filled;
+  new Chart(cv,{
+    type:'doughnut',
+    plugins:[needlePlugin],
+    data:{datasets:[{
+      data:[filled, remain],
+      backgroundColor:[color,'rgba(226,232,240,0.4)'],
+      borderWidth:0
+    }]},
+    options:{
+      cutout:'72%',circumference:180,rotation:-90,
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{enabled:false}}
+    }
+  });
 }
 
 function buildBurndown(){
