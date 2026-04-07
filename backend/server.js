@@ -521,6 +521,11 @@ function calcDashboard(wb) {
     }));
 
   // Last install date
+  // DEBUG: ดู raw date format จาก Google Sheets
+  const _sampleDates = aRows.slice(0,20)
+    .map(r => ({ inst: r['Install Date'], sched: r['Scheduled Date'], status: r['Status'] }))
+    .filter(r => r.inst || r.sched);
+  console.log('[DATE DEBUG] sample:', JSON.stringify(_sampleDates.slice(0,5)));
   let lastInstallDate = null;
   // นับ Qty.Success ทั้งหมด (ไม่ require Install Date) — ตรงกับ Dashboard
   aRows.forEach(r => {
