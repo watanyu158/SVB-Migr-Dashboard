@@ -3359,9 +3359,11 @@ async function loadData(){
     if(_e('plan-target-rate'))  _e('plan-target-rate').textContent  = targetRate+' อุปกรณ์/วัน';
     if(_e('plan-finish-date'))  _e('plan-finish-date').textContent  = finTH;
     if(_e('plan-status')){
-      const behind = allPct < (PLAN_ALL[Math.min(TODAY_WK,PLAN_ALL.length-1)]||0);
-      _e('plan-status').textContent = behind ? '↘ ช้ากว่าแผน' : '✓ ตรงแผน';
-      _e('plan-status').style.color = behind ? 'var(--danger)' : 'var(--success)';
+      const _st = ins.days_late>0 ? {txt:'↘ ช้ากว่าแผน', c:'var(--danger)'}
+                : ins.days_early>0 ? {txt:'↗ เร็วกว่าแผน', c:'var(--success)'}
+                : {txt:'✓ ตรงแผน', c:'var(--success)'};
+      _e('plan-status').textContent = _st.txt;
+      _e('plan-status').style.color = _st.c;
     }
 
     // pills
