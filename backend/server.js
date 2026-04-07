@@ -146,9 +146,17 @@ function calcDashboard(wb) {
   const dRows = XLSX.utils.sheet_to_json(wsD, { header:1, defval:null });
   const aRows = XLSX.utils.sheet_to_json(wsA, { defval:null });
 
-  if(dRows[4] && typeof dRows[4][1]==='number' && dRows[4][1]>0) TOTAL = dRows[4][1];
-  // ROW6 = ["Overall Progress:", x, "Actual Installed:", installed, ...]
-  const installed = (dRows[6] && typeof dRows[6][3] === 'number') ? dRows[6][3] : 0;
+  // หา TOTAL และ installed ด้วย header scan (ไม่ hardcode row index)
+  let _totalRow = -1, _installedRow = -1;
+  for (let i = 0; i < Math.min(dRows.length, 15); i++) {
+    const r = dRows[i] || [];
+    if (typeof r[0] === 'number' && r[0] > 100 && _totalRow < 0) _totalRow = i;
+    if (typeof r[0] === 'string' && r[0].includes('Overall')) _installedRow = i;
+  }
+  if (_totalRow >= 0 && typeof dRows[_totalRow][0] === 'number' && dRows[_totalRow][0] > 0)
+    TOTAL = dRows[_totalRow][0];
+  const installed = (_installedRow >= 0 && typeof dRows[_installedRow][3] === 'number')
+    ? dRows[_installedRow][3] : 0;
   const INSTALLED_SW  = (dRows[18]&&dRows[18][2]) || 0;  // SW Done
   const INSTALLED_AP  = (dRows[19]&&dRows[19][2]) || 0;  // AP Done
   const INSTALLED_INF = installed - INSTALLED_SW - INSTALLED_AP;
