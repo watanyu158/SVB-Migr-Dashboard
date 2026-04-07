@@ -1983,23 +1983,22 @@ function buildTimeline(){
   const _todayLabel=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
   const _fabLen=FABRICS.length;
 
-  // plan % ณ วันนี้ per Fabric — ใช้ weekly data จาก server
+  // plan % ณ วันนี้ per Fabric — ใช้ daily data (แม่นยำกว่า weekly)
   const todayDT=new Date(); todayDT.setHours(0,0,0,0);
+  const _todayStr=String(todayDT.getDate()).padStart(2,'0')+'/'+(String(todayDT.getMonth()+1).padStart(2,'0'));
+  const _todayIdx=DAILY_PROG_LABELS.indexOf(_todayStr);
   const planPcts={};
   FABRICS.forEach(f=>{
-    const wk=f.weekly;
-    if(wk && wk.sw_plan && wk.sw_plan.length){
-      const wi=Math.min(TODAY_WK, wk.sw_plan.length-1);
+    const dp=DAILY_FAB_PROG[f.n];
+    if(dp && dp.sw_plan && dp.sw_plan.length && _todayIdx>=0){
       const swT=f.sw?.t||0; const apT=f.ap?.t||0;
       const denom=(swT+apT)||1;
-      const swPct=wk.sw_plan[wi]||0;
-      const apPct=(wk.ap_plan&&wk.ap_plan[wi])||0;
+      const swPct=dp.sw_plan[_todayIdx]||0;
+      const apPct=(dp.ap_plan&&dp.ap_plan[_todayIdx])||0;
       planPcts[f.n]=Math.min(100,Math.round((swPct*swT+apPct*apT)/denom));
     } else {
       // fallback: overall plan % ณ วันนี้
-      const _todayStr=String(todayDT.getDate()).padStart(2,'0')+'/'+(String(todayDT.getMonth()+1).padStart(2,'0'));
-      const _ti=DAILY_PROG_LABELS.indexOf(_todayStr);
-      planPcts[f.n]=Math.min(100,Math.round(_ti>=0?(DAILY_PROG_PLAN[_ti]||0):0));
+      planPcts[f.n]=Math.min(100,Math.round(_todayIdx>=0?(DAILY_PROG_PLAN[_todayIdx]||0):0));
     }
   });
 
