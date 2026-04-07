@@ -2949,6 +2949,8 @@ function togFab(el){
 
 function buildFabCards(){
   const w=document.getElementById('fpc-list');
+  if(!w) return;
+  w.innerHTML='';
   const pairs=[];for(let i=0;i<FABRICS.length;i+=2)pairs.push(FABRICS.slice(i,i+2));
   w.innerHTML=pairs.map(pair=>`<div class="g2" style="margin-bottom:9px">${pair.map(f=>{const p=Math.round(f.p),swp=f.sw.t>0?Math.round(f.sw.d/f.sw.t*100):0,app=f.ap.t>0?Math.round(f.ap.d/f.ap.t*100):0,inp=f.inf.t>0?Math.round(f.inf.d/f.inf.t*100):0;const pbg=p>=80?'var(--success-l);color:#065f46':p>=30?'var(--warning-l);color:#92400e':'var(--primary-l);color:var(--primary)';return `<div class="fpc"><div class="fpc-h"><div class="fpc-name"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>🏗 Fabric ${f.n}</div><div class="fpc-pct" style="background:${pbg}">${p}%</div></div><div class="fpc-big">${f.d}/${f.t}</div><div class="fpc-sub">อุปกรณ์ที่ติดตั้งแล้ว</div><div class="fpc-bar"><div class="fpc-fill" style="width:${p}%;background:${f.c}"></div></div><div class="fpc-cats"><div class="fcc"><div class="cl" style="color:#4361ee">🔀 Switch:</div><div class="cv">${f.sw.d}/${f.sw.t} (${swp}%)</div><div class="cb"><div class="cbf" style="width:${swp}%;background:#4361ee"></div></div></div><div class="fcc"><div class="cl" style="color:var(--success)">📶 AP:</div><div class="cv">${f.ap.d}/${f.ap.t} (${app}%)</div><div class="cb"><div class="cbf" style="width:${app}%;background:var(--success)"></div></div></div><div class="fcc"><div class="cl" style="color:var(--warning)">⚡ Infra:</div><div class="cv">${f.inf.d}/${f.inf.t} (${inp}%)</div><div class="cb"><div class="cbf" style="width:${inp}%;background:var(--warning)"></div></div></div></div><div class="fpc-dates"><div class="fdate"><div class="dl">เริ่ม:</div><div class="dv">${f.s}</div></div><div class="fdate"><div class="dl">สิ้นสุด:</div><div class="dv">${f.e}</div></div></div></div>`;}).join('')}</div>`).join('');
 }
@@ -2958,6 +2960,7 @@ function buildFabBreakdown(){
   const tbody = document.getElementById('fab-breakdown-tbody');
   const tfoot = document.getElementById('fab-breakdown-tfoot');
   if(!tbody || !tfoot) return;
+  tbody.innerHTML=''; tfoot.innerHTML='';
 
   const rows = FABRICS.map(f => {
     const swPct  = f.sw.t  > 0 ? Math.round(f.sw.d  / f.sw.t  * 100) : 0;
@@ -3584,7 +3587,7 @@ async function exportPDF(){
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
     // rebuild charts
     if(typeof buildProgressCharts==='function') buildProgressCharts();
-    if(typeof buildFabBreakdown==='function') buildFabBreakdown();
+    // buildFabBreakdown ไม่จำเป็นใน exportPDF (ใช้ tbody ที่มีอยู่แล้ว)
     if(typeof buildGraphs==='function'){gblt=false;buildGraphs();}
     // expand loc-list ทั้งหมดก่อน capture
     document.querySelectorAll('#loc-list .fgb').forEach(b=>{
