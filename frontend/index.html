@@ -2814,6 +2814,10 @@ function buildGraphs(){
 
   // ── Per-fabric daily stacked bar charts ──
   const wrap = document.getElementById('fab-daily-charts-wrap');
+  if(!wrap) return;
+  // clear ก่อน rebuild เสมอ
+  wrap.querySelectorAll('canvas').forEach(cv=>{ const ch=Chart.getChart(cv); if(ch) ch.destroy(); });
+  wrap.innerHTML = '';
   // Track all chart builds for export
   window._fabChartPromises = [];
   Object.keys(FAB_DAILY).forEach(fab => {
@@ -3586,7 +3590,7 @@ async function exportPDF(){
     // แสดงทุก tab
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
     // rebuild charts
-    if(typeof buildProgressCharts==='function') buildProgressCharts();
+    // buildProgressCharts ไม่ rebuild ใน exportPDF (ใช้ charts ที่มีอยู่แล้ว)
     // buildFabBreakdown ไม่จำเป็นใน exportPDF (ใช้ tbody ที่มีอยู่แล้ว)
     if(typeof buildGraphs==='function'){gblt=false;buildGraphs();}
     // expand loc-list ทั้งหมดก่อน capture
