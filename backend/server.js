@@ -116,6 +116,23 @@ async function getWorkbook() {
   throw new Error('No Excel source available');
 }
 
+
+// ── Date helper — handle XLSX serial, ISO string, Date object ─────────────────
+function toDate(v) {
+  if (!v) return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+  if (typeof v === 'number') return new Date((v - 25569) * 86400000);
+  if (typeof v === 'string') {
+    const d = new Date(v.trim());
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+function toDateStr(v) {
+  const d = toDate(v);
+  return d ? d.toISOString().slice(0,10) : null;
+}
+
 // ── Week index helper ─────────────────────────────────────────────────────────
 function wkIdx(dt) {
   if (!dt) return -1;
@@ -268,10 +285,9 @@ function calcDashboard(wb) {
     }
 
     // upcoming 14 วัน + track min/max scheduled per fabric
-    let schedDt = r['Scheduled Date'];
-    if (typeof schedDt === 'number') schedDt = new Date((schedDt - 25569) * 86400000);
+    let schedDt = toDate(r['Scheduled Date']);
     if (schedDt && qty > 0) {
-      const _sd = typeof schedDt==='number' ? new Date((schedDt-25569)*86400000) : schedDt;
+      const _sd = schedDt;
       const _sds = _sd instanceof Date ? _sd.toISOString().slice(0,10) : '';
       if (_sds >= todayStr && _sds <= end14Str) {
         if (!upcoming[_sds]) upcoming[_sds] = {};
@@ -301,8 +317,7 @@ function calcDashboard(wb) {
     }
 
     // Install date → actual (daily timeline ต้องมี Install Date)
-    let instDt = r['Install Date'];
-    if (typeof instDt === 'number') instDt = new Date((instDt - 25569) * 86400000);
+    const instDt = toDate(r['Install Date']);
     if (!instDt && ok > 0) instDt = new Date();  // ติดตั้งแล้วแต่ไม่มีวันที่
     if (instDt && ok > 0) {
       const wi = wkIdx(instDt); const dk = fmtDate(instDt);
@@ -317,10 +332,12 @@ function calcDashboard(wb) {
       else if (cat === 'AP') dailyMap[dk].ap += ok;
       else dailyMap[dk].inf += ok;
       if (!fabDailyAct[fab][dk]) fabDailyAct[fab][dk]={sw:0,ap:0,inf:0};
-      const _isoK = new Date(instDt).toISOString().slice(0,10);
-      if (cat==='Switch') { fabDailyAct[fab][dk].sw+=ok; dayFabSwAct[fab][_isoK]=(dayFabSwAct[fab][_isoK]||0)+ok; }
-      else if (cat==='AP') { fabDailyAct[fab][dk].ap+=ok; dayFabApAct[fab][_isoK]=(dayFabApAct[fab][_isoK]||0)+ok; }
-      else fabDailyAct[fab][dk].inf+=ok;
+      const _isoK = instDt ? instDt.toISOString().slice(0,10) : null;
+      if (_isoK) {
+        if (cat==='Switch') { fabDailyAct[fab][dk].sw+=ok; dayFabSwAct[fab][_isoK]=(dayFabSwAct[fab][_isoK]||0)+ok; }
+        else if (cat==='AP') { fabDailyAct[fab][dk].ap+=ok; dayFabApAct[fab][_isoK]=(dayFabApAct[fab][_isoK]||0)+ok; }
+        else fabDailyAct[fab][dk].inf+=ok;
+      }
     }
     // นับ ok ทุก row (เหมือน Dashboard) — ไม่ require Install Date
     if (ok > 0) {
@@ -462,7 +479,7 @@ function calcDashboard(wb) {
   // นับ Qty.Success ทั้งหมด (ไม่ require Install Date) — ตรงกับ Dashboard
   aRows.forEach(r => {
     const ok    = r['Qty. Success'] || 0;
-    let instDt  = r['Install Date'];
+    let instDt  = toDate(r['Install Date']);
     let schedDt = r['Scheduled Date'];
     if (typeof instDt  === 'number') instDt  = new Date((instDt  - 25569) * 86400000);
     if (typeof schedDt === 'number') schedDt = new Date((schedDt - 25569) * 86400000);
@@ -519,7 +536,7 @@ function calcDashboard(wb) {
     const cat   = r['Category'];
     const qty   = r['Qty'] || 0;
     const ok    = r['Qty. Success'] || 0;
-    let instDt  = r['Install Date'];
+    let instDt  = toDate(r['Install Date']);
     let schedDt = r['Scheduled Date'];
     if (typeof instDt  === 'number') instDt  = new Date((instDt  - 25569) * 86400000);
     if (typeof schedDt === 'number') schedDt = new Date((schedDt - 25569) * 86400000);
