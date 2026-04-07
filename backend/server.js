@@ -125,20 +125,20 @@ function toDate(v) {
   if (typeof v === 'string') {
     const s = v.trim();
     if (!s) return null;
-    // DD/MM/YYYY หรือ D/M/YYYY (Thai/GSheet format)
-    const thMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if (thMatch) {
-      const [,d,m,y] = thMatch;
-      return new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+    // D/M/YY หรือ DD/MM/YY หรือ D/M/YYYY (Google Sheets format)
+    const slashMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+    if (slashMatch) {
+      let [,d,m,y] = slashMatch;
+      d = parseInt(d); m = parseInt(m); y = parseInt(y);
+      if (y < 100) y += 2000; // YY -> YYYY
+      return new Date(y, m-1, d);
     }
     // YYYY-MM-DD (ISO)
     const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (isoMatch) {
       return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2])-1, parseInt(isoMatch[3]));
     }
-    // fallback
-    const d = new Date(s);
-    return isNaN(d.getTime()) ? null : d;
+    return null;
   }
   return null;
 }
@@ -521,11 +521,6 @@ function calcDashboard(wb) {
     }));
 
   // Last install date
-  // DEBUG: ดู raw date format จาก Google Sheets
-  const _sampleDates = aRows.slice(0,20)
-    .map(r => ({ inst: r['Install Date'], sched: r['Scheduled Date'], status: r['Status'] }))
-    .filter(r => r.inst || r.sched);
-  console.log('[DATE DEBUG] sample:', JSON.stringify(_sampleDates.slice(0,5)));
   let lastInstallDate = null;
   // นับ Qty.Success ทั้งหมด (ไม่ require Install Date) — ตรงกับ Dashboard
   aRows.forEach(r => {
