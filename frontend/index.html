@@ -3079,7 +3079,12 @@ async function loadData(){
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
     if(!d.weekly || !d.meta) throw new Error('Invalid API response');
-    const {meta, insight:ins, weekly, fabrics, types, daily, locations} = d;
+    const {meta:_meta, insight:ins, weekly, fabrics, types, daily, locations} = d;
+    // parse installed เป็น number (อาจมา string "1,073" จาก Google Sheets CSV)
+    const meta = {..._meta,
+      installed: typeof _meta.installed==='string' ? parseInt(_meta.installed.replace(/,/g,''))||0 : (_meta.installed||0),
+      remaining: typeof _meta.remaining==='string' ? parseInt(_meta.remaining.replace(/,/g,''))||0 : (_meta.remaining||0),
+    };
 
     // ── อัพเดท arrays ────────────────────────────────────────────────────
     // installed totals จาก Dashboard sheet (ตรงกับ Excel)
