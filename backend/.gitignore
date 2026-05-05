@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Excel files (ดึงจาก SharePoint อัตโนมัติ ไม่ต้อง commit)
+*.xlsx
+*.xls
+
+# Cache
+sda_cache.xlsx
+hq_cache.xlsx
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
