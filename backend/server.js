@@ -208,9 +208,10 @@ function calcDashboard(wb) {
     if (_apRow < 0 && r0.includes('AP') && typeof r[2] === 'number') _apRow = i;
   }
   if (_totalRow >= 0 && dRows[_totalRow][0] > 0) TOTAL = dRows[_totalRow][0];
-  const installed     = _installedRow >= 0 ? (dRows[_installedRow][3] || 0) : 0;
-  const INSTALLED_SW  = _swRow >= 0 ? (dRows[_swRow][2] || 0) : 0;
-  const INSTALLED_AP  = _apRow >= 0 ? (dRows[_apRow][2] || 0) : 0;
+  const _parseNum = v => typeof v === 'string' ? parseFloat(v.replace(/,/g,''))||0 : (Number(v)||0);
+  const installed     = _installedRow >= 0 ? _parseNum(dRows[_installedRow][3]) : 0;
+  const INSTALLED_SW  = _swRow >= 0 ? _parseNum(dRows[_swRow][2]) : 0;
+  const INSTALLED_AP  = _apRow >= 0 ? _parseNum(dRows[_apRow][2]) : 0;
   const INSTALLED_INF = installed - INSTALLED_SW - INSTALLED_AP;
 
   // hold = นับจำนวน rows ที่ Status='Hold' (ไม่ใช่ qty)
