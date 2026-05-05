@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+  <link rel="icon" href="data:,">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>SVB Migration Progress Dashboard</title>
@@ -74,7 +75,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--t
 .ins-kpi-lbl{font-size:12px;color:var(--text2);flex:1}
 .ins-kpi-val{font-size:16px;font-weight:700;color:var(--text);min-width:24px;text-align:right}
 .ins-kpi-unit{font-size:11px;color:var(--text2);min-width:28px}
-.ins-kpi-gap .ins-kpi-val,.ins-kpi-gap .ins-kpi-unit{color:var(--danger)!important}
+.ins-kpi-gap .ins-kpi-val,.ins-kpi-gap .ins-kpi-unit{}
 
 /* PILLS: 6-col grid row */
 .ins-pills{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;border-top:1px solid rgba(253,211,77,.5);padding-top:10px}
@@ -85,8 +86,8 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--t
 .ip-val{font-size:18px;font-weight:700;line-height:1;color:var(--text)}
 .ip-lbl{font-size:11px;color:var(--text2)}
 .ip-sub{font-size:10px;color:var(--text3)}
-.p-date .ip-val{color:var(--danger)}
-.p-date .ip-sub{color:var(--danger);font-size:9px}
+.p-date .ip-val{}
+.p-date .ip-sub{font-size:9px}
 .p-rem  .ip-val{color:var(--warning)}
 .p-days .ip-val{color:var(--success)}
 .p-ot   .ip-val{color:var(--success)}
@@ -789,8 +790,8 @@ main { padding: 12px 10px; }
           </svg>
         </div>
         <div>
-          <div class="ins-big">↑ ต้องเพิ่ม <em>2.1</em> อุปกรณ์/วัน
-            <span class="ins-pct-tag">↑20% จากอัตราปัจจุบัน</span>
+          <div class="ins-big"><em>–</em>
+            <span class="ins-pct-tag">–</span>
           </div>
         </div>
       </div>
@@ -827,7 +828,7 @@ main { padding: 12px 10px; }
         </div>
         <div class="ins-kpi-row ins-kpi-gap">
           <span class="ins-kpi-lbl">ส่วนต่าง</span>
-          <span class="ins-kpi-val" style="color:var(--danger)">+2.1</span>
+          <span class="ins-kpi-val">–</span>
           <span class="ins-kpi-unit" style="color:var(--danger)">/วัน</span>
         </div>
       </div>
@@ -1205,7 +1206,7 @@ main { padding: 12px 10px; }
     </div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:5px">ประสิทธิภาพเทียบกับแผน:</div>
     <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:var(--text2);white-space:nowrap" id="plan-eff-label">ทำได้ –/วัน</span><div style="flex:1;height:11px;background:#f0f4ff;border-radius:99px;overflow:hidden"><div id="plan-eff-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:12px;font-weight:700;color:var(--danger)" id="plan-eff-pct">–%</span></div>
-    <div style="text-align:right;font-size:11px;color:var(--danger);margin-top:3px">⚠ ต่ำกว่าเป้าหมาย</div>
+    <div style="text-align:right;font-size:11px;margin-top:3px" id="plan-eff-status">⚠ ต่ำกว่าเป้าหมาย</div>
   </div>
   <div id="fpc-list"></div>
 
@@ -1252,7 +1253,7 @@ function getLastInstallFrac(){
 function getLastInstallLabel(){
   if(!LAST_INSTALL_DATE) return null;
   const d = new Date(LAST_INSTALL_DATE+'T00:00:00');
-  return d.getDate()+'/'+(String(d.getMonth()+1).padStart(2,'0'));
+  return String(d.getDate()).padStart(2,'0')+'/'+(String(d.getMonth()+1).padStart(2,'0'));
 }
 let PLAN_ALL = []; // populated from API
 let DAILY_PROG_LABELS = []; // populated from API — daily labels
@@ -1787,7 +1788,7 @@ function buildWeekdayChart(){
   const days7=[], fullLabels=[];
   for(let d=0;d<7;d++){
     const dt=new Date(wkStart); dt.setDate(wkStart.getDate()+d);
-    const dk=`${dt.getDate()}/${String(dt.getMonth()+1).padStart(2,'0')}`;
+    const dk=`${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`;
     days7.push({dt,dk,dow:dt.getDay()});
     // label 2 บรรทัด: "จ.\n16/03"
     fullLabels.push(`${dayFull[dt.getDay()]} ${fmtD(dt)}`);
@@ -1865,10 +1866,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (el) el.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 });
 
-function buildGauge(){
-  const _ch_gaugec = Chart.getChart(document.getElementById('gauge-c'));
-  if(_ch_gaugec) _ch_gaugec.destroy();
-  new Chart(document.getElementById('gauge-c'),{type:'doughnut',data:{datasets:[{data:[83,17],backgroundColor:['#ff9f43','rgba(253,211,77,.3)'],borderWidth:0}]},options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+function buildGauge(pct){
+  const cv=document.getElementById('gauge-c'); if(!cv) return;
+  const ex=Chart.getChart(cv); if(ex) ex.destroy();
+  const p=Math.min(Math.max(pct||0,0),150);
+  const color=p>=100?'#2bc48a':p>=70?'#ff9f43':'#ee4b4b';
+  const trackColor=p>=100?'rgba(43,196,138,.2)':p>=70?'rgba(253,211,77,.25)':'rgba(238,75,75,.15)';
+  // arc: filled = p/150 ของครึ่งวงกลม
+  const filled=Math.min(Math.round(p),100);
+  const remain=100-filled;
+  new Chart(cv,{type:'doughnut',
+    data:{datasets:[{data:[filled,remain],backgroundColor:[color,trackColor],borderWidth:0}]},
+    options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{enabled:false}}}});
 }
 
 function buildBurndown(){
@@ -1898,7 +1908,7 @@ function buildBurndown(){
   }
   if(!_labels.length) return;
 
-  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+  const todayLbl=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
   const lastActIdx=_bdAct.reduce((a,v,j)=>v!=null?j:a,-1);
   const _uid='burndown_'+Date.now();
   const tickStep=useDaily?14:1;
@@ -1915,9 +1925,9 @@ function buildBurndown(){
     ctx.font='bold 10px Segoe UI,sans-serif';
     const tw=ctx.measureText(todayLbl).width;
     ctx.fillStyle='#ee4b4b';
-    ctx.beginPath();ctx.roundRect(x-tw/2-4,top-1,tw+8,16,4);ctx.fill();
+    ctx.beginPath();ctx.roundRect(x-tw/2-4,top-18,tw+8,16,4);ctx.fill();
     ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='top';
-    ctx.fillText(todayLbl,x,top+2);ctx.restore();
+    ctx.fillText(todayLbl,x,top-16);ctx.restore();
   }};
 
   new Chart(cv,{
@@ -1934,6 +1944,7 @@ function buildBurndown(){
     },
     options:{
       responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:24}},
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{display:false},
@@ -1970,23 +1981,26 @@ function buildTimeline(){
   const _projDays =Math.round((_projEnd-_projStart)/(24*60*60*1000));
   const _elapsed  =Math.round((_todayGMT7()-_projStart)/(24*60*60*1000));
   const tdp=Math.max(0,Math.min(100,Math.round(_elapsed/_projDays*100)));
-  const _todayLabel=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+  const _todayLabel=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
   const _fabLen=FABRICS.length;
 
-  // plan % ณ วันนี้ per Fabric
+  // plan % ณ วันนี้ per Fabric — ใช้ daily data (แม่นยำกว่า weekly)
   const todayDT=new Date(); todayDT.setHours(0,0,0,0);
+  const _todayStr=String(todayDT.getDate()).padStart(2,'0')+'/'+(String(todayDT.getMonth()+1).padStart(2,'0'));
+  const _todayIdx=DAILY_PROG_LABELS.indexOf(_todayStr);
   const planPcts={};
   FABRICS.forEach(f=>{
-    let planCum=0;
-    const planTotal=FAB_PLAN_TOTALS[f.n]||f.t||1;
-    if(FAB_DAILY_PLAN[f.n]){
-      DAILY_L.forEach((lbl,di)=>{
-        const [day,mo]=lbl.split('/').map(Number);
-        const dt=new Date(2026,mo-1,day); dt.setHours(0,0,0,0);
-        if(dt<=todayDT) planCum+=(FAB_DAILY_PLAN[f.n][di]||0);
-      });
+    const dp=DAILY_FAB_PROG[f.n];
+    if(dp && dp.sw_plan && dp.sw_plan.length && _todayIdx>=0){
+      const swT=f.sw?.t||0; const apT=f.ap?.t||0;
+      const denom=(swT+apT)||1;
+      const swPct=dp.sw_plan[_todayIdx]||0;
+      const apPct=(dp.ap_plan&&dp.ap_plan[_todayIdx])||0;
+      planPcts[f.n]=Math.min(100,Math.round((swPct*swT+apPct*apT)/denom));
+    } else {
+      // fallback: overall plan % ณ วันนี้
+      planPcts[f.n]=Math.min(100,Math.round(_todayIdx>=0?(DAILY_PROG_PLAN[_todayIdx]||0):0));
     }
-    planPcts[f.n]=Math.round(planCum/planTotal*100);
   });
 
   w.innerHTML=FABRICS.map((f,_fi)=>{
@@ -2030,8 +2044,14 @@ function buildTimeline(){
 
 function buildHeatmap(){
   const w=document.getElementById('hm-wrap');
-  const _fabLen=FABRICS.length;
-w.innerHTML=FABRICS.map((f,_fi)=>{const p=Math.round(f.p),cls=p===100?'hmfu':p>=70?'hmhi':p>=30?'hmmi':p>0?'hmlo':'hm0';return `<div class="hmc ${cls}"><div class="hmn">${f.n}</div><div class="hmp">${p}%</div><div class="hms">${f.d}/${f.t}</div></div>`;}).join('');
+  if(!w) return;
+  // เรียงตาม % จากมากไปน้อย
+  const sorted=[...FABRICS].sort((a,b)=>b.p-a.p);
+  w.innerHTML=sorted.map(f=>{
+    const p=Math.round(f.p);
+    const cls=p===100?'hmfu':p>=70?'hmhi':p>=30?'hmmi':p>0?'hmlo':'hm0';
+    return `<div class="hmc ${cls}"><div class="hmn">${f.n}</div><div class="hmp">${p}%</div><div class="hms">${f.d}/${f.t}</div></div>`;
+  }).join('');
 }
 
 // ── PROGRESS LINE CHARTS ──────────────────────────────────────────────────────
@@ -2042,7 +2062,7 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
   const ex=Chart.getChart(ctx); if(ex) ex.destroy();
   if(!labels||!labels.length) return;
 
-  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+  const todayLbl=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
   const lastActIdx=actData.reduce((a,v,j)=>v!=null?j:a,-1);
   const _uid=canvasId+'_'+Date.now();
   const isDaily=labels.length>30; // daily ถ้า label เยอะ, weekly ถ้าน้อย
@@ -2062,9 +2082,9 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
     cv.font='bold 9px Segoe UI,sans-serif';
     const tw=cv.measureText(todayLbl).width;
     cv.fillStyle='#ee4b4b';
-    cv.beginPath();cv.roundRect(x-tw/2-4,top-1,tw+8,14,3);cv.fill();
+    cv.beginPath();cv.roundRect(x-tw/2-4,top-18,tw+8,14,3);cv.fill();
     cv.fillStyle='#fff';cv.textAlign='center';cv.textBaseline='top';
-    cv.fillText(todayLbl,x,top+2);
+    cv.fillText(todayLbl,x,top-16);
     cv.restore();
   }};
 
@@ -2144,7 +2164,7 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
 
 function buildProgressCharts(){
   // todayLbl ใช้ร่วมกันทุก chart ใน function นี้
-  const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+  const todayLbl=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
 
   // ── Overall: กราฟรายวัน แผน vs จริง ──
   (()=>{
@@ -2161,7 +2181,7 @@ function buildProgressCharts(){
     if(!_pLabels.length) return;
 
     const _uid=Date.now();
-    const todayLbl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+    const todayLbl=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
 
     // today line plugin
     const tdPlugin={id:'tdAll_'+_uid,afterDraw(chart){
@@ -2177,9 +2197,9 @@ function buildProgressCharts(){
       cv.font='bold 10px Segoe UI,sans-serif';
       const tw=cv.measureText(todayLbl).width;
       cv.fillStyle='#ee4b4b';
-      cv.beginPath();cv.roundRect(x-tw/2-4,top-1,tw+8,16,4);cv.fill();
+      cv.beginPath();cv.roundRect(x-tw/2-4,top-18,tw+8,16,4);cv.fill();
       cv.fillStyle='#fff';cv.textAlign='center';cv.textBaseline='top';
-      cv.fillText(todayLbl,x,top+2);cv.restore();
+      cv.fillText(todayLbl,x,top-16);cv.restore();
     }};
 
     // datalabels — เฉพาะ last actual index (plan+actual คู่กัน)
@@ -2334,7 +2354,7 @@ function buildProgressCharts(){
       const _uid3=cid+'_'+Date.now();
       const lastSwIdx=fabDailyData.sw_act.reduce((a,v,j)=>v!=null?j:a,-1);
       const lastApIdx=fabDailyData.ap_act.reduce((a,v,j)=>v!=null?j:a,-1);
-      const _tod=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+      const _tod=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
       const tdPl3={id:'td3_'+_uid3,afterDraw(chart){
         const {top,bottom}=chart.chartArea; const cv3=chart.ctx;
         const tIdx=chart.data.labels.indexOf(_tod);
@@ -2347,9 +2367,9 @@ function buildProgressCharts(){
         cv3.font='bold 9px Segoe UI,sans-serif';
         const tw=cv3.measureText(_tod).width;
         cv3.fillStyle='#ee4b4b';
-        cv3.beginPath();cv3.roundRect(x-tw/2-3,top-1,tw+6,13,3);cv3.fill();
+        cv3.beginPath();cv3.roundRect(x-tw/2-3,top-18,tw+6,13,3);cv3.fill();
         cv3.fillStyle='#fff';cv3.textAlign='center';cv3.textBaseline='top';
-        cv3.fillText(_tod,x,top+2);cv3.restore();
+        cv3.fillText(_tod,x,top-16);cv3.restore();
       }};
       // datalabel plugin — ทุก 14 วัน + last point
       // datalabel — plan+actual ที่ last actual index
@@ -2610,7 +2630,7 @@ function buildGraphs(){
         cs+=DAILY_SW[i]||0; ca+=DAILY_AP[i]||0; ci+=DAILY_INF[i]||0;
         _cumSW.push(cs); _cumAP.push(ca); _cumInf.push(ci);
       });
-      const _todayL=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+      const _todayL=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
       const _lastIdx=DAILY_L.length-1;
       const _tdCum={id:'tdCum',afterDraw(chart){
         const {top,bottom}=chart.chartArea; const cv2=chart.ctx;
@@ -2624,9 +2644,9 @@ function buildGraphs(){
         cv2.font='bold 9px Segoe UI';
         const tw2=cv2.measureText(_todayL).width;
         cv2.fillStyle='#ee4b4b';
-        cv2.beginPath();cv2.roundRect(x-tw2/2-3,top-1,tw2+6,13,3);cv2.fill();
+        cv2.beginPath();cv2.roundRect(x-tw2/2-3,top-18,tw2+6,13,3);cv2.fill();
         cv2.fillStyle='#fff';cv2.textAlign='center';cv2.textBaseline='top';
-        cv2.fillText(_todayL,x,top+2);cv2.restore();
+        cv2.fillText(_todayL,x,top-16);cv2.restore();
       }};
       // ใช้ installed totals จาก Dashboard sheet สำหรับ last value label
       const _swTotal = window.INSTALLED_SW || _cumSW[_cumSW.length-1] || 0;
@@ -2805,6 +2825,10 @@ function buildGraphs(){
 
   // ── Per-fabric daily stacked bar charts ──
   const wrap = document.getElementById('fab-daily-charts-wrap');
+  if(!wrap) return;
+  // clear ก่อน rebuild เสมอ
+  wrap.querySelectorAll('canvas').forEach(cv=>{ const ch=Chart.getChart(cv); if(ch) ch.destroy(); });
+  wrap.innerHTML = '';
   // Track all chart builds for export
   window._fabChartPromises = [];
   Object.keys(FAB_DAILY).forEach(fab => {
@@ -2940,6 +2964,8 @@ function togFab(el){
 
 function buildFabCards(){
   const w=document.getElementById('fpc-list');
+  if(!w) return;
+  w.innerHTML='';
   const pairs=[];for(let i=0;i<FABRICS.length;i+=2)pairs.push(FABRICS.slice(i,i+2));
   w.innerHTML=pairs.map(pair=>`<div class="g2" style="margin-bottom:9px">${pair.map(f=>{const p=Math.round(f.p),swp=f.sw.t>0?Math.round(f.sw.d/f.sw.t*100):0,app=f.ap.t>0?Math.round(f.ap.d/f.ap.t*100):0,inp=f.inf.t>0?Math.round(f.inf.d/f.inf.t*100):0;const pbg=p>=80?'var(--success-l);color:#065f46':p>=30?'var(--warning-l);color:#92400e':'var(--primary-l);color:var(--primary)';return `<div class="fpc"><div class="fpc-h"><div class="fpc-name"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>🏗 Fabric ${f.n}</div><div class="fpc-pct" style="background:${pbg}">${p}%</div></div><div class="fpc-big">${f.d}/${f.t}</div><div class="fpc-sub">อุปกรณ์ที่ติดตั้งแล้ว</div><div class="fpc-bar"><div class="fpc-fill" style="width:${p}%;background:${f.c}"></div></div><div class="fpc-cats"><div class="fcc"><div class="cl" style="color:#4361ee">🔀 Switch:</div><div class="cv">${f.sw.d}/${f.sw.t} (${swp}%)</div><div class="cb"><div class="cbf" style="width:${swp}%;background:#4361ee"></div></div></div><div class="fcc"><div class="cl" style="color:var(--success)">📶 AP:</div><div class="cv">${f.ap.d}/${f.ap.t} (${app}%)</div><div class="cb"><div class="cbf" style="width:${app}%;background:var(--success)"></div></div></div><div class="fcc"><div class="cl" style="color:var(--warning)">⚡ Infra:</div><div class="cv">${f.inf.d}/${f.inf.t} (${inp}%)</div><div class="cb"><div class="cbf" style="width:${inp}%;background:var(--warning)"></div></div></div></div><div class="fpc-dates"><div class="fdate"><div class="dl">เริ่ม:</div><div class="dv">${f.s}</div></div><div class="fdate"><div class="dl">สิ้นสุด:</div><div class="dv">${f.e}</div></div></div></div>`;}).join('')}</div>`).join('');
 }
@@ -2949,6 +2975,7 @@ function buildFabBreakdown(){
   const tbody = document.getElementById('fab-breakdown-tbody');
   const tfoot = document.getElementById('fab-breakdown-tfoot');
   if(!tbody || !tfoot) return;
+  tbody.innerHTML=''; tfoot.innerHTML='';
 
   const rows = FABRICS.map(f => {
     const swPct  = f.sw.t  > 0 ? Math.round(f.sw.d  / f.sw.t  * 100) : 0;
@@ -3115,7 +3142,8 @@ async function loadData(){
     fabrics.forEach(f=>FABRICS.push({
       n:f.n, t:f.t, d:f.d, p:f.p, h:f.h, r:f.r, c:f.c,
       s:f.s||'–', e:f.e||'–',
-      sw:{t:f.sw.t,d:f.sw.d}, ap:{t:f.ap.t,d:f.ap.d}, inf:{t:f.inf.t,d:f.inf.d}
+      sw:{t:f.sw.t,d:f.sw.d}, ap:{t:f.ap.t,d:f.ap.d}, inf:{t:f.inf.t,d:f.inf.d},
+      weekly:f.weekly||null
     }));
     TYPE_DATA.length=0;
     (types||[]).forEach(t=>TYPE_DATA.push({n:t.n,plan:t.plan,done:t.done}));
@@ -3205,21 +3233,26 @@ async function loadData(){
           }
         });
 
-        // หา last install idx (SW หรือ AP)
+        // ใช้ LAST_INSTALL_DATE (global) เพื่อให้ทุก fabric หยุดตรงวันเดียวกัน
+        const _globalLastIdx=(()=>{
+          if(!LAST_INSTALL_DATE) return -1;
+          const ld=new Date(LAST_INSTALL_DATE+'T00:00:00');
+          const ll=String(ld.getDate()).padStart(2,'0')+'/'+(String(ld.getMonth()+1).padStart(2,'0'));
+          return DAILY_PROG_LABELS.indexOf(ll);
+        })();
+        // fallback: ใช้ fabLastIdx ของ fabric นี้ถ้าไม่มี global
         let fabLastIdx=-1;
         for(let i=DAILY_PROG_LABELS.length-1;i>=0;i--){
           if(swActDay[i]+apActDay[i]>0){fabLastIdx=i;break;}
         }
+        const cutoffIdx=_globalLastIdx>=0?_globalLastIdx:fabLastIdx;
 
         let cSwPlan=0,cApPlan=0,cSw=0,cAp=0;
         const swPlanArr=[],swActArr=[],apPlanArr=[],apActArr=[];
 
-        // ใช้ sw_plan/ap_plan จาก server โดยตรง ถ้ามี
-        // plan ใช้จาก DAILY_FAB_PROG ที่ _safe block load มาแล้ว (จาก dailyProgress.fab)
-        // compute เฉพาะ actual
         DAILY_PROG_LABELS.forEach((lbl,i)=>{
           cSw+=swActDay[i]; cAp+=apActDay[i];
-          const inAct=fabLastIdx<0||i<=fabLastIdx;
+          const inAct=cutoffIdx<0||i<=cutoffIdx;
           swActArr.push(inAct?Math.round(cSw/swTotal*10000)/100:null);
           apActArr.push(apTotal>0&&inAct?Math.round(cAp/apTotal*10000)/100:null);
         });
@@ -3314,7 +3347,7 @@ async function loadData(){
     if(_e('plan-remaining')) _e('plan-remaining').textContent = meta.remaining.toLocaleString()+' อุปกรณ์';
     // plan-plan-pct: plan ณ วันนี้
     const _todayPlanIdx=(()=>{
-      const tl=_todayGMT7().getDate()+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
+      const tl=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
       const ti=DAILY_PROG_LABELS.indexOf(tl);
       return ti>=0?ti:DAILY_PROG_LABELS.length-1;
     })();
@@ -3325,17 +3358,31 @@ async function loadData(){
     if(_e('plan-installed')) _e('plan-installed').textContent = meta.installed.toLocaleString()+' อุปกรณ์';
     if(_e('plan-daily-rate'))_e('plan-daily-rate').textContent= ins.daily_rate.toFixed(1)+' อุปกรณ์/วัน';
     if(_e('plan-eff-label')) _e('plan-eff-label').textContent = 'ทำได้ '+ins.daily_rate.toFixed(1)+'/วัน';
-    if(_e('plan-eff-bar'))   _e('plan-eff-bar').style.width   = Math.min(effPct,100)+'%';
-    if(_e('plan-eff-pct'))   _e('plan-eff-pct').textContent   = effPct+'%';
+    if(_e('plan-eff-bar')){
+      _e('plan-eff-bar').style.width = Math.min(effPct,100)+'%';
+      _e('plan-eff-bar').style.background = effPct>=100
+        ? 'linear-gradient(90deg,var(--success),#6ee7b7)'
+        : 'linear-gradient(90deg,var(--danger),#ff8a8a)';
+    }
+    if(_e('plan-eff-pct')){
+      _e('plan-eff-pct').textContent = effPct+'%';
+      _e('plan-eff-pct').style.color = effPct>=100?'var(--success)':'var(--danger)';
+    }
+    if(_e('plan-eff-status')){
+      _e('plan-eff-status').textContent = effPct>=100?'✅ เกินเป้าหมาย':'⚠ ต่ำกว่าเป้าหมาย';
+      _e('plan-eff-status').style.color = effPct>=100?'var(--success)':'var(--danger)';
+    }
     // plan target rate = TOTAL / proj_days (133 วัน)
     const projDays = 133;
     const targetRate = (meta.total / projDays).toFixed(1);
     if(_e('plan-target-rate'))  _e('plan-target-rate').textContent  = targetRate+' อุปกรณ์/วัน';
     if(_e('plan-finish-date'))  _e('plan-finish-date').textContent  = finTH;
     if(_e('plan-status')){
-      const behind = allPct < (PLAN_ALL[Math.min(TODAY_WK,PLAN_ALL.length-1)]||0);
-      _e('plan-status').textContent = behind ? '↘ ช้ากว่าแผน' : '✓ ตรงแผน';
-      _e('plan-status').style.color = behind ? 'var(--danger)' : 'var(--success)';
+      const _st = ins.days_late>0 ? {txt:'↘ ช้ากว่าแผน', c:'var(--danger)'}
+                : ins.days_early>0 ? {txt:'↗ เร็วกว่าแผน', c:'var(--success)'}
+                : {txt:'✓ ตรงแผน', c:'var(--success)'};
+      _e('plan-status').textContent = _st.txt;
+      _e('plan-status').style.color = _st.c;
     }
 
     // pills
@@ -3345,7 +3392,12 @@ async function loadData(){
     if(_e('hold-cnt'))  _e('hold-cnt').textContent  = meta.hold+' รายการ';
 
     // gauge
-    if(_e('gauge-pct-lbl')) _e('gauge-pct-lbl').textContent = ins.gauge_pct+'%';
+    if(_e('gauge-pct-lbl')){
+      const _gp=ins.gauge_pct||0;
+      _e('gauge-pct-lbl').textContent=_gp+'%';
+      _e('gauge-pct-lbl').style.color=_gp>=100?'var(--success)':_gp>=70?'var(--warning)':'var(--danger)';
+    }
+    buildGauge(ins.gauge_pct);
 
     // on-time
     if(_e('pill-ontime'))     _e('pill-ontime').textContent     = meta.on_time_pct+'%';
@@ -3354,20 +3406,49 @@ async function loadData(){
     if(_e('donut-ontime-sub'))_e('donut-ontime-sub').textContent= `${meta.on_time_qty}/${meta.installed}`;
 
     // insight text — อัพเดทเสมอโดยไม่ check ข้อความเดิม
-    document.querySelectorAll('.ins-big em').forEach(em=>em.textContent=Number(ins.need_more).toFixed(1));
-    document.querySelectorAll('.ins-pct-tag').forEach(t=>t.textContent='↑'+ins.pct_more+'% จากอัตราปัจจุบัน');
+    (()=>{
+      const nm=Number(ins.need_more);
+      const col=nm<=0?'var(--success)':'var(--danger)';
+      const txt=nm<=0?'เกินเป้า '+Math.abs(nm).toFixed(1)+' อุปกรณ์/วัน':'ต้องเพิ่ม '+nm.toFixed(1)+' อุปกรณ์/วัน';
+      document.querySelectorAll('.ins-big em').forEach(em=>{em.textContent=txt;em.style.color=col;});
+    })();
+    (()=>{
+      const pm=Number(ins.pct_more);
+      const col=pm<=0?'var(--success)':'#92400e';
+      const bg=pm<=0?'#f0fdf4':'#fff7ed';
+      const txt=pm<=0?'เกินเป้า '+Math.abs(pm)+'%':'ต้องเพิ่ม '+pm+'%';
+      document.querySelectorAll('.ins-pct-tag').forEach(t=>{
+        t.textContent=txt; t.style.color=col; t.style.background=bg;
+      });
+    })();
     const rv=document.querySelectorAll('.ins-rate-val');
     if(rv[0]) rv[0].textContent=Number(ins.daily_rate).toFixed(1);
     if(rv[1]) rv[1].textContent=ins.req_rate;
     document.querySelectorAll('.ins-warn').forEach(w=>{
-      w.textContent=ins.days_late>0
-        ?`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`
-        :`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด`;
+      if(ins.days_late>0){
+        w.textContent=`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`;
+        w.style.color='var(--danger)';
+        w.style.background='rgba(239,68,68,.08)';
+        w.style.borderColor='rgba(239,68,68,.2)';
+      } else {
+        w.textContent=`✅ ถ้าคงอัตรานี้ → เสร็จ ${finTH} — ก่อนกำหนด ${ins.days_early} วัน`;
+        w.style.color='var(--success)';
+        w.style.background='rgba(43,196,138,.08)';
+        w.style.borderColor='rgba(43,196,138,.2)';
+      }
     });
     const kv=document.querySelectorAll('.ins-kpi-val');
     if(kv[0]) kv[0].textContent=Number(ins.daily_rate).toFixed(1);
     if(kv[1]) kv[1].textContent=ins.req_rate;
-    if(kv[2]) kv[2].textContent='+'+Number(ins.need_more).toFixed(1);
+    if(kv[2]){
+      const nm2=Number(ins.need_more);
+      const col2=nm2<=0?'var(--success)':'var(--danger)';
+      const txt2=nm2<=0?'เกินเป้า '+Math.abs(nm2).toFixed(1):'ต้องเพิ่ม '+nm2.toFixed(1);
+      kv[2].textContent=txt2;
+      kv[2].style.color=col2;
+      const unit2=kv[2].nextElementSibling;
+      if(unit2){unit2.textContent='/วัน';unit2.style.color=col2;}
+    }
 
     // pills คาดเสร็จ / วันเหลือ
     document.querySelectorAll('.ip-val').forEach(el=>{
@@ -3377,7 +3458,18 @@ async function loadData(){
     });
     document.querySelectorAll('.ip-sub').forEach(el=>{
       const lbl=el.previousElementSibling?.textContent||el.parentElement?.querySelector('.ip-lbl')?.textContent||'';
-      if(el.closest('.p-date')) el.textContent=ins.days_late>0?'ช้า '+ins.days_late+' วัน':'ก่อนกำหนด';
+      if(el.closest('.p-date')){
+        if(ins.days_late>0){
+          el.textContent='ช้า '+ins.days_late+' วัน';
+          el.style.color='var(--danger)';
+        } else if(ins.days_early>0){
+          el.textContent='ก่อนกำหนด '+ins.days_early+' วัน';
+          el.style.color='var(--success)';
+        } else {
+          el.textContent='ตรงกำหนด';
+          el.style.color='var(--success)';
+        }
+      }
     });
 
     // ── Rebuild charts พร้อม progress ────────────────────────────────────
@@ -3397,7 +3489,7 @@ async function loadData(){
     if(_e('donut-early-cnt'))   _e('donut-early-cnt').textContent   = earlyQ.toLocaleString();
     if(_e('donut-late-cnt'))    _e('donut-late-cnt').textContent    = lateQ.toLocaleString();
     if(_e('donut-pending-cnt')) _e('donut-pending-cnt').textContent = pendQ.toLocaleString();
-    buildGauge(); buildBurndown();
+    buildGauge(ins.gauge_pct); buildBurndown();
     gblt=false; buildProgressCharts(); buildFabBreakdown(); buildTypeBarChart();
     buildVelocityChart(); buildWeekdayChart(); buildFabGap();
     // wd-cells populate ทันทีหลัง data load
@@ -3507,12 +3599,8 @@ async function exportPDF(){
   const active=document.querySelector('.tab.on');
   const activeName=active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'overview';
   try{
-    // แสดงทุก tab
+    // แสดงทุก tab ชั่วคราวเพื่อ capture เท่านั้น (restore ใน finally)
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
-    // rebuild charts
-    if(typeof buildProgressCharts==='function') buildProgressCharts();
-    if(typeof buildFabBreakdown==='function') buildFabBreakdown();
-    if(typeof buildGraphs==='function'){gblt=false;buildGraphs();}
     // expand loc-list ทั้งหมดก่อน capture
     document.querySelectorAll('#loc-list .fgb').forEach(b=>{
       b.classList.add('open');
@@ -3589,7 +3677,8 @@ async function exportPDF(){
     });
 
     const date=new Date().toLocaleDateString('th-TH');
-    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    const html=`<!DOCTYPE html><html><head>
+  <link rel="icon" href="data:,"><meta charset="UTF-8">
 <title>SDA Installation Dashboard — SVB</title>
 <style>
 @page{size:A4 landscape;margin:8mm 10mm}
@@ -3707,12 +3796,12 @@ function buildUpcoming(){
           </div>
           <div>
             <div style="font-size:13px;font-weight:700">${fmtD(d)}</div>
-            <div style="font-size:11px;color:var(--text2)">แผน ${dayRem} เครื่อง (รวม ${dayQty} ตามแผน)</div>
+            <div style="font-size:11px;color:var(--text2)">ต้องติดตั้ง <strong>${dayRem}</strong> จาก ${dayQty} เครื่องตามแผน</div>
           </div>
         </div>
-        <div style="text-align:center;background:${abg};border-radius:10px;padding:6px 14px">
-          <div style="font-size:22px;font-weight:800;color:${ac}">${dayRem}</div>
-          <div style="font-size:9px;color:${ac}">เครื่อง</div>
+        <div style="text-align:center;background:${abg};border-radius:10px;padding:6px 14px;min-width:60px">
+          <div style="font-size:22px;font-weight:800;color:${ac};line-height:1">${dayRem}</div>
+          <div style="font-size:9px;color:${ac}">เครื่องคงเหลือ</div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:7px">`;
@@ -3722,7 +3811,7 @@ function buildUpcoming(){
       const moreT=v.types.length>4?`<span style="font-size:10px;color:var(--text2)">+${v.types.length-4} อื่นๆ</span>`:'';
       const locChips=v.locs.slice(0,3).map(l=>`<span style="font-size:10px;background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;border:1px solid #bbf7d0">📍 ${l}</span>`).join('');
       const moreL=v.locs.length>3?`<span style="font-size:10px;color:var(--text2)">+${v.locs.length-3}</span>`:'';
-      const catBadges=[...new Set(v.cats)].map(c=>{const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};return `<span style="font-size:10px;background:${s.bg};color:${s.c};padding:2px 8px;border-radius:99px;font-weight:600">${s.icon}${c}</span>`;}).join('');
+      const catBadges=[...new Set(v.cats)].map(c=>{const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};return `<span style="font-size:10px;background:${s.bg};color:${s.c};padding:2px 8px;border-radius:99px;font-weight:600">${c}</span>`;}).join('');
       const pct=v.qty>0?Math.round((v.qty-v.rem)/v.qty*100):0;
       html+=`<div style="background:#f8faff;border-radius:8px;padding:10px 12px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -3733,8 +3822,8 @@ function buildUpcoming(){
             ${pct>0?`<span style="font-size:10px;color:var(--success);font-weight:600">✓ ${pct}%</span>`:''}
           </div>
           <div style="text-align:right;flex-shrink:0;margin-left:8px">
-            <div style="font-size:15px;font-weight:800;color:${fc}">${v.rem}</div>
-            <div style="font-size:9px;color:var(--text2)">เหลือ/${v.qty}</div>
+            <div style="font-size:13px;font-weight:800;color:${fc}">${v.rem}<span style="font-size:9px;font-weight:400;color:var(--text2)">/${v.qty}</span></div>
+            <div style="font-size:9px;color:var(--text2)">ยังไม่ติดตั้ง/แผน</div>
           </div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">${typeChips}${moreT}</div>
