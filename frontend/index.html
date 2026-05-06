@@ -3199,10 +3199,17 @@ async function loadData(){
         DAILY_SW_ACT.push(inAct?Math.round(cSW/TOTAL_SW_T*10000)/100:null);
         DAILY_AP_PLAN.push(Math.round(planFrac*10000)/100);  // same % as overall plan
         DAILY_AP_ACT.push(inAct?Math.round(cAP/TOTAL_AP_T*10000)/100:null);
-        // BD actual รวม infra — ใช้จาก DAILY_PROG_ACT ซึ่ง server คำนวณรวมทุก category
-        const allPct=DAILY_PROG_ACT[i];
-        DAILY_BD_ACT.push(inAct&&allPct!=null?Math.round((1-allPct/100)*TOTAL_T):null);
-      });
+      // BD actual — ใช้จาก server โดยตรง (ถูกต้องกว่าคำนวณเอง)
+      if(dp.bd_act && dp.bd_act.length) {
+        DAILY_BD_ACT.length=0;
+        dp.bd_act.forEach(v=>DAILY_BD_ACT.push(v));
+      } else {
+        DAILY_BD_ACT.length=0;
+        DAILY_PROG_ACT.forEach((allPct,i)=>{
+          const inAct=lastInstIdx<0||i<=lastInstIdx;
+          DAILY_BD_ACT.push(inAct&&allPct!=null?Math.round((1-allPct/100)*TOTAL_T):null);
+        });
+      }
 
       // BD plan
       DAILY_BD_PLAN.length=0;
