@@ -659,7 +659,8 @@ function calcDashboard(wb) {
 
     // burndown
     dailyProgress.bd_plan.push(TOTAL - cPlan);
-    dailyProgress.bd_act.push(inAct ? TOTAL - cAll : null);
+    const isLastActDay = inAct && lastActDt && cur.toISOString().slice(0,10) === lastActDt.toISOString().slice(0,10);
+    dailyProgress.bd_act.push(inAct ? (isLastActDay ? TOTAL - installed : TOTAL - cAll) : null);
 
     FABRICS.forEach(f => {
       const fLast = fabLastInstall[f];
