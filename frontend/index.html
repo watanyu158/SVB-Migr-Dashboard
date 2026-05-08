@@ -3626,9 +3626,18 @@ async function exportPDF(){
       const arr=b.previousElementSibling?.querySelector('.fg-arrow');
       if(arr) arr.textContent='▲';
     });
-    // trigger resize เพื่อให้ Chart.js คำนวณ size ใหม่
     window.dispatchEvent(new Event('resize'));
-    await new Promise(r=>setTimeout(r,3000)); // รอ chart re-render ทุก tab
+    await new Promise(r=>setTimeout(r,500));
+
+    // rebuild charts ทุกอันเพื่อให้ render ใน tab ที่เพิ่ง show
+    buildBurndown(); buildProgressCharts(); buildGraphs();
+    buildTimeline(); buildHeatmap(); buildFabCards();
+    if(typeof buildFabBreakdown==='function') buildFabBreakdown();
+    if(typeof buildTypeBarChart==='function') buildTypeBarChart();
+    if(typeof buildFabGap==='function') buildFabGap();
+    if(typeof buildVelocityChart==='function') buildVelocityChart();
+    if(typeof buildWeekdayChart==='function') buildWeekdayChart();
+    await new Promise(r=>setTimeout(r,2000)); // รอ render เสร็จ
 
     const imgs={};
     document.querySelectorAll('canvas').forEach(cv=>{
