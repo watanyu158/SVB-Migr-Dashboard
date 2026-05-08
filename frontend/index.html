@@ -665,6 +665,7 @@ main { padding: 12px 10px; }
   #per-fabric-header { page-break-before: always; break-before: page; }
   #upcoming-list .card { break-inside: avoid; }
   #fab-daily-charts-wrap, .prog-fab-grid { display: block !important; }
+  .fab-html-legend { display: none !important; }
 
   /* ── Show all tab bodies ── */
   .tab-body { display: block !important; page-break-after: always; }
@@ -2517,7 +2518,7 @@ function buildOneFabChart(fab) {
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
-    legend:{display:false},
+    legend:{display:true,position:'bottom',labels:{font:{size:9},boxWidth:8,padding:5}},
     tooltip:{
       backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
       bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
@@ -2882,7 +2883,7 @@ function buildGraphs(){
         </span>
       </div>
       ${chartHtml}
-      <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap">
+      <div class="fab-html-legend" style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#4361ee;display:inline-block"></span>Switch</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#2bc48a;display:inline-block"></span>AP</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#ff9f43;display:inline-block"></span>Infra</span>
