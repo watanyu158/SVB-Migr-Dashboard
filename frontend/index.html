@@ -2518,7 +2518,7 @@ function buildOneFabChart(fab) {
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
-    legend:{display:true,position:'bottom',labels:{font:{size:9},boxWidth:8,padding:5}},
+    legend:{display:false},
     tooltip:{
       backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
       bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
@@ -3642,6 +3642,9 @@ async function exportPDF(){
     if(window._fabChartPromises?.length) await Promise.all(window._fabChartPromises);
     await new Promise(r=>setTimeout(r,2000)); // รอ render เสร็จ
 
+    // ซ่อน HTML legend ก่อน capture เพื่อไม่ให้ซ้อนกับ chart ถัดไป
+    document.querySelectorAll('.fab-html-legend').forEach(el=>el.style.display='none');
+
     const imgs={};
     document.querySelectorAll('canvas').forEach(cv=>{
       try{
@@ -3765,8 +3768,9 @@ ${wrapper.outerHTML}
     console.error(err);pw.close();alert('Export ไม่สำเร็จ: '+err.message);
   }finally{
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===activeName?'block':'none';});
-    // collapse loc-list กลับ
     document.querySelectorAll('#loc-list .fgb').forEach(b=>b.classList.remove('open'));
+    // คืนค่า HTML legend
+    document.querySelectorAll('.fab-html-legend').forEach(el=>el.style.display='');
   }
 }
 
