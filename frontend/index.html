@@ -3643,11 +3643,9 @@ async function exportPDF(){
     document.querySelectorAll('canvas').forEach(cv=>{
       try{
         if(!cv.id) cv.id='cv_'+Math.random().toString(36).slice(2);
-        const w = cv.width || cv.offsetWidth;
-        const h = cv.height || cv.offsetHeight;
         const url = cv.toDataURL('image/png',1);
         if(url && url.length > 3000)
-          imgs[cv.id]={url, w:w||800, h:h||300};
+          imgs[cv.id]={url, w:cv.width, h:cv.height};
       }catch(e){}
     });
 
@@ -3706,11 +3704,10 @@ async function exportPDF(){
         const origIdx = origCanvases.findIndex(o=>o.id===cv.id);
         if(origIdx>=0) d = imgs[origCanvases[origIdx].id];
       }
-      if(d && d.url && d.url.length>5000){
+      if(d && d.url && d.url.length>3000){
         const img=document.createElement('img');
         img.src=d.url;
-        const w=Math.min(d.w,1100), h=Math.max(d.h,50);
-        img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;`;
+        img.style.cssText=`display:block;width:100%;height:auto;max-width:100%;`;
         cv.parentNode.replaceChild(img,cv);
       }else{
         cv.style.display='none';
