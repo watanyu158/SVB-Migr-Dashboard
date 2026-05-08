@@ -3645,10 +3645,9 @@ async function exportPDF(){
         if(!cv.id) cv.id='cv_'+Math.random().toString(36).slice(2);
         const w = cv.width || cv.offsetWidth;
         const h = cv.height || cv.offsetHeight;
-        if(!w || !h) return;
         const url = cv.toDataURL('image/png',1);
-        if(url && url.length > 5000)
-          imgs[cv.id]={url, w, h};
+        if(url && url.length > 3000)
+          imgs[cv.id]={url, w:w||800, h:h||300};
       }catch(e){}
     });
 
@@ -3697,17 +3696,25 @@ async function exportPDF(){
     }
     clone.querySelectorAll('.topbar,.tabs,.tab-btn,.tbtn,.print-hide,.hold-tog,#hold-body').forEach(t=>t.style.display='none');
 
-    // แทน canvas ด้วยรูป (ทั้ง insBox และ main)
-    wrapper.querySelectorAll('canvas').forEach(cv=>{
-      const d=imgs[cv.id];
-      if(d){
+    // แทน canvas ด้วยรูป — ใช้ index position แทน id เพื่อความแน่นอน
+    const origCanvases = Array.from(document.querySelectorAll('canvas'));
+    const wrapCanvases = Array.from(wrapper.querySelectorAll('canvas'));
+    wrapCanvases.forEach(cv=>{
+      // หา match จาก id ก่อน ถ้าไม่มีใช้ index
+      let d = imgs[cv.id];
+      if(!d){
+        const origIdx = origCanvases.findIndex(o=>o.id===cv.id);
+        if(origIdx>=0) d = imgs[origCanvases[origIdx].id];
+      }
+      if(d && d.url && d.url.length>5000){
         const img=document.createElement('img');
         img.src=d.url;
-        // บังคับ aspect ratio ให้ตรง (ป้องกันวงรี)
-        const w=Math.min(d.w,1100), h=d.h;
-        img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;aspect-ratio:${w}/${h}`;
+        const w=Math.min(d.w,1100), h=Math.max(d.h,50);
+        img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;`;
         cv.parentNode.replaceChild(img,cv);
-      }else cv.style.display='none';
+      }else{
+        cv.style.display='none';
+      }
     });
 
     const date=new Date().toLocaleDateString('th-TH');
