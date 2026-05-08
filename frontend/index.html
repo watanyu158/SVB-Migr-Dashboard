@@ -3620,6 +3620,146 @@ async function exportPDF(){
   const active=document.querySelector('.tab.on');
   const activeName=active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'overview';
   try{
+    // แสดงทุก tab
+    TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
+    // rebuild charts
+    if(typeof buildProgressCharts==='function') buildProgressCharts();
+    if(typeof buildFabBreakdown==='function') buildFabBreakdown();
+    if(typeof buildGraphs==='function'){gblt=false;buildGraphs();}
+    // expand loc-list ทั้งหมดก่อน capture
+    document.querySelectorAll('#loc-list .fgb').forEach(b=>{
+      b.classList.add('open');
+      const arr=b.previousElementSibling?.querySelector('.fg-arrow');
+      if(arr) arr.textContent='▲';
+    });
+    await new Promise(r=>setTimeout(r,1500));
+
+    // capture charts — ใช้ทั้ง Chart.instances และ canvas.toDataURL เพื่อครอบคลุมทุกอัน
+    const imgs={};
+    // จาก Chart.instances
+    if(typeof Chart!=='undefined')
+      Object.values(Chart.instances||{}).forEach(ch=>{
+        try{const id=ch.canvas?.id;if(!id)return;
+          imgs[id]={url:ch.toBase64Image('image/png',1),w:ch.canvas.offsetWidth,h:ch.canvas.offsetHeight};
+        }catch(e){}
+      });
+    // จาก canvas โดยตรง (รวม fabric charts)
+    document.querySelectorAll('canvas').forEach(cv=>{
+      try{
+        if(!cv.id||imgs[cv.id]) return;
+        const url=cv.toDataURL('image/png',1);
+        if(url&&url.length>3000)
+          imgs[cv.id]={url,w:cv.offsetWidth||cv.width,h:cv.offsetHeight||cv.height};
+      }catch(e){}
+    });
+
+    const styles=Array.from(document.styleSheets).map(ss=>{
+      try{return Array.from(ss.cssRules).map(r=>r.cssText).join('\n');}catch(e){return '';}
+    }).join('\n');
+
+    // clone ทั้ง insights-box + main
+    const mn=document.querySelector('main')||document.body;
+    const insBox=document.querySelector('.insights-box');
+    const wrapper=document.createElement('div');
+    if(insBox){
+      const insClone=insBox.cloneNode(true);
+      insClone.querySelectorAll('.tbtn,button').forEach(b=>b.style.display='none');
+      wrapper.appendChild(insClone);
+    }
+    const clone=mn.cloneNode(true);
+    wrapper.appendChild(clone);
+
+    // แสดงทุก tab
+    clone.querySelectorAll('.tab-body').forEach((t,i)=>{
+      t.style.display='block';
+      t.style.pageBreakBefore=i===0?'avoid':'always';
+      t.style.pageBreakAfter='avoid';
+    });
+    // open loc-list และ set page-break แต่ละ fabric
+    clone.querySelectorAll('.fgb').forEach(b=>b.classList.add('open'));
+    const _upHdr=clone.querySelector('#upcoming-header');
+    if(_upHdr){_upHdr.style.pageBreakBefore='always';_upHdr.style.breakBefore='page';}
+    const _pfHdr=clone.querySelector('#per-fabric-header');
+    if(_pfHdr){_pfHdr.style.pageBreakBefore='always';_pfHdr.style.breakBefore='page';}
+    clone.querySelectorAll('#loc-list .fg').forEach((fg,i)=>{
+      fg.style.pageBreakBefore=i===0?'avoid':'always';
+      fg.style.pageBreakInside='avoid';
+    });
+    const fgs=Array.from(clone.querySelectorAll('#loc-list .fg'));
+    for(let i=0;i<fgs.length-1;i++){
+      const r1=parseInt(fgs[i].dataset.rows||'99');
+      const r2=parseInt(fgs[i+1].dataset.rows||'99');
+      if(r1<=5&&r2<=5){fgs[i+1].style.pageBreakBefore='avoid';i++;}
+    }
+    clone.querySelectorAll('.topbar,.tabs,.tab-btn,.tbtn,.print-hide,.hold-tog,#hold-body').forEach(t=>t.style.display='none');
+
+    // แทน canvas ด้วยรูป
+    wrapper.querySelectorAll('canvas').forEach(cv=>{
+      const d=imgs[cv.id];
+      if(d){
+        const img=document.createElement('img');
+        img.src=d.url;
+        const w=Math.min(d.w||800,1100), h=d.h||300;
+        img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;aspect-ratio:${w}/${h}`;
+        cv.parentNode.replaceChild(img,cv);
+      }else cv.style.display='none';
+    });
+
+    const date=new Date().toLocaleDateString('th-TH');
+    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>SDA Installation Dashboard — SVB</title>
+<style>
+@page{size:A4 landscape;margin:8mm 10mm}
+*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;font-size:11px;background:#fff;margin:0;padding:0}
+${styles}
+.topbar,.tabs,.tab-btn,.ins-actions,.tbtn,.print-hide,.hold-tog,#hold-body{display:none!important}
+.tab-body{display:block!important}
+.fgb{display:block!important}
+.card{break-inside:avoid;margin-bottom:8px}
+canvas{display:none!important}
+img[style*="aspect-ratio"]{object-fit:contain!important}
+[style*="position:relative"][style*="150px"]{flex-shrink:0!important}
+[style*="position:relative"][style*="150px"] img{width:150px!important;height:150px!important}
+.g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+.g3{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+.g4{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
+.fpc-cats{display:grid!important;grid-template-columns:1fr!important}
+.fab-bd-grid{grid-template-columns:repeat(4,1fr)!important}
+.burndown-row{display:grid!important;grid-template-columns:3fr 2fr!important;gap:8px}
+.prog-chart-grid{grid-template-columns:1fr!important}
+.tblw{overflow:visible!important}
+table{width:100%!important;font-size:9px!important}
+th,td{padding:3px 4px!important}
+#tab-plan .g3{display:grid!important;grid-template-columns:1fr 1fr 1fr!important}
+#fpc-list{page-break-before:always;break-before:page}
+#fpc-list .g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;page-break-inside:avoid;break-inside:avoid}
+#fpc-list .fpc{break-inside:avoid}
+</style></head><body>
+<div style="background:linear-gradient(135deg,#1e2d4d,#2d3f6b);color:#fff;padding:8px 14px;
+  margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:8px">
+  <div style="font-size:14px;font-weight:700">📊 SDA Installation Dashboard — <span style="color:#a5b4fc">SVB</span></div>
+  <span style="font-size:10px;opacity:.8">${date}</span>
+</div>
+${wrapper.outerHTML}
+<script>window.onload=function(){setTimeout(function(){window.print();},1000);};<\/script>
+</body></html>`;
+    pw.document.open();pw.document.write(html);pw.document.close();
+  }catch(err){
+    console.error(err);pw.close();alert('Export ไม่สำเร็จ: '+err.message);
+  }finally{
+    TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===activeName?'block':'none';});
+    document.querySelectorAll('#loc-list .fgb').forEach(b=>b.classList.remove('open'));
+  }
+}
+  const pw=window.open('','_blank','width=1280,height=900');
+  if(!pw){alert('กรุณาอนุญาต popup');return;}
+  pw.document.write('<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#1e2d4d;color:#a5b4fc;font-family:sans-serif"><div style="text-align:center"><div style="font-size:40px">📊</div><div style="margin-top:12px">กำลังเตรียม PDF...</div></div></body></html>');
+  pw.document.close();
+  const active=document.querySelector('.tab.on');
+  const activeName=active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'overview';
+  try{
     // 1. แสดงทุก tab + expand
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
     document.querySelectorAll('#loc-list .fgb').forEach(b=>{
