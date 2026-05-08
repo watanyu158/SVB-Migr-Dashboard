@@ -2518,7 +2518,7 @@ function buildOneFabChart(fab) {
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
-    legend:{display:true,position:'right',align:'center',labels:{font:{size:9},boxWidth:10,padding:6}},
+    legend:{display:false},
     tooltip:{
       backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
       bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
@@ -3630,6 +3630,21 @@ async function exportPDF(){
       if(arr) arr.textContent='▲';
     });
     await new Promise(r=>setTimeout(r,1500));
+
+    // เปิด legend ทุก fabric chart เฉพาะตอน export
+    if(typeof Chart!=='undefined')
+      Object.values(Chart.instances||{}).forEach(ch=>{
+        try{
+          const id=ch.canvas?.id||'';
+          if(id.startsWith('fd-')){
+            ch.options.plugins.legend.display=true;
+            ch.options.plugins.legend.position='right';
+            ch.options.plugins.legend.labels={font:{size:9},boxWidth:10,padding:6};
+            ch.update();
+          }
+        }catch(e){}
+      });
+    await new Promise(r=>setTimeout(r,300));
     const imgs={};
     if(typeof Chart!=='undefined')
       Object.values(Chart.instances||{}).forEach(ch=>{
@@ -3735,6 +3750,16 @@ ${wrapper.outerHTML}
   }finally{
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===activeName?'block':'none';});
     document.querySelectorAll('#loc-list .fgb').forEach(b=>b.classList.remove('open'));
+    // ปิด legend fabric chart กลับ
+    if(typeof Chart!=='undefined')
+      Object.values(Chart.instances||{}).forEach(ch=>{
+        try{
+          if((ch.canvas?.id||'').startsWith('fd-')){
+            ch.options.plugins.legend.display=false;
+            ch.update();
+          }
+        }catch(e){}
+      });
   }
 }
 
