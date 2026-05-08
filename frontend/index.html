@@ -3619,25 +3619,27 @@ async function exportPDF(){
   const active=document.querySelector('.tab.on');
   const activeName=active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'overview';
   try{
-    // แสดงทุก tab ชั่วคราวเพื่อ capture เท่านั้น (restore ใน finally)
+    // แสดงทุก tab + expand loc-list ก่อน capture
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
-    // expand loc-list ทั้งหมดก่อน capture
     document.querySelectorAll('#loc-list .fgb').forEach(b=>{
       b.classList.add('open');
       const arr=b.previousElementSibling?.querySelector('.fg-arrow');
       if(arr) arr.textContent='▲';
     });
-    await new Promise(r=>setTimeout(r,1500));
+    // trigger resize เพื่อให้ Chart.js คำนวณ size ใหม่
+    window.dispatchEvent(new Event('resize'));
+    await new Promise(r=>setTimeout(r,3000)); // รอ chart re-render ทุก tab
 
-    // capture charts — ใช้ canvas.toDataURL โดยตรงแทน Chart.instances
     const imgs={};
     document.querySelectorAll('canvas').forEach(cv=>{
       try{
-        const key = cv.id || ('cv_'+Math.random().toString(36).slice(2));
-        if(!cv.id) cv.id=key;
+        if(!cv.id) cv.id='cv_'+Math.random().toString(36).slice(2);
+        const w = cv.width || cv.offsetWidth;
+        const h = cv.height || cv.offsetHeight;
+        if(!w || !h) return;
         const url = cv.toDataURL('image/png',1);
-        if(url && url!=='data:,')
-          imgs[key]={url, w:cv.offsetWidth||cv.width, h:cv.offsetHeight||cv.height};
+        if(url && url.length > 5000)
+          imgs[cv.id]={url, w, h};
       }catch(e){}
     });
 
