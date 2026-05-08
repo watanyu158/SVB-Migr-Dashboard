@@ -3629,14 +3629,17 @@ async function exportPDF(){
     });
     await new Promise(r=>setTimeout(r,1500));
 
-    // capture charts
+    // capture charts — ใช้ canvas.toDataURL โดยตรงแทน Chart.instances
     const imgs={};
-    if(typeof Chart!=='undefined')
-      Object.values(Chart.instances||{}).forEach(ch=>{
-        try{const id=ch.canvas?.id;if(!id)return;
-          imgs[id]={url:ch.toBase64Image('image/png',1),w:ch.canvas.offsetWidth,h:ch.canvas.offsetHeight};
-        }catch(e){}
-      });
+    document.querySelectorAll('canvas').forEach(cv=>{
+      try{
+        const key = cv.id || ('cv_'+Math.random().toString(36).slice(2));
+        if(!cv.id) cv.id=key;
+        const url = cv.toDataURL('image/png',1);
+        if(url && url!=='data:,')
+          imgs[key]={url, w:cv.offsetWidth||cv.width, h:cv.offsetHeight||cv.height};
+      }catch(e){}
+    });
 
     const styles=Array.from(document.styleSheets).map(ss=>{
       try{return Array.from(ss.cssRules).map(r=>r.cssText).join('\n');}catch(e){return '';}
