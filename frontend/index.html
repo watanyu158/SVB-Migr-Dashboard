@@ -699,6 +699,15 @@ main { padding: 12px 10px; }
   #donut-c { width: 120px !important; height: 120px !important; max-width: 120px !important; }
   #donut-c ~ div { width: 120px !important; height: 120px !important; }
   [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; }
+  /* center text ใน donut */
+  [style*="position:absolute"][style*="inset:0"] { 
+    display: flex !important; 
+    flex-direction: column !important;
+    align-items: center !important; 
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
 }
 
 /* ── Loading spinner ─────────────────────────────── */
