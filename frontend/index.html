@@ -1344,7 +1344,7 @@ function lineOpts(color, yMax=100, yLabel='%') {
       }
     },
     scales:{
-      x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
+      x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4',autoSkip:true,maxTicksLimit:12},grid:{display:false}},
       y:{min:0,max:yMax,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
     }
   };
@@ -1976,7 +1976,7 @@ function buildBurndown(){
         }
       },
       scales:{
-        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',autoSkip:true,maxTicksLimit:12,
              callback:(v,i)=>i%tickStep===0?_labels[i]:null},grid:{display:false}},
         y:{min:0,ticks:{font:{size:10},color:'#94a3c4',
              callback:v=>v.toLocaleString()},grid:{color:'#f0f4ff'}}
@@ -2169,7 +2169,7 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
         }
       },
       scales:{
-        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',autoSkip:true,maxTicksLimit:12,
              callback:(v,i)=>i%tickStep===0?labels[i]:null},
            grid:{display:false}},
         y:{min:0,max:yMax||100,
@@ -2274,7 +2274,7 @@ function buildProgressCharts(){
           }
         },
         scales:{
-          x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+          x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',autoSkip:true,maxTicksLimit:12,
                callback:(v,i)=>useDaily?(i%7===0?_pLabels[i]:null):_pLabels[i]},
              grid:{display:false}},
           y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},
@@ -2463,7 +2463,7 @@ function buildProgressCharts(){
             }
           },
           scales:{
-            x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+            x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',autoSkip:true,maxTicksLimit:12,
                  callback:(v,i)=>i%7===0?DAILY_PROG_LABELS[i]:null},grid:{display:false}},
             y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
           }
@@ -2540,7 +2540,7 @@ function buildOneFabChart(fab) {
     }
       },
       scales:{
-    x:{stacked:true,ticks:{font:{size:9},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
+    x:{stacked:true,ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',autoSkip:true,maxTicksLimit:10},grid:{display:false}},
     y:{stacked:true,ticks:{font:{size:9},color:'#94a3c4',callback:v=>v>0?v:''},grid:{color:'#f0f4ff'},min:0}
       }
     }
@@ -2707,7 +2707,7 @@ function buildGraphs(){
           },
           scales:{
             y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},
-            x:{ticks:{font:{size:8},maxRotation:45,color:'#94a3c4',
+            x:{ticks:{font:{size:8},maxRotation:45,color:'#94a3c4',autoSkip:true,maxTicksLimit:12,
                 callback:(v,i)=>i%7===0?DAILY_L[i]:null},grid:{display:false}}
           }
         }
@@ -2715,7 +2715,7 @@ function buildGraphs(){
     }
   }
   const tl=[['อาคารสนง.',38],['Concourse D',33],['Concourse A',85],['AIMS',16],['Concourse C',69],['CFZ BFZ',100],['Concourse G',0],['AMF1',4]];
-  if(document.getElementById('loc-bar-c')) new Chart(document.getElementById('loc-bar-c'),{type:'bar',data:{labels:tl.map(l=>l[0]),datasets:[{data:tl.map(l=>l[1]),backgroundColor:tl.map(l=>l[1]>=80?'#2bc48a':l[1]>=30?'#ff9f43':'#4361ee'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.parsed.y}%`}}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
+  if(document.getElementById('loc-bar-c')) new Chart(document.getElementById('loc-bar-c'),{type:'bar',data:{labels:tl.map(l=>l[0]),datasets:[{data:tl.map(l=>l[1]),backgroundColor:tl.map(l=>l[1]>=80?'#2bc48a':l[1]>=30?'#ff9f43':'#4361ee'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.parsed.y}%`}}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45,autoSkip:true,maxTicksLimit:12},grid:{display:false}}}}});
   if(document.getElementById('wd-cells') && DAILY_L.length){
     // ผลรวมแยกตามวันในสัปดาห์ (จ,อ,พ,พฤ,ศ,ส,อา) ตั้งแต่เริ่มต้นจนปัจจุบัน
     const _dowNames=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
@@ -2808,7 +2808,7 @@ function buildGraphs(){
         datalabels: false,
       },
       scales:{
-        x:{stacked:true,ticks:{font:{size:11},color:'#94a3c4'},grid:{display:false}},
+        x:{stacked:true,ticks:{font:{size:11},color:'#94a3c4',autoSkip:true,maxTicksLimit:10},grid:{display:false}},
         y:{stacked:true,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+' เครื่อง'},grid:{color:'#f0f4ff'}}
       }
     },
