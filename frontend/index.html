@@ -3620,7 +3620,7 @@ async function exportPDF(){
   const active=document.querySelector('.tab.on');
   const activeName=active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'overview';
   try{
-    // แสดงทุก tab + expand loc-list ก่อน capture
+    // 1. แสดงทุก tab + expand
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
     document.querySelectorAll('#loc-list .fgb').forEach(b=>{
       b.classList.add('open');
@@ -3628,9 +3628,9 @@ async function exportPDF(){
       if(arr) arr.textContent='▲';
     });
     window.dispatchEvent(new Event('resize'));
-    await new Promise(r=>setTimeout(r,500));
+    await new Promise(r=>setTimeout(r,300));
 
-    // rebuild charts ทุกอันเพื่อให้ render ใน tab ที่เพิ่ง show
+    // 2. rebuild charts ทุกอัน
     buildBurndown(); buildProgressCharts(); buildGraphs();
     buildTimeline(); buildHeatmap(); buildFabCards();
     if(typeof buildFabBreakdown==='function') buildFabBreakdown();
@@ -3638,28 +3638,28 @@ async function exportPDF(){
     if(typeof buildFabGap==='function') buildFabGap();
     if(typeof buildVelocityChart==='function') buildVelocityChart();
     if(typeof buildWeekdayChart==='function') buildWeekdayChart();
-    // รอ fabric charts ที่ใช้ setTimeout
     if(window._fabChartPromises?.length) await Promise.all(window._fabChartPromises);
-    await new Promise(r=>setTimeout(r,2000)); // รอ render เสร็จ
+    await new Promise(r=>setTimeout(r,1500));
 
-    // ซ่อน HTML legend ก่อน capture เพื่อไม่ให้ซ้อนกับ chart ถัดไป
+    // 3. ซ่อน HTML legend ก่อน capture
     document.querySelectorAll('.fab-html-legend').forEach(el=>el.style.display='none');
 
+    // 4. capture canvas ทุกอัน
     const imgs={};
     document.querySelectorAll('canvas').forEach(cv=>{
       try{
         if(!cv.id) cv.id='cv_'+Math.random().toString(36).slice(2);
-        const url = cv.toDataURL('image/png',1);
-        if(url && url.length > 3000)
-          imgs[cv.id]={url, w:cv.width, h:cv.height};
+        const url=cv.toDataURL('image/png',1);
+        if(url&&url.length>3000) imgs[cv.id]={url,w:cv.width,h:cv.height};
       }catch(e){}
     });
 
+    // 5. get styles
     const styles=Array.from(document.styleSheets).map(ss=>{
       try{return Array.from(ss.cssRules).map(r=>r.cssText).join('\n');}catch(e){return '';}
     }).join('\n');
 
-    // clone ทั้ง insights-box + main
+    // 6. clone DOM
     const mn=document.querySelector('main')||document.body;
     const insBox=document.querySelector('.insights-box');
     const wrapper=document.createElement('div');
@@ -3671,49 +3671,37 @@ async function exportPDF(){
     const clone=mn.cloneNode(true);
     wrapper.appendChild(clone);
 
-    // แสดงทุก tab
+    // 7. ปรับ clone
     clone.querySelectorAll('.tab-body').forEach((t,i)=>{
       t.style.display='block';
       t.style.pageBreakBefore=i===0?'avoid':'always';
-      t.style.pageBreakAfter='avoid';
     });
-    // open loc-list และ set page-break แต่ละ fabric
     clone.querySelectorAll('.fgb').forEach(b=>b.classList.add('open'));
-    // upcoming header ขึ้นหน้าใหม่
     const _upHdr=clone.querySelector('#upcoming-header');
-    if(_upHdr) { _upHdr.style.pageBreakBefore='always'; _upHdr.style.breakBefore='page'; }
-    // per-fabric header ขึ้นหน้าใหม่
+    if(_upHdr){_upHdr.style.pageBreakBefore='always';_upHdr.style.breakBefore='page';}
     const _pfHdr=clone.querySelector('#per-fabric-header');
-    if(_pfHdr) { _pfHdr.style.pageBreakBefore='always'; _pfHdr.style.breakBefore='page'; }
+    if(_pfHdr){_pfHdr.style.pageBreakBefore='always';_pfHdr.style.breakBefore='page';}
     clone.querySelectorAll('#loc-list .fg').forEach((fg,i)=>{
-      const rows=parseInt(fg.dataset.rows||'99');
-      // แยกหน้าทุก fabric ยกเว้นอันแรก; ถ้า rows<=5 อาจรวมกับ fabric ถัดไปได้
       fg.style.pageBreakBefore=i===0?'avoid':'always';
       fg.style.pageBreakInside='avoid';
     });
-    // รวม 2 fabric ที่มีน้อยกว่า 6 rows
     const fgs=Array.from(clone.querySelectorAll('#loc-list .fg'));
     for(let i=0;i<fgs.length-1;i++){
-      const r1=parseInt(fgs[i].dataset.rows||'99');
-      const r2=parseInt(fgs[i+1].dataset.rows||'99');
-      if(r1<=5 && r2<=5){ fgs[i+1].style.pageBreakBefore='avoid'; i++; }
+      if(parseInt(fgs[i].dataset.rows||'99')<=5&&parseInt(fgs[i+1].dataset.rows||'99')<=5){
+        fgs[i+1].style.pageBreakBefore='avoid'; i++;
+      }
     }
     clone.querySelectorAll('.topbar,.tabs,.tab-btn,.tbtn,.print-hide,.hold-tog,#hold-body').forEach(t=>t.style.display='none');
+    // ซ่อน HTML legend ใน clone ด้วย
+    clone.querySelectorAll('.fab-html-legend').forEach(el=>el.style.display='none');
 
-    // แทน canvas ด้วยรูป — ใช้ index position แทน id เพื่อความแน่นอน
-    const origCanvases = Array.from(document.querySelectorAll('canvas'));
-    const wrapCanvases = Array.from(wrapper.querySelectorAll('canvas'));
-    wrapCanvases.forEach(cv=>{
-      // หา match จาก id ก่อน ถ้าไม่มีใช้ index
-      let d = imgs[cv.id];
-      if(!d){
-        const origIdx = origCanvases.findIndex(o=>o.id===cv.id);
-        if(origIdx>=0) d = imgs[origCanvases[origIdx].id];
-      }
-      if(d && d.url && d.url.length>3000){
+    // 8. replace canvas → img ใน wrapper
+    wrapper.querySelectorAll('canvas').forEach(cv=>{
+      const d=imgs[cv.id];
+      if(d&&d.url&&d.url.length>3000){
         const img=document.createElement('img');
         img.src=d.url;
-        img.style.cssText=`display:block;width:100%;height:auto;max-width:100%;`;
+        img.style.cssText='display:block;width:100%;height:auto;max-width:100%';
         cv.parentNode.replaceChild(img,cv);
       }else{
         cv.style.display='none';
@@ -3722,21 +3710,19 @@ async function exportPDF(){
 
     const date=new Date().toLocaleDateString('th-TH');
     const html=`<!DOCTYPE html><html><head>
-  <link rel="icon" href="data:,"><meta charset="UTF-8">
+<link rel="icon" href="data:,"><meta charset="UTF-8">
 <title>SDA Installation Dashboard — SVB</title>
 <style>
 @page{size:A4 landscape;margin:8mm 10mm}
 *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box}
 body{font-family:'Segoe UI',Tahoma,sans-serif;font-size:11px;background:#fff;margin:0;padding:0}
 ${styles}
-.topbar,.tabs,.tab-btn,.ins-actions,.tbtn,.print-hide,.hold-tog,#hold-body{display:none!important}
+.topbar,.tabs,.tab-btn,.ins-actions,.tbtn,.print-hide,.hold-tog,#hold-body,.fab-html-legend{display:none!important}
 .tab-body{display:block!important}
 .fgb{display:block!important}
 .card{break-inside:avoid;margin-bottom:8px}
 canvas{display:none!important}
-img[style*="aspect-ratio"]{object-fit:contain!important}
-[style*="position:relative"][style*="150px"]{flex-shrink:0!important}
-[style*="position:relative"][style*="150px"] img{width:150px!important;height:150px!important}
+img{display:block!important;max-width:100%!important;height:auto!important}
 .g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
 .g3{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
 .g4{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
@@ -3747,11 +3733,9 @@ img[style*="aspect-ratio"]{object-fit:contain!important}
 .tblw{overflow:visible!important}
 table{width:100%!important;font-size:9px!important}
 th,td{padding:3px 4px!important}
-/* tab-plan: pcards เป็นคู่ */
 #tab-plan .g3{display:grid!important;grid-template-columns:1fr 1fr 1fr!important}
-/* fpc-list: fabric cards เป็นคู่ ขึ้นหน้าใหม่ก่อน */
 #fpc-list{page-break-before:always;break-before:page}
-#fpc-list .g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;page-break-inside:avoid;break-inside:avoid}
+#fpc-list .g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
 #fpc-list .fpc{break-inside:avoid}
 </style></head><body>
 <div style="background:linear-gradient(135deg,#1e2d4d,#2d3f6b);color:#fff;padding:8px 14px;
@@ -3769,7 +3753,6 @@ ${wrapper.outerHTML}
   }finally{
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===activeName?'block':'none';});
     document.querySelectorAll('#loc-list .fgb').forEach(b=>b.classList.remove('open'));
-    // คืนค่า HTML legend
     document.querySelectorAll('.fab-html-legend').forEach(el=>el.style.display='');
   }
 }
