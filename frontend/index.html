@@ -3637,6 +3637,8 @@ async function exportPDF(){
     if(typeof buildFabGap==='function') buildFabGap();
     if(typeof buildVelocityChart==='function') buildVelocityChart();
     if(typeof buildWeekdayChart==='function') buildWeekdayChart();
+    // รอ fabric charts ที่ใช้ setTimeout
+    if(window._fabChartPromises?.length) await Promise.all(window._fabChartPromises);
     await new Promise(r=>setTimeout(r,2000)); // รอ render เสร็จ
 
     const imgs={};
