@@ -3399,10 +3399,8 @@ async function loadData(){
     if(_e('plan-target-rate'))  _e('plan-target-rate').textContent  = targetRate+' อุปกรณ์/วัน';
     if(_e('plan-finish-date'))  _e('plan-finish-date').textContent  = finTH;
     if(_e('plan-status')){
-      // เทียบ actual กับ plan วันนี้
-      const _diff = parseFloat(allPct) - _planPctNow;
-      const _st = _diff < -0.5 ? {txt:'↘ ช้ากว่าแผน', c:'var(--danger)'}
-                : _diff > 0.5 ? {txt:'↗ เร็วกว่าแผน', c:'var(--success)'}
+      const _st = ins.days_late>0 ? {txt:'↘ ช้ากว่าแผน', c:'var(--danger)'}
+                : ins.days_early>0 ? {txt:'↗ เร็วกว่าแผน', c:'var(--success)'}
                 : {txt:'✓ ตรงแผน', c:'var(--success)'};
       _e('plan-status').textContent = _st.txt;
       _e('plan-status').style.color = _st.c;
