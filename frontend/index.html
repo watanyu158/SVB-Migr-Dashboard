@@ -1214,7 +1214,8 @@ main { padding: 12px 10px; }
     <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">✅ การประเมินโครงการ</div>
       <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าตามแผน</div><div class="pc-v" id="plan-plan-pct">–%</div></div>
       <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn" id="plan-act-pct">–%</div><div style="height:5px;background:#f0f4ff;border-radius:99px;margin-top:5px;overflow:hidden"><div id="plan-act-bar" style="height:100%;width:0%;background:var(--success);border-radius:99px"></div></div></div>
-      <div class="pcard"><div class="pc-l">สถานะ</div><div class="pc-v red" id="plan-status">–</div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">สถานะปัจจุบัน</div><div class="pc-v" id="plan-status">–</div></div>
+      <div class="pcard"><div class="pc-l">แนวโน้ม</div><div class="pc-v" id="plan-trend">–</div></div>
     </div>
   </div>
   <div class="card" style="margin-bottom:14px">
@@ -3399,11 +3400,21 @@ async function loadData(){
     if(_e('plan-target-rate'))  _e('plan-target-rate').textContent  = targetRate+' อุปกรณ์/วัน';
     if(_e('plan-finish-date'))  _e('plan-finish-date').textContent  = finTH;
     if(_e('plan-status')){
-      const _st = ins.days_late>0 ? {txt:'↘ ช้ากว่าแผน', c:'var(--danger)'}
-                : ins.days_early>0 ? {txt:'↗ เร็วกว่าแผน', c:'var(--success)'}
+      // สถานะปัจจุบัน: เทียบ actual กับ plan วันนี้
+      const _diff = parseFloat(allPct) - _planPctNow;
+      const _st = _diff < -0.5 ? {txt:'↘ ช้ากว่าแผน', c:'var(--danger)'}
+                : _diff > 0.5 ? {txt:'↗ เร็วกว่าแผน', c:'var(--success)'}
                 : {txt:'✓ ตรงแผน', c:'var(--success)'};
       _e('plan-status').textContent = _st.txt;
       _e('plan-status').style.color = _st.c;
+    }
+    if(_e('plan-trend')){
+      // แนวโน้ม: rate ปัจจุบันจะเสร็จทันหรือไม่
+      const _tr = ins.days_late>0 ? {txt:`⚠ จะช้า ${ins.days_late} วัน`, c:'var(--danger)'}
+                : ins.days_early>0 ? {txt:`✓ จะเสร็จก่อน ${ins.days_early} วัน`, c:'var(--success)'}
+                : {txt:'✓ จะเสร็จตรงเวลา', c:'var(--success)'};
+      _e('plan-trend').textContent = _tr.txt;
+      _e('plan-trend').style.color = _tr.c;
     }
 
     // pills
