@@ -227,12 +227,19 @@ function calcDashboard(wb) {
 
   const remaining = TOTAL - installed;
 
+  // ── dynamic PROJ_END จาก max Scheduled Date ในข้อมูลจริง ──
+  let _dynProjEnd = PROJ_END;
+  aRows.forEach(r => {
+    const sd = toDate(r['Scheduled Date']);
+    if (sd && sd > _dynProjEnd) _dynProjEnd = sd;
+  });
+
   // TODAY & insight
   const today = new Date(); today.setHours(0,0,0,0);
   // elapsed: นับรวมวันแรก (proj_start) ด้วย → +1
   const elapsed   = Math.max(1, Math.floor((today - PROJ_START) / 86400000) + 1);
   // daysLeft: นับรวมวันนี้ด้วย → +1
-  const daysLeft  = Math.max(1, Math.floor((PROJ_END - today) / 86400000) + 1);
+  const daysLeft  = Math.max(1, Math.floor((_dynProjEnd - today) / 86400000) + 1);
   const dailyRate = Math.round(installed / elapsed * 10) / 10;
   // reqRate ปัดขึ้นเต็มจำนวน
   const reqRate   = Math.ceil(remaining / daysLeft);
@@ -240,8 +247,8 @@ function calcDashboard(wb) {
   const pctMore   = dailyRate > 0 ? Math.round((reqRate / dailyRate - 1) * 100) : 0;
   const daysNeeded= dailyRate > 0 ? Math.ceil(remaining / dailyRate) : 9999;
   const finishDt  = new Date(today); finishDt.setDate(today.getDate() + daysNeeded);
-  const daysLate  = Math.max(0, Math.floor((finishDt - PROJ_END) / 86400000));
-  const daysEarly = Math.max(0, Math.floor((PROJ_END - finishDt) / 86400000));
+  const daysLate  = Math.max(0, Math.floor((finishDt - _dynProjEnd) / 86400000));
+  const daysEarly = Math.max(0, Math.floor((_dynProjEnd - finishDt) / 86400000));
   const gaugePct  = reqRate > 0 ? Math.min(150, Math.round(dailyRate / reqRate * 100)) : 100;
   const todayWk   = Math.max(0, Math.min(N_WK - 1, Math.floor((elapsed-1) / 7)));
 
@@ -683,7 +690,7 @@ function calcDashboard(wb) {
                  {qty:v.qty,rem:v.rem,locs:[...v.locs],types:[...v.types],cats:[...v.cats]}
                ]))
              ])),
-    meta:      { total:TOTAL, installed, installed_sw:totalSwOk, installed_ap:totalApOk, installed_inf:totalInfOk, remaining, hold, overdue, on_time_qty:onTimeQty, on_time_pct:onTimePct, on_time_early:earlyQty, on_time_late:lateQty },
+    meta:      { total:TOTAL, installed, installed_sw:totalSwOk, installed_ap:totalApOk, installed_inf:totalInfOk, remaining, hold, overdue, on_time_qty:onTimeQty, on_time_pct:onTimePct, on_time_early:earlyQty, on_time_late:lateQty, proj_start:PROJ_START.toISOString().slice(0,10), proj_end:_dynProjEnd.toISOString().slice(0,10) },
     hold_items: holdItems,
     insight:   { daily_rate:dailyRate, req_rate:reqRate, need_more:needMore,
                  pct_more:pctMore, days_late:daysLate, days_early:daysEarly, gauge_pct:gaugePct,
