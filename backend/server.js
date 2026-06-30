@@ -38,6 +38,8 @@ const WK_BOUNDS = [
   ['2026-05-18','2026-05-24','18 May','W21'], ['2026-05-25','2026-05-31','25 May','W22'],
   ['2026-06-01','2026-06-08','01 Jun','W23'], ['2026-06-09','2026-06-15','09 Jun','W24'],
   ['2026-06-16','2026-06-22','16 Jun','W25'], ['2026-06-23','2026-06-29','23 Jun','W26'],
+  ['2026-06-30','2026-07-06','30 Jun','W27'], ['2026-07-07','2026-07-13','07 Jul','W28'],
+  ['2026-07-14','2026-07-20','14 Jul','W29'],
 ].map(([s,e,label,name]) => ({ s:new Date(s), e:new Date(e), label, name }));
 const N_WK = WK_BOUNDS.length;
 
@@ -544,7 +546,7 @@ function calcDashboard(wb) {
 
   // ── Daily cumulative progress ────────────────────────────────────────────────
   const PROJ_START_D = new Date('2026-02-09'); PROJ_START_D.setHours(0,0,0,0);
-  const PROJ_END_D   = new Date('2026-06-23'); PROJ_END_D.setHours(0,0,0,0);
+  const PROJ_END_D   = new Date(_dynProjEnd); PROJ_END_D.setHours(0,0,0,0);
 
   // daily maps: all / sw / ap / per-fabric
   const dayActMap={}, dayPlanMap={};
