@@ -3329,7 +3329,10 @@ async function loadData(){
       _e('tb-days').style.color = _isOverdue ? '#ff6b6b' : (_isDone ? '#6ee7b7' : '');
       _e('tb-days').style.textShadow = _isOverdue ? '0 0 8px rgba(255,107,107,.6)' : '';
     }
-    if(_e('pill-days-left')) _e('pill-days-left').textContent = _isDone ? '✅' : (_isOverdue ? `เกิน ${ins.days_late} วัน` : ins.days_left);
+    if(_e('pill-days-left')){
+      _e('pill-days-left').textContent = _isDone ? '✅' : (_isOverdue ? `เกิน ${ins.days_late} วัน` : ins.days_left);
+      _e('pill-days-left').style.color = _isOverdue ? 'var(--danger)' : (_isDone ? 'var(--success)' : '');
+    }
     if(_e('plan-days-left')) _e('plan-days-left').textContent = _isDone ? 'เสร็จสิ้น' : (_isOverdue ? `เกินกำหนด ${ins.days_late} วัน` : ins.days_left+' วัน');
     if(_e('tb-over'))   _e('tb-over').textContent   = _isDone ? '✅' : meta.overdue;
     if(_e('tb-rate'))   _e('tb-rate').textContent   = _isDone ? '✅' : Number(ins.daily_rate||0).toFixed(1);
