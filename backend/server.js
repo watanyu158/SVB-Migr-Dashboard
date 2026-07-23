@@ -243,11 +243,11 @@ function calcDashboard(wb) {
   const today = new Date(); today.setHours(0,0,0,0);
   // elapsed: นับรวมวันแรก (proj_start) ด้วย → +1
   const elapsed   = Math.max(1, Math.floor((today - PROJ_START) / 86400000) + 1);
-  // daysLeft: นับรวมวันนี้ด้วย → +1
-  const daysLeft  = Math.max(1, Math.floor((_dynProjEnd - today) / 86400000) + 1);
+  // daysLeft: วันที่เหลือ (0 ถ้าเลยกำหนดแล้ว)
+  const daysLeft  = Math.max(0, Math.floor((_dynProjEnd - today) / 86400000));
   const dailyRate = Math.round(installed / elapsed * 10) / 10;
   // reqRate ปัดขึ้นเต็มจำนวน
-  const reqRate   = Math.ceil(remaining / daysLeft);
+  const reqRate   = daysLeft > 0 ? Math.ceil(remaining / daysLeft) : remaining;
   const needMore  = Math.round((reqRate - dailyRate) * 10) / 10;
   const pctMore   = dailyRate > 0 ? Math.round((reqRate / dailyRate - 1) * 100) : 0;
   const daysNeeded= dailyRate > 0 ? Math.ceil(remaining / dailyRate) : 9999;
