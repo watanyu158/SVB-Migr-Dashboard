@@ -2014,8 +2014,9 @@ function buildTimeline(){
   const w=document.getElementById('tl-wrap');
   if(!w) return;
   const _projStart=new Date(2026,1,10);
-  const _projEnd  =new Date(2026,5,23);
-  const _projDays =Math.round((_projEnd-_projStart)/(24*60*60*1000));
+  const _peStr=window._projEndStr||'2026-07-16';
+  const _projEnd  =new Date(_peStr+'T00:00:00');
+  const _projDays =Math.max(1,Math.round((_projEnd-_projStart)/(24*60*60*1000)));
   const _elapsed  =Math.round((_todayGMT7()-_projStart)/(24*60*60*1000));
   const tdp=Math.max(0,Math.min(100,Math.round(_elapsed/_projDays*100)));
   const _todayLabel=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
@@ -3316,6 +3317,7 @@ async function loadData(){
     // topbar
     if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${meta.total}`;
     if(_e('pc-proj-end')){
+      window._projEndStr = meta.proj_end;
       const thM2=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
       const d=new Date(meta.proj_end+'T00:00:00');
       _e('pc-proj-end').textContent = `${d.getDate()} ${thM2[d.getMonth()]} ${(d.getFullYear()+543)%100}`;
