@@ -303,6 +303,26 @@ main { padding: 12px 10px; }
 
 .fab-breakdown{margin-bottom:14px}
 .fab-breakdown-head{display:flex;align-items:center;gap:7px;margin-bottom:10px;font-size:13px;font-weight:600;color:var(--text)}
+.fdd-fab{border:1px solid var(--border);border-radius:var(--rsm);margin-bottom:10px;overflow:hidden}
+.fdd-fab-head{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg-2);cursor:pointer;user-select:none}
+.fdd-fab-name{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.fdd-fab-pct{font-size:12px;font-weight:600;color:var(--primary)}
+.fdd-fab-rem{font-size:11px;color:var(--danger);background:var(--danger-l);padding:2px 7px;border-radius:99px}
+.fdd-fab-done{font-size:11px;color:var(--success);background:var(--success-l);padding:2px 7px;border-radius:99px}
+.fdd-bar{height:4px;background:var(--border-l)}
+.fdd-bar-fill{height:100%;border-radius:2px;background:var(--primary);transition:width .4s}
+.fdd-body{padding:10px 12px;display:none}
+.fdd-fab.open .fdd-body{display:block}
+.fdd-cat{margin-bottom:8px}
+.fdd-cat-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--border-l)}
+.fdd-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border-l)}
+.fdd-row:last-child{border-bottom:none}
+.fdd-dt{font-size:11px;color:var(--text);flex:1}
+.fdd-num{font-size:11px;font-weight:600;min-width:36px;text-align:right}
+.fdd-num.done{color:var(--success)} .fdd-num.rem{color:var(--danger)} .fdd-num.total{color:var(--text2)}
+.fdd-pct-bar{width:56px;height:6px;background:var(--border-l);border-radius:3px;overflow:hidden;flex-shrink:0}
+.fdd-pct-fill{height:100%;border-radius:3px}
+.fdd-rem-tag{font-size:10px;color:var(--danger);background:var(--danger-l);padding:1px 5px;border-radius:4px;white-space:nowrap}
 .fab-bd-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
 .fab-bd-card{background:var(--card);border-radius:var(--rsm);border:1px solid var(--border);padding:12px 10px;position:relative;overflow:hidden;transition:.2s}
 .fab-bd-card:hover{box-shadow:var(--shlg);transform:translateY(-2px)}
@@ -1184,6 +1204,12 @@ main { padding: 12px 10px; }
 
 <!-- ════ TAB: สถานที่ ════ -->
 <div class="tab-body" id="tab-location" style="display:none">
+  <!-- Fabric Drill-Down card -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">🏭</div>สรุปแยกตาม Fabric</div>
+    <div id="fab-drilldown-wrap"></div>
+  </div>
+
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
     <div class="loc-sec-h" style="margin-bottom:0">📍 รายละเอียดแยกตามสถานที่</div>
     <div style="display:flex;gap:6px">
@@ -1690,6 +1716,58 @@ function buildVelocityChart(){
 
 // ── ผลผลิตรายวัน แยกตามวันในสัปดาห์ ────────────────────────────────────────
 
+function buildFabDrilldown(fabrics, fabDevices){
+  const w=document.getElementById('fab-drilldown-wrap');
+  if(!w||!fabrics||!fabDevices) return;
+  const CAT_ORDER=['Switch','AP','Infra'];
+  const CAT_ICO={'Switch':'🔀','AP':'📶','Infra':'🔧'};
+  w.innerHTML=fabrics.map(f=>{
+    const pct=Math.round(f.p||0);
+    const rem=f.r||0;
+    const done=f.d||0;
+    const total=f.t||0;
+    const devs=fabDevices[f.n]||{};
+    const color=f.c||'var(--primary)';
+    const tag=rem>0
+      ?`<span class="fdd-fab-rem">เหลือ ${rem}</span>`
+      :`<span class="fdd-fab-done">✅ เสร็จ</span>`;
+
+    // build category sections
+    const catHtml=CAT_ORDER.map(cat=>{
+      const dtMap=devs[cat];
+      if(!dtMap||Object.keys(dtMap).length===0) return '';
+      const rows=Object.entries(dtMap).map(([dt,v])=>{
+        const dp=v.t>0?Math.round(v.d/v.t*100):0;
+        const remDt=v.t-v.d;
+        const fillColor=dp>=100?'#16a34a':dp>=50?'var(--primary)':'var(--warning)';
+        const remTag=remDt>0?`<span class="fdd-rem-tag">เหลือ ${remDt}</span>`:'';
+        return `<div class="fdd-row">
+          <span class="fdd-dt">${dt}</span>
+          <div class="fdd-pct-bar"><div class="fdd-pct-fill" style="width:${dp}%;background:${fillColor}"></div></div>
+          <span class="fdd-num done">${v.d}</span><span class="fdd-num total">/${v.t}</span>
+          ${remTag}
+        </div>`;
+      }).join('');
+      const catTotal=Object.values(dtMap).reduce((a,v)=>({t:a.t+v.t,d:a.d+v.d}),{t:0,d:0});
+      return `<div class="fdd-cat">
+        <div class="fdd-cat-title">${CAT_ICO[cat]||''} ${cat} — ${catTotal.d}/${catTotal.t}</div>
+        ${rows}
+      </div>`;
+    }).join('');
+
+    return `<div class="fdd-fab" id="fdd-${f.n}">
+      <div class="fdd-fab-head" onclick="this.parentElement.classList.toggle('open')">
+        <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0"></span>
+        <span class="fdd-fab-name">${f.n}</span>
+        <span class="fdd-fab-pct">${done}/${total} (${pct}%)</span>
+        ${tag}
+        <span style="font-size:10px;color:var(--text3)">▶</span>
+      </div>
+      <div class="fdd-bar"><div class="fdd-bar-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+      <div class="fdd-body">${catHtml}</div>
+    </div>`;
+  }).join('');
+}
 function buildFabGap(){
   const cv=document.getElementById('fab-gap-c');
   if(!cv) return;
@@ -3578,6 +3656,7 @@ async function loadData(){
       }).join('');
     }
     buildTimeline(); buildHeatmap(); buildLocList(); buildFabCards(); buildUpcoming();
+    buildFabDrilldown(FABRICS, d.fab_devices);
     gblt=false;
 
     // ── Build hold list ─────────────────────────────────────────────────
