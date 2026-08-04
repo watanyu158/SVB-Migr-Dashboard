@@ -1719,9 +1719,10 @@ function buildVelocityChart(){
 function buildFabDrilldown(fabrics, fabDevices){
   const w=document.getElementById('fab-drilldown-wrap');
   if(!w||!fabrics||!fabDevices) return;
+  const sorted=[...fabrics].sort((a,b)=>(b.p||0)-(a.p||0));
   const CAT_ORDER=['Switch','AP','Infra'];
   const CAT_ICO={'Switch':'🔀','AP':'📶','Infra':'🔧'};
-  w.innerHTML=fabrics.map(f=>{
+  w.innerHTML=sorted.map(f=>{
     const pct=Math.round(f.p||0);
     const rem=f.r||0;
     const done=f.d||0;
