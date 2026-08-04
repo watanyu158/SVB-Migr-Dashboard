@@ -276,6 +276,8 @@ function calcDashboard(wb) {
 
   const typeMap = {};
   const locMap  = {}; // fab → loc → {t,d}
+  const fabTypeMap = {}; // fab → cat → device_type → {t,d}
+  FABRICS.forEach(f=>{ fabTypeMap[f]={}; });
 
   // upcoming 14 วัน
   const _td = new Date(today); _td.setHours(0,0,0,0);
@@ -303,6 +305,14 @@ function calcDashboard(wb) {
     }
 
     if (!FABRICS.includes(fab)) return;
+
+    // fab → cat → device_type breakdown
+    if (dt && cat && qty > 0) {
+      if (!fabTypeMap[fab][cat]) fabTypeMap[fab][cat] = {};
+      if (!fabTypeMap[fab][cat][dt]) fabTypeMap[fab][cat][dt] = {t:0, d:0};
+      fabTypeMap[fab][cat][dt].t += qty;
+      fabTypeMap[fab][cat][dt].d += ok;
+    }
 
     // Location map
     if (loc) {
@@ -705,6 +715,7 @@ function calcDashboard(wb) {
     fab_weekly: fabWeekly,
     fab_daily:  fabDaily,
     fab_daily_plan: fabDailyPlanOut,
+    fab_devices: fabTypeMap,
     daily,
     daily_progress: dailyProgress,
     fabrics,
